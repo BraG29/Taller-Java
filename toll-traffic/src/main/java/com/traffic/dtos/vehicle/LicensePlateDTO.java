@@ -1,9 +1,11 @@
 package com.traffic.dtos.vehicle;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
-public class LicensePlateDTO {
+public class LicensePlateDTO extends IndetifierDTO{
 
     private String licensePlateNumber;
 
