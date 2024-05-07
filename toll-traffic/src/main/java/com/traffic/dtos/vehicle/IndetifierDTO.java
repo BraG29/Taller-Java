@@ -1,6 +1,6 @@
 package com.traffic.dtos.vehicle;
 
-public class IndetifierDTO {
+public abstract class IndetifierDTO {
 
     public IndetifierDTO() {
     }
