@@ -18,48 +18,49 @@ import java.util.Optional;
 @ApplicationScoped
 public class ClientControllerImpl implements ClientController {
 
+
     @Override
     public void addTollCostumer(UserDTO user) throws IllegalArgumentException {
 
     }
 
     @Override
-    public void linkVehicle(TollCustomerDTO tollCustomer, VehicleDTO vehicle) throws NoCustomerException, InvalidVehicleException {
+    public void linkVehicle(UserDTO user, VehicleDTO vehicle) throws NoCustomerException, InvalidVehicleException {
 
     }
 
     @Override
-    public void unLinkVehicle(TollCustomerDTO tollCustomer, VehicleDTO vehicle) throws NoCustomerException, InvalidVehicleException {
+    public void unLinkVehicle(UserDTO user, VehicleDTO vehicle) throws NoCustomerException, InvalidVehicleException {
 
     }
 
     @Override
-    public Optional<List<VehicleDTO>> showLinkedVehicles(TollCustomerDTO tollCustomer) throws NoCustomerException {
+    public Optional<List<VehicleDTO>> showLinkedVehicles(UserDTO user) throws NoCustomerException {
         return Optional.empty();
     }
 
     @Override
-    public void loadBalance(TollCustomerDTO tollCustomer, Double balance) throws NoCustomerException, IllegalArgumentException {
+    public void loadBalance(UserDTO user, Double balance) throws NoCustomerException, IllegalArgumentException {
 
     }
 
     @Override
-    public Optional<Double> showBalance(TollCustomerDTO tollCustomer) throws NoCustomerException {
+    public Optional<Double> showBalance(UserDTO user) throws NoCustomerException {
         return Optional.empty();
     }
 
     @Override
-    public void linkCreditCard(TollCustomerDTO tollCustomerDTO, CreditCardDTO creditCard) throws NoCustomerException {
+    public void linkCreditCard(UserDTO UserDTO, CreditCardDTO creditCard) throws NoCustomerException {
 
     }
 
     @Override
-    public Optional<List<TollPassDTO>> showPastPassages(TollCustomerDTO tollCustomer, LocalDate dateStart, LocalDate endDate) throws NoCustomerException, IllegalRangeException {
+    public Optional<List<TollPassDTO>> showPastPassages(UserDTO user, LocalDate from, LocalDate to) throws NoCustomerException, IllegalRangeException {
         return Optional.empty();
     }
 
     @Override
-    public Optional<List<TollPassDTO>> showPastPassagesVehicle(TollCustomerDTO tollCustomer, VehicleDTO vehicle, LocalDate dateStart, LocalDate endDate) throws NoCustomerException, IllegalRangeException {
+    public Optional<List<TollPassDTO>> showPastPassagesVehicle(UserDTO user, VehicleDTO vehicle, LocalDate from, LocalDate to) throws NoCustomerException, IllegalRangeException {
         return Optional.empty();
     }
 
