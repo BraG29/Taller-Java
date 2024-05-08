@@ -30,7 +30,7 @@ public interface ClientController {
     /**
      * Registra a un usuario como usuario
      * @param user -> Recibe por parametro  un objeto usuario a agregar
-     * @throws IllegalArgumentException
+     * @throws IllegalArgumentException -> Si el objeto usuario tiene información incorrecta.
      */
     public void addTollCostumer(UserDTO user) throws IllegalArgumentException;
 
@@ -38,53 +38,53 @@ public interface ClientController {
      *  Vincula un vehículo a un usuario.
      * @param user -> Recibe un objeto usuario
      * @param vehicle -> Recibe el objeto vehiculo a vincular con el usuario.
-     * @throws NoCustomerException -> Si no existe el usuario.
-     * @throws InvalidVehicleException -> Si el vehiculo no existe o no es valido.
+     * @throws IllegalArgumentException -> Si un objeto usuario o vehiculo tiene información incorrecta.
      */
     public void linkVehicle(UserDTO user,
-                            VehicleDTO vehicle) throws NoCustomerException, InvalidVehicleException;
+                            VehicleDTO vehicle) throws IllegalArgumentException;
 
     /**
      * Desvincula un vehículo de un usuario
      * @param user -> Recibe un objeto usuario Telepaje
      * @param vehicle -> Recibe un objeto vehiculo a desvincular del usuario
-     * @throws NoCustomerException -> Si no existe el usuario.
-     * @throws InvalidVehicleException -> Si el vehiculo no existe o no es valido.
+     * @throws IllegalArgumentException -> Si un objeto usuario tiene información incorrecta.
+     * @throws InvalidVehicleException -> Si el vehiculo no esta vinculado al usuario.
      */
     public void unLinkVehicle(UserDTO user,
-                              VehicleDTO vehicle) throws  NoCustomerException, InvalidVehicleException;
+                              VehicleDTO vehicle) throws  IllegalArgumentException, InvalidVehicleException;
 
     /**
      * Devuelve los vehículos vinculados a un usuario
      * @param user -> Recibe un objeto usuario
      * @return -> Devuelve una lista con los vehiculos vinculados al usuario.
-     * @throws NoCustomerException -> Si no existe el usuario.
+     * @throws IllegalArgumentException -> Si el usuario tiene información incorrecta.
      */
-    public Optional<List<VehicleDTO>> showLinkedVehicles(UserDTO user) throws NoCustomerException;
+    public Optional<List<VehicleDTO>> showLinkedVehicles(UserDTO user) throws IllegalArgumentException;
 
     /**
      * Carga Saldo a una cuenta PRE paga de un usuario
      * @param user -> Recibe un objeto usuario a cargar saldo.
      * @param balance -> Recibe el saldo (Double) a cargar para dicho usuario
+     * @throws IllegalArgumentException -> Si un objeto usuario tiene información incorrecta.
      */
     public void loadBalance(UserDTO user,
-                            Double balance) throws NoCustomerException, IllegalArgumentException;
+                            Double balance) throws IllegalArgumentException, IllegalArgumentException;
 
     /**
      * Devuelve el saldo de una cuenta PRE paga de un usuario
      * @param user -> Recibe un objeto usuario a consultar saldo.
      * @return -> Devuelve el un tipo Double con el saldo del usuario.
-     * @throws NoCustomerException -> Si no existe el usuario.
+     * @throws IllegalArgumentException -> Si no existe el usuario.
      */
-    public Optional<Double> showBalance(UserDTO user) throws NoCustomerException;
+    public Optional<Double> showBalance(UserDTO user) throws IllegalArgumentException;
 
     /**
      * Asocia una tarjeta de crédito a la cuenta POST paga de un usuario.
      * @param UserDTO -> Recibe un objeto usuario.
      * @param creditCard -> Recibe un objeto tarjeta de credito.
-     * @throws NoCustomerException -> Si el usuario recibido no existe.
+     * @throws IllegalArgumentException -> Si el objeto usuario tiene información incorrecta.
      */
-    public void linkCreditCard(UserDTO UserDTO, CreditCardDTO creditCard) throws NoCustomerException;
+    public void linkCreditCard(UserDTO UserDTO, CreditCardDTO creditCard) throws IllegalArgumentException;
 
     /**
      * Devuelve las pasadas realizadas por todos los vehículos registrados por un usuario,en un rango de fechas.
@@ -92,13 +92,13 @@ public interface ClientController {
      * @param from -> Recibe una fecha de comienzo, para el rango de fechas.
      * @param to -> Recibe una fecha de fin, para el rango de pruebas.
      * @return -> Devuelve una lista de Pasadas de todos los vehiculos del usuario.
-     * @throws NoCustomerException -> Si no existe el usuario.
-     * @throws IllegalRangeException -> Si el rango de las fechas es invalido.
+     * @throws IllegalArgumentException -> Si el objeto usuario tiene información incorrecta.
+     * @throws IllegalRangeException -> Si el rango de las fechas es invalido, cuando la diferencia de dias entre fechas es menor a 0.
      */
     public Optional<List<TollPassDTO>> showPastPassages(UserDTO user,
                                                         LocalDate from,
                                                         LocalDate to)
-                                                       throws NoCustomerException, IllegalRangeException;
+                                                       throws IllegalArgumentException, IllegalRangeException;
 
     /**
      * Devuelve las pasadas realizadas por un vehículo en particular registrado por un usuario en un rango de fechas.
@@ -107,13 +107,13 @@ public interface ClientController {
      * @param from -> Recibe una fecha de comienzo, para el rango de fechas.
      * @param to -> Recibe una fecha de fin, para el rango de pruebas.
      * @return -> Devuelve una lista de Pasadas del vehículo del usuario.
-     * @throws NoCustomerException -> Si no existe el usuario.
-     * @throws IllegalRangeException -> Si el rango de las fechas es invalido.
+     * @throws IllegalArgumentException -> Si no existe el usuario.
+     * @throws IllegalRangeException -> Si el rango de las fechas es invalido, cuando la diferencia de dias entre fechas es menor a 0.
      */
     public Optional<List<TollPassDTO>> showPastPassagesVehicle(UserDTO user,
                                                                VehicleDTO vehicle,
                                                                LocalDate from,
-                                                               LocalDate to) throws NoCustomerException, IllegalRangeException;
+                                                               LocalDate to) throws IllegalArgumentException, IllegalRangeException;
 
 
     /**
