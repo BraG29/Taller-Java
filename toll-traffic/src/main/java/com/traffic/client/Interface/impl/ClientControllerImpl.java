@@ -19,7 +19,7 @@ import java.util.Optional;
 public class ClientControllerImpl implements ClientController {
 
     @Override
-    public void addTollCostumer(UserDTO user) throws NoUserException {
+    public void addTollCostumer(UserDTO user) throws IllegalArgumentException {
 
     }
 
@@ -64,7 +64,7 @@ public class ClientControllerImpl implements ClientController {
     }
 
     @Override
-    public Optional<List<AccountDTO>> getAccountByTag(TagDTO tag) throws NoTagException {
+    public Optional<List<AccountDTO>> getAccountByTag(TagDTO tag) throws IllegalArgumentException {
         return Optional.empty();
     }
 

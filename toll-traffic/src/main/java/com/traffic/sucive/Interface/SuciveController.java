@@ -2,6 +2,7 @@ package com.traffic.sucive.Interface;
 
 import com.traffic.dtos.vehicle.LicensePlateDTO;
 import com.traffic.exceptions.ExternalApiException;
+import com.traffic.exceptions.InvalidVehicleException;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -23,9 +24,11 @@ public interface SuciveController {
      * @param amount cantidad a pagar
      * @throws ExternalApiException si hubo un arror lanzado por la API Sucive
      * @throws IllegalArgumentException
+     * @throws InvalidVehicleException si el vehiculo no fue vinculado por un cliente Sucive
      */
     public void notifyPayment(LicensePlateDTO licensePlate,
-                              Double amount) throws ExternalApiException, IllegalArgumentException;
+                              Double amount)
+            throws ExternalApiException, IllegalArgumentException, InvalidVehicleException;
 
     /**
      * Recupera todos los pagos hechos por Sucive en un rango de dias
@@ -39,7 +42,8 @@ public interface SuciveController {
      * Recupera todos los pagos hechos por Sucive de un vehiculo
      * @param licensePlate matricula del vehiculo
      * @return devolvera una <code>List</code> de pagos dentro de un <code>Optional</code>
+     * @throws InvalidVehicleException si el vehiculo no fue vinculado por un cliente Sucive
      */
-    public Optional<List<Double>> paymentInquiry(LicensePlateDTO licensePlate);
+    public Optional<List<Double>> paymentInquiry(LicensePlateDTO licensePlate) throws InvalidVehicleException;
 
 }

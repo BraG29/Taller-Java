@@ -30,9 +30,9 @@ public interface ClientController {
     /**
      * Registra a un usuario como cliente Telepeaje
      * @param user -> Recibe por parametro  un objeto usuario a agregar
-     * @throws NoUserException -> Si el usuario recibido no existe.
+     * @throws IllegalArgumentException
      */
-    public void addTollCostumer(UserDTO user) throws NoUserException;
+    public void addTollCostumer(UserDTO user) throws IllegalArgumentException;
 
     /**
      *  Vincula un vehículo a un cliente del Telepeaje.
@@ -41,7 +41,8 @@ public interface ClientController {
      * @throws NoCustomerException -> Si no existe el cliente.
      * @throws InvalidVehicleException -> Si el vehiculo no existe o no es valido.
      */
-    public void linkVehicle(TollCustomerDTO tollCustomer, VehicleDTO vehicle) throws NoCustomerException, InvalidVehicleException; //NocustomerException, InvalidVehicle
+    public void linkVehicle(TollCustomerDTO tollCustomer,
+                            VehicleDTO vehicle) throws NoCustomerException, InvalidVehicleException;
 
     /**
      * Desvincula un vehículo de un cliente del Telepeaje
@@ -50,7 +51,8 @@ public interface ClientController {
      * @throws NoCustomerException -> Si no existe el cliente.
      * @throws InvalidVehicleException -> Si el vehiculo no existe o no es valido.
      */
-    public void unLinkVehicle(TollCustomerDTO tollCustomer, VehicleDTO vehicle) throws  NoCustomerException, InvalidVehicleException;
+    public void unLinkVehicle(TollCustomerDTO tollCustomer,
+                              VehicleDTO vehicle) throws  NoCustomerException, InvalidVehicleException;
 
     /**
      * Devuelve los vehículos vinculados a un cliente
@@ -65,13 +67,14 @@ public interface ClientController {
      * @param tollCustomer -> Recibe un objeto cliente a cargar saldo.
      * @param balance -> Recibe el saldo (Double) a cargar para dicho cliente
      */
-    public void loadBalance(TollCustomerDTO tollCustomer, Double balance) throws NoCustomerException, IllegalArgumentException;
+    public void loadBalance(TollCustomerDTO tollCustomer,
+                            Double balance) throws NoCustomerException, IllegalArgumentException;
 
     /**
      * Devuelve el saldo de una cuenta PRE paga de un cliente
      * @param tollCustomer -> Recibe un objeto cliente telepeaje a consultar saldo.
      * @return -> Devuelve el un tipo Double con el saldo del cliente.
-     * @throws -> Si no existe el cliente.
+     * @throws NoCustomerException -> Si no existe el cliente.
      */
     public Optional<Double> showBalance(TollCustomerDTO tollCustomer) throws NoCustomerException;
 
@@ -86,31 +89,31 @@ public interface ClientController {
     /**
      * Devuelve las pasadas realizadas por todos los vehículos registrados por un cliente,en un rango de fechas.
      * @param tollCustomer -> Recibe un objeto cliente telepeaje.
-     * @param dateStart -> Recibe una fecha de comienzo, para el rango de fechas.
-     * @param endDate -> Recibe una fecha de fin, para el rango de pruebas.
+     * @param from -> Recibe una fecha de comienzo, para el rango de fechas.
+     * @param to -> Recibe una fecha de fin, para el rango de pruebas.
      * @return -> Devuelve una lista de Pasadas de todos los vehiculos del cliente.
      * @throws NoCustomerException -> Si no existe el cliente.
      * @throws IllegalRangeException -> Si el rango de las fechas es invalido.
      */
     public Optional<List<TollPassDTO>> showPastPassages(TollCustomerDTO tollCustomer,
-                                                        LocalDate dateStart,
-                                                        LocalDate endDate)
+                                                        LocalDate from,
+                                                        LocalDate to)
                                                        throws NoCustomerException, IllegalRangeException;
 
     /**
      * Devuelve las pasadas realizadas por un vehículo en particular registrado por un cliente en un rango de fechas.
      * @param tollCustomer -> Recibe un objeto cliente telepeaje.
      * @param vehicle -> Recibe el vehículo objetivo de las pasadas.
-     * @param dateStart -> Recibe una fecha de comienzo, para el rango de fechas.
-     * @param endDate -> Recibe una fecha de fin, para el rango de pruebas.
+     * @param from -> Recibe una fecha de comienzo, para el rango de fechas.
+     * @param to -> Recibe una fecha de fin, para el rango de pruebas.
      * @return -> Devuelve una lista de Pasadas del vehículo del cliente.
      * @throws NoCustomerException -> Si no existe el cliente.
      * @throws IllegalRangeException -> Si el rango de las fechas es invalido.
      */
     public Optional<List<TollPassDTO>> showPastPassagesVehicle(TollCustomerDTO tollCustomer,
                                                                VehicleDTO vehicle,
-                                                               LocalDate dateStart,
-                                                               LocalDate endDate) throws NoCustomerException, IllegalRangeException;
+                                                               LocalDate from,
+                                                               LocalDate to) throws NoCustomerException, IllegalRangeException;
 
 
     /**
@@ -118,9 +121,9 @@ public interface ClientController {
      * si la cuenta es de PRE pago devuelve, el saldo actual.
      * @param tag -> Recibe un objeto Tag
      * @return -> Devuelve una lista de cuentas asociadas al tag.
-     * @throws NoTagException -> Si no existe el tag.
+     * @throws IllegalArgumentException -> Si no existe el tag.
      */
-    public Optional<List<AccountDTO>> getAccountByTag(TagDTO tag) throws NoTagException;
+    public Optional<List<AccountDTO>> getAccountByTag(TagDTO tag) throws IllegalArgumentException;
 
     /**
      * Descuenta el importe del pago al saldo del cliente, de su cuenta PRE paga.

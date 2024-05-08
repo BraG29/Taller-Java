@@ -41,7 +41,8 @@ public interface PaymentController {
     public void notifyPayment(UserDTO user,
                               VehicleDTO vehicle,
                               Double amount,
-                              CreditCardDTO creditCard) throws ExternalApiException, NoCustomerException, IllegalArgumentException;
+                              CreditCardDTO creditCard)
+            throws ExternalApiException, NoCustomerException, IllegalArgumentException, InvalidVehicleException;
 
     /**
      * Recupera todos los pagos hechos por cuenta (PostPaga y Pregaga) en un rango de dias
@@ -68,6 +69,5 @@ public interface PaymentController {
      * @throws InvalidVehicleException si el vehiculo no esta asociado al cliente
      */
     public Optional<List<Double>> paymentInquiry(UserDTO user, VehicleDTO vehicle) throws NoCustomerException, InvalidVehicleException;
-
 
 }
