@@ -1,7 +1,7 @@
 package com.traffic.toll.Interface;
 
 import java.util.Optional;
-import com.traffic.dtos.vehicle.IndetifierDTO;
+import com.traffic.dtos.vehicle.IdentifierDTO;
 
 /**
  * <p>
@@ -20,7 +20,7 @@ public interface TollController {
      * @return devolvera un <code>Optional</code> con un <code>Boolean</code> el cual estara en <strong>true</strong>
      *                   si el vehiculo esta habilitado para pasar, caso contrario sera <strong>false</strong>
      */
-    public Optional<Boolean> isEnabled(IndetifierDTO identifier);
+    public Optional<Boolean> isEnabled(IdentifierDTO identifier);
 
     /**
      * Actualiza el valor de la tarifa comun

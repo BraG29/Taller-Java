@@ -5,7 +5,7 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class TagDTO extends IndetifierDTO{
+public class TagDTO extends IdentifierDTO {
 
     private Long uniqueId;
 
