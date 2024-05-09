@@ -5,7 +5,7 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class LicensePlateDTO extends IndetifierDTO{
+public class LicensePlateDTO extends IdentifierDTO {
 
     private String licensePlateNumber;
 
