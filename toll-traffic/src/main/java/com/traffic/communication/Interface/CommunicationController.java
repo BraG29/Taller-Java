@@ -1,7 +1,7 @@
 package com.traffic.communication.Interface;
 
 import com.traffic.dtos.user.NotificationDTO;
-import com.traffic.dtos.user.TollCustomerDTO;
+import com.traffic.dtos.user.UserDTO;
 import com.traffic.exceptions.NoCustomerException;
 
 import java.util.Optional;
@@ -21,17 +21,17 @@ public interface CommunicationController {
 
     /**
      *  Notifica vía email al Cliente que  su saldo de cuenta PRE paga es insuficiente
-     * @param tollCustomer -> Recibe un objeto cliente telepeaje.
-     * @throws NoCustomerException -> Si el cliente recibido no existe.
+     * @param user -> Recibe un objeto cliente telepeaje.
+     * @throws NoCustomerException -> Si el usuario recibido no es cliente.
      */
-    public void notifyNotEnoughBalance(TollCustomerDTO tollCustomer) throws NoCustomerException;
+    public void notifyNotEnoughBalance(UserDTO user) throws NoCustomerException;
 
     /**
      * Noitifica vía emial al Cliente que su tarjete fue bloqueada
-     * @param tollCustomer -> Recibe un objeto cliente telepeaje.
-     * @throws NoCustomerException -> Si el cliente recibido no existe.
+     * @param user -> Recibe un objeto cliente telepeaje.
+     * @throws NoCustomerException -> Si el usuario recibido no es cliente.
      */
-    public void notifyBlockedCreditCard(TollCustomerDTO tollCustomer) throws NoCustomerException;
+    public void notifyBlockedCreditCard(UserDTO user) throws NoCustomerException;
 
     /**
      * Notifica vía email al Cliente alguna información relevante.
@@ -41,17 +41,17 @@ public interface CommunicationController {
 
     /**
      * Da de alta un cliente
-     * @param tollCustomer -> recibe un objeto tipo cliente telepeaje para dar de alta.
-     * @throws NoCustomerException -> Si el cliente recibido no existe.
+     * @param user -> recibe un objeto tipo cliente telepeaje para dar de alta.
+     * @throws NoCustomerException -> Si el usuario recibido no es cliente.
      */
-    public void addCostumer(TollCustomerDTO tollCustomer) throws NoCustomerException;
+    public void addCostumer(UserDTO user) throws NoCustomerException;
 
     /**
      * Devuelve las notificaciones de un cliente en particular
-     * @param tollCustomer -> Recibe un objeto tipo cliente telepeaje para devolver notificaciones.
+     * @param user -> Recibe un objeto tipo cliente telepeaje para devolver notificaciones.
      * @return -> Devuelve una lista de notifiaciones del cliente recibido.
-     * @throws NoCustomerException -> Si el cliente recibido no existe.
+     * @throws NoCustomerException -> Si el usuario recibido no es cliente.
      */
-    public Optional<List<NotificationDTO>> getNotificationByCostumer(TollCustomerDTO tollCustomer) throws NoCustomerException;
+    public Optional<List<NotificationDTO>> getNotificationByCostumer(UserDTO user) throws NoCustomerException;
 
 }
