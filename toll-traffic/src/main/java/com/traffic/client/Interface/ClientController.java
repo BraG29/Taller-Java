@@ -127,25 +127,27 @@ public interface ClientController {
     /**
      * Devuelve los tipos de cuentas asociadas al usuario,
      * si la cuenta es de PRE pago devuelve, el saldo actual.
-     * @param tag -> Recibe un objeto Tag
+     * @param tagDTO -> Recibe un objeto Tag
      * @return -> Devuelve una lista de cuentas asociadas al tag.
      * @throws IllegalArgumentException -> Si no existe el tag.
      */
-    public Optional<List<AccountDTO>> getAccountByTag(TagDTO tag) throws IllegalArgumentException;
+    public Optional<List<AccountDTO>> getAccountByTag(TagDTO tagDTO) throws IllegalArgumentException;
 
     /**
      * Descuenta el importe del pago al saldo del usuario, de su cuenta PRE paga.
      * @param balance -> Importe de tipo Double a descontar.
+     * @param tagDTO -> Tag del usuario a cobrar.
      * @throws IllegalArgumentException -> Si el tipo de dato es invalido.
      * @throws NoCustomerException -> Si el usuario no es un cliente Telepeaje.
      */
-    public void prePay(Double balance) throws IllegalArgumentException, NoCustomerException;
+    public void prePay(Double balance, TagDTO tagDTO) throws IllegalArgumentException, NoCustomerException;
 
     /**
      * Realiza un pago utilizando tarjeta de crédito.
      * @param balance -> Importe a cobrar.
+     * @param tagDTO -> Tag del usuario a cobrar.
      * @throws IllegalArgumentException -> Si el tipo de dato es invalido.
      * @throws NoCustomerException -> Si el usuario no es un cliente Telepeaje.
      */
-    public void postPay(Double balance) throws IllegalArgumentException,  NoCustomerException;
+    public void postPay(Double balance, TagDTO tagDTO) throws IllegalArgumentException,  NoCustomerException;
 }
