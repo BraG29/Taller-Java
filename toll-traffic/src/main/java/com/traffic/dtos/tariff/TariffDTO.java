@@ -1,16 +1,12 @@
 package com.traffic.dtos.tariff;
 
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
-@Data
+@Getter
+@AllArgsConstructor
 public class TariffDTO {
 
     protected Double amount;
 
-    public TariffDTO() {
-    }
-
-    public TariffDTO(Double amount) {
-        this.amount = amount;
-    }
 }

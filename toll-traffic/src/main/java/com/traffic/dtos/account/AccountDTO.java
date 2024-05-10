@@ -1,20 +1,15 @@
 package com.traffic.dtos.account;
 
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 import java.time.LocalDate;
 
-@Data
+@Getter
+@AllArgsConstructor
 public class AccountDTO {
 
     protected Integer accountNumber;
     protected LocalDate creationDate;
 
-    public AccountDTO() {
-    }
-
-    public AccountDTO(Integer accountNumber, LocalDate creationDate) {
-        this.accountNumber = accountNumber;
-        this.creationDate = creationDate;
-    }
 }

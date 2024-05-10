@@ -2,19 +2,15 @@ package com.traffic.dtos.user;
 
 import com.traffic.dtos.account.PostPayDTO;
 import com.traffic.dtos.account.PrePayDTO;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 
-@Data
+@Getter
+@AllArgsConstructor
 public class TollCustomerDTO {
 
     private PostPayDTO postPayDTO;
     private PrePayDTO  prePayDTO;
 
-    public TollCustomerDTO() {
-    }
-
-    public TollCustomerDTO(PostPayDTO postPayDTO, PrePayDTO prePayDTO) {
-        this.postPayDTO = postPayDTO;
-        this.prePayDTO = prePayDTO;
-    }
 }

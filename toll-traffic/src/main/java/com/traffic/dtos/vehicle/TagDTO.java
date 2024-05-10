@@ -1,18 +1,12 @@
 package com.traffic.dtos.vehicle;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
-@EqualsAndHashCode(callSuper = true)
-@Data
+@Getter
+@AllArgsConstructor
 public class TagDTO extends IdentifierDTO {
 
     private Long uniqueId;
 
-    public TagDTO() {
-    }
-
-    public TagDTO(Long uniqueId) {
-        this.uniqueId = uniqueId;
-    }
 }

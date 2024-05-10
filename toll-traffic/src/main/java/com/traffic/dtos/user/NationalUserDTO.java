@@ -1,20 +1,14 @@
 package com.traffic.dtos.user;
 
 import com.traffic.dtos.vehicle.LinkDTO;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 
 import java.util.List;
 
-@EqualsAndHashCode(callSuper = true)
-@Data
+@Getter
 public class NationalUserDTO extends UserDTO{
 
     private SuciveCustomerDTO suciveCustomer;
-
-    public NationalUserDTO() {
-        super();
-    }
 
     public NationalUserDTO(Long id,
                            String email,
@@ -23,8 +17,9 @@ public class NationalUserDTO extends UserDTO{
                            String ci,
                            TollCustomerDTO tollCustomer,
                            List<LinkDTO> linkedVehicles,
-                           SuciveCustomerDTO suciveCustomer) {
-        super(id, email, password, name, ci, tollCustomer, linkedVehicles);
+                           SuciveCustomerDTO suciveCustomer,
+                           List<NotificationDTO> notifications) {
+        super(id, email, password, name, ci, tollCustomer, linkedVehicles, notifications);
         this.suciveCustomer = suciveCustomer;
     }
 }
