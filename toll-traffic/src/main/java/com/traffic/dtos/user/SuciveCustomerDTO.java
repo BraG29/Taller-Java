@@ -8,6 +8,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public class SuciveCustomerDTO {
 
+    private Long id;
     private CommonTariffDTO commonTariff;
 
 

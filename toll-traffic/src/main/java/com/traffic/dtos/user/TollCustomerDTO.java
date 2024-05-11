@@ -10,6 +10,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public class TollCustomerDTO {
 
+    private Long id;
     private PostPayDTO postPayDTO;
     private PrePayDTO  prePayDTO;
 

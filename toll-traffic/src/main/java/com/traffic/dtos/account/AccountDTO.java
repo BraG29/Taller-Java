@@ -7,8 +7,9 @@ import java.time.LocalDate;
 
 @Getter
 @AllArgsConstructor
-public class AccountDTO {
+public abstract class AccountDTO {
 
+    protected Long id;
     protected Integer accountNumber;
     protected LocalDate creationDate;
 

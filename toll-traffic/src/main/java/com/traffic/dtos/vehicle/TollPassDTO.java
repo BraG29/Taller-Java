@@ -10,6 +10,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class TollPassDTO {
 
+    private Long id;
     private LocalDate date;
     private Double cost;
     private PaymentTypeData paymentType;
