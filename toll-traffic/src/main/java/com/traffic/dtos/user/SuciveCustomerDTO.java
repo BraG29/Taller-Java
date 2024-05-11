@@ -1,17 +1,14 @@
 package com.traffic.dtos.user;
 
 import com.traffic.dtos.tariff.CommonTariffDTO;
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
-@Data
+@Getter
+@AllArgsConstructor
 public class SuciveCustomerDTO {
 
     private CommonTariffDTO commonTariff;
 
-    public SuciveCustomerDTO() {
-    }
 
-    public SuciveCustomerDTO(CommonTariffDTO commonTariff) {
-        this.commonTariff = commonTariff;
-    }
 }

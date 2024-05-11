@@ -1,18 +1,13 @@
 package com.traffic.dtos.vehicle;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
 
 import java.util.List;
 
-@EqualsAndHashCode(callSuper = true)
-@Data
+@Getter
 public class NationalVehicleDTO extends VehicleDTO{
 
     private LicensePlateDTO licensePlateDTO;
-
-    public NationalVehicleDTO() {
-    }
 
     public NationalVehicleDTO(List<TollPassDTO> tollPassDTO, TagDTO tagDTO, LicensePlateDTO licensePlateDTO) {
         super(tollPassDTO, tagDTO);

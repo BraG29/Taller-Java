@@ -1,13 +1,14 @@
 package com.traffic.dtos.user;
 
 import com.traffic.dtos.vehicle.LinkDTO;
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
-@Data
+@Getter
+@AllArgsConstructor
 public abstract class UserDTO {
 
     protected Long id;
@@ -17,24 +18,6 @@ public abstract class UserDTO {
     protected String ci;
     protected TollCustomerDTO tollCustomer;
     protected List<LinkDTO> linkedVehicles;
+    protected List<NotificationDTO> notifications;
 
-    public UserDTO() {
-        super();
-    }
-
-    public UserDTO(Long id,
-                   String email,
-                   String password,
-                   String name,
-                   String ci,
-                   TollCustomerDTO tollCustomer,
-                   List<LinkDTO> linkedVehicles) {
-        this.id = id;
-        this.email = email;
-        this.password = password;
-        this.name = name;
-        this.ci = ci;
-        this.tollCustomer = tollCustomer;
-        this.linkedVehicles = linkedVehicles;
-    }
 }

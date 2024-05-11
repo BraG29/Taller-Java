@@ -1,21 +1,17 @@
 package com.traffic.dtos.vehicle;
 
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 import java.time.LocalDate;
 
 
-@Data
+@Getter
+@AllArgsConstructor
 public class LinkDTO {
 
     private LocalDate initialDate;
     private Boolean active;
+    private VehicleDTO vehicle;
 
-    public LinkDTO() {
-    }
-
-    public LinkDTO(LocalDate initialDate, Boolean active) {
-        this.initialDate = initialDate;
-        this.active = active;
-    }
 }

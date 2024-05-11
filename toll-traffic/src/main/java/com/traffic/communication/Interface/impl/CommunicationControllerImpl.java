@@ -2,7 +2,7 @@ package com.traffic.communication.Interface.impl;
 
 import com.traffic.communication.Interface.CommunicationController;
 import com.traffic.dtos.user.NotificationDTO;
-import com.traffic.dtos.user.TollCustomerDTO;
+import com.traffic.dtos.user.UserDTO;
 import com.traffic.exceptions.NoCustomerException;
 import jakarta.enterprise.context.ApplicationScoped;
 
@@ -13,12 +13,12 @@ import java.util.Optional;
 public class CommunicationControllerImpl implements CommunicationController {
 
     @Override
-    public void notifyNotEnoughBalance(TollCustomerDTO tollCustomer) throws NoCustomerException {
+    public void notifyNotEnoughBalance(UserDTO user) throws NoCustomerException {
 
     }
 
     @Override
-    public void notifyBlockedCreditCard(TollCustomerDTO tollCustomer) throws NoCustomerException {
+    public void notifyBlockedCreditCard(UserDTO user) throws NoCustomerException {
 
     }
 
@@ -28,12 +28,12 @@ public class CommunicationControllerImpl implements CommunicationController {
     }
 
     @Override
-    public void addCostumer(TollCustomerDTO tollCustomer) throws NoCustomerException {
+    public void addCostumer(UserDTO user) throws NoCustomerException {
 
     }
 
     @Override
-    public Optional<List<NotificationDTO>> getNotificationByCostumer(TollCustomerDTO tollCustomer) throws NoCustomerException {
+    public Optional<List<NotificationDTO>> getNotificationByCostumer(UserDTO user) throws NoCustomerException {
         return Optional.empty();
     }
 }
