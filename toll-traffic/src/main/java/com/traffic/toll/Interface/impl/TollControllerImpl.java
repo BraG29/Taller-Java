@@ -9,7 +9,7 @@ import java.util.Optional;
 @ApplicationScoped
 public class TollControllerImpl implements TollController {
     @Override
-    public Optional<Boolean> isEnabled(IdentifierDTO identifier) {
+    public Optional<Boolean> isEnabled(IdentifierDTO identifier) throws IllegalArgumentException{
         return Optional.empty();
     }
 

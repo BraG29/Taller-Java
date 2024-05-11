@@ -19,8 +19,9 @@ public interface TollController {
      *                   o {@link com.traffic.dtos.vehicle.LicensePlateDTO}
      * @return devolvera un <code>Optional</code> con un <code>Boolean</code> el cual estara en <strong>true</strong>
      *                   si el vehiculo esta habilitado para pasar, caso contrario sera <strong>false</strong>
+     * @throws IllegalArgumentException 
      */
-    public Optional<Boolean> isEnabled(IdentifierDTO identifier);
+    public Optional<Boolean> isEnabled(IdentifierDTO identifier) throws IllegalArgumentException;
 
     /**
      * Actualiza el valor de la tarifa comun
