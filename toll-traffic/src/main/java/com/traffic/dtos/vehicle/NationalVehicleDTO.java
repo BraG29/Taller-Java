@@ -9,8 +9,8 @@ public class NationalVehicleDTO extends VehicleDTO{
 
     private LicensePlateDTO licensePlateDTO;
 
-    public NationalVehicleDTO(List<TollPassDTO> tollPassDTO, TagDTO tagDTO, LicensePlateDTO licensePlateDTO) {
-        super(tollPassDTO, tagDTO);
+    public NationalVehicleDTO(Long id, List<TollPassDTO> tollPassDTO, TagDTO tagDTO, LicensePlateDTO licensePlateDTO) {
+        super(id, tollPassDTO, tagDTO);
         this.licensePlateDTO = licensePlateDTO;
     }
 }

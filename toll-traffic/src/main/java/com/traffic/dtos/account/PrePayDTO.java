@@ -9,8 +9,8 @@ public class PrePayDTO extends AccountDTO{
 
     private Double balance;
 
-    public PrePayDTO(Integer accountNumber, LocalDate creationDate, Double balance) {
-        super(accountNumber, creationDate);
+    public PrePayDTO(Long id, Integer accountNumber, LocalDate creationDate, Double balance) {
+        super(id, accountNumber, creationDate);
         this.balance = balance;
     }
 }

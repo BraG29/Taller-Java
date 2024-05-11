@@ -10,8 +10,8 @@ public class PostPayDTO extends AccountDTO{
 
     private CreditCardDTO creditCardDTO;
 
-    public PostPayDTO(Integer accountNumber, LocalDate creationDate, CreditCardDTO creditCardDTO) {
-        super(accountNumber, creationDate);
+    public PostPayDTO(Long id, Integer accountNumber, LocalDate creationDate, CreditCardDTO creditCardDTO) {
+        super(id, accountNumber, creationDate);
         this.creditCardDTO = creditCardDTO;
     }
 }

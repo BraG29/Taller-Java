@@ -9,6 +9,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class CreditCardDTO {
 
+    private Long id;
     private String cardNumber;
     private String name;
     private LocalDate expireDate;

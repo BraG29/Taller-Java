@@ -8,8 +8,9 @@ import java.util.List;
 
 @Getter
 @AllArgsConstructor
-public class VehicleDTO {
+public abstract class VehicleDTO {
 
+    private Long id;
     protected List<TollPassDTO> tollPassDTO;
     protected TagDTO tagDTO;
 
