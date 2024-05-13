@@ -7,6 +7,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public class NotificationDTO {
 
+    private Long id;
     private String message;
 
 }

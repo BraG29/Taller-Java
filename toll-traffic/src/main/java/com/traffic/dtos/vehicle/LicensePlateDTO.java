@@ -7,6 +7,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public class LicensePlateDTO extends IdentifierDTO {
 
+    private Long id;
     private String licensePlateNumber;
 
 }

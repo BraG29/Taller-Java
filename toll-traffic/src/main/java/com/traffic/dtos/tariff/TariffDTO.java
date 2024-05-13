@@ -5,8 +5,9 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class TariffDTO {
+public abstract class TariffDTO {
 
+    protected Long id;
     protected Double amount;
 
 }

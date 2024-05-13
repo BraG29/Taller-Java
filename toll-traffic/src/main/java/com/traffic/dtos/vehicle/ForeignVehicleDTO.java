@@ -7,7 +7,7 @@ import java.util.List;
 @Getter
 public class ForeignVehicleDTO extends VehicleDTO {
 
-    public ForeignVehicleDTO(List<TollPassDTO> tollPassDTO, TagDTO tagDTO) {
-        super(tollPassDTO, tagDTO);
+    public ForeignVehicleDTO(Long id, List<TollPassDTO> tollPassDTO, TagDTO tagDTO) {
+        super(id, tollPassDTO, tagDTO);
     }
 }
