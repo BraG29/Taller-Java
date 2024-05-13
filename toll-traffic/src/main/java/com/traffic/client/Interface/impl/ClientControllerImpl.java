@@ -69,12 +69,13 @@ public class ClientControllerImpl implements ClientController {
     }
 
     @Override
-    public void prePay(Double balance) throws IllegalArgumentException, NoCustomerException {
+    public void prePay(Double balance, TagDTO tagDTO) throws IllegalArgumentException, NoCustomerException {
 
     }
 
     @Override
-    public void postPay(Double balance) throws IllegalArgumentException, NoCustomerException {
+    public void postPay(Double balance, TagDTO tagDTO) throws IllegalArgumentException, NoCustomerException {
 
     }
+
 }

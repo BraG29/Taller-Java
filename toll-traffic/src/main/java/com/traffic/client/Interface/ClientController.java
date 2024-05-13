@@ -139,7 +139,7 @@ public interface ClientController {
      * @throws IllegalArgumentException -> Si el tipo de dato es invalido.
      * @throws NoCustomerException -> Si el usuario no es un cliente Telepeaje.
      */
-    public void prePay(Double balance) throws IllegalArgumentException, NoCustomerException;
+    public void prePay(Double balance, TagDTO tagDTO) throws IllegalArgumentException, NoCustomerException;
 
     /**
      * Realiza un pago utilizando tarjeta de crédito.
@@ -147,5 +147,5 @@ public interface ClientController {
      * @throws IllegalArgumentException -> Si el tipo de dato es invalido.
      * @throws NoCustomerException -> Si el usuario no es un cliente Telepeaje.
      */
-    public void postPay(Double balance) throws IllegalArgumentException,  NoCustomerException;
+    public void postPay(Double balance, TagDTO tagDTO) throws IllegalArgumentException,  NoCustomerException;
 }
