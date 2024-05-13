@@ -14,9 +14,16 @@ public class PREPay extends Account{
     public PREPay(){
     }
 
-    public PREPay(Integer accountNumber, LocalDate creationDate, Double balance) {
-        super(accountNumber, creationDate);
+    public PREPay(Long id, Integer accountNumber, LocalDate creationDate, Double balance) {
+        super(id, accountNumber, creationDate);
         this.balance = balance;
     }
 
+    public void pay(Double cost){
+        this.balance -= cost;
+    }
+
+    public void loadBalance(Double balance){
+        this.balance += balance;
+    }
 }

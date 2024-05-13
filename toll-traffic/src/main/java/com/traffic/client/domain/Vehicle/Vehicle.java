@@ -4,15 +4,17 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class Vehicle {
+public abstract class Vehicle {
 
+    private Long id;
     private Tag tag;
     private List<TollPass> tollPass;
 
     public Vehicle(){
     }
 
-    public Vehicle(Tag tag, List<TollPass> tollPass) {
+    public Vehicle(Long id, Tag tag, List<TollPass> tollPass) {
+        this.id = id;
         this.tag = tag;
         this.tollPass = tollPass;
     }

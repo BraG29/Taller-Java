@@ -3,6 +3,7 @@ package com.traffic.client.domain.repository;
 
 import com.traffic.client.domain.User.User;
 import com.traffic.client.domain.Vehicle.Tag;
+import com.traffic.client.domain.Vehicle.Vehicle;
 
 import java.util.List;
 
@@ -17,7 +18,7 @@ import java.util.List;
 public interface ClientModuleRepository {
 
     /**
-     * Encuentra un usuario utilizando el tag de si vehiculo-
+     * Encuentra un usuario utilizando el tag del vehiculo, en un futuro realizará consultas a una bd.
      * @param tag -> tag del vehiculo del usuario.
      * @return -> un objeto Usuario.
      */
@@ -26,4 +27,8 @@ public interface ClientModuleRepository {
     public List<User> listUsers();
 
     public User createUser(User user);
+
+    public User getUserById(Long id);
+
+    public Vehicle getVehicleByTag(Tag tag);
 }

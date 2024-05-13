@@ -8,14 +8,15 @@ import lombok.Data;
 @Data
 public class TollCustomer {
 
+    private Long id;
     private POSTPay postPay;
-
     private PREPay prePay;
 
 
     public TollCustomer(){}
 
-    public TollCustomer(POSTPay postPay, PREPay prePay) {
+    public TollCustomer(Long id, POSTPay postPay, PREPay prePay) {
+        this.id = id;
         this.postPay = postPay;
         this.prePay = prePay;
     }

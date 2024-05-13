@@ -10,6 +10,7 @@ import java.util.List;
 @Data
 public class ForeignUser extends User {
 
+
     public ForeignUser() {
     }
 

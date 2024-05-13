@@ -5,15 +5,17 @@ import lombok.Data;
 import java.time.LocalDate;
 
 @Data
-public class Account {
+public abstract class Account {
 
+    private Long id;
     private Integer accountNumber;
     private LocalDate creationDate;
 
     public Account(){
     }
 
-    public Account(Integer accountNumber, LocalDate creationDate) {
+    public Account(Long id, Integer accountNumber, LocalDate creationDate) {
+        this.id = id;
         this.accountNumber = accountNumber;
         this.creationDate = creationDate;
     }

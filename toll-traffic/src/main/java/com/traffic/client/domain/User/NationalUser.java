@@ -10,9 +10,15 @@ import java.util.List;
 @Data
 public class NationalUser extends User{
 
+    private SuciveCustomer suciveCustomer;
+
     public NationalUser(){}
 
-    public NationalUser(List<Link> linkedCars, TollCustomer tollCustomer, String ci, String name, String password, String email, Long id) {
+    public NationalUser(List<Link> linkedCars, TollCustomer tollCustomer,
+                        String ci, String name, String password,
+                        String email, Long id, SuciveCustomer suciveCustomer) {
         super(linkedCars, tollCustomer, ci, name, password, email, id);
+        this.suciveCustomer = suciveCustomer;
+
     }
 }

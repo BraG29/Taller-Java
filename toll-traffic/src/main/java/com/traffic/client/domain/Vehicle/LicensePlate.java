@@ -5,6 +5,7 @@ import lombok.Data;
 @Data
 public class LicensePlate {
 
+    private Long id;
     private String licensePlateNumber;
 
     public LicensePlate() {

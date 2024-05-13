@@ -13,9 +13,8 @@ public class NationalVehicle extends Vehicle {
 
     public NationalVehicle() {}
 
-    public NationalVehicle(Tag tag, List<TollPass> tollPass, LicensePlate plate) {
-        super(tag, tollPass);
+    public NationalVehicle(Long id, Tag tag, List<TollPass> tollPass, LicensePlate plate) {
+        super(id, tag, tollPass);
         this.plate = plate;
     }
-
 }

@@ -12,7 +12,7 @@ public class ForeignVehicle extends Vehicle {
     public ForeignVehicle() {
     }
 
-    public ForeignVehicle(Tag tag, List<TollPass> tollPass) {
-        super(tag, tollPass);
+    public ForeignVehicle(Long id, Tag tag, List<TollPass> tollPass) {
+        super(id, tag, tollPass);
     }
 }

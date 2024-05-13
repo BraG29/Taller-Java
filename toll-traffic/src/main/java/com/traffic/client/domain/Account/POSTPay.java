@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.time.LocalDate;
+import java.util.Random;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -14,8 +15,18 @@ public class POSTPay extends Account{
     public POSTPay(){
     }
 
-    public POSTPay(Integer accountNumber, LocalDate creationDate, CreditCard creditCard) {
-        super(accountNumber, creationDate);
+    public POSTPay(Long id, Integer accountNumber, LocalDate creationDate, CreditCard creditCard) {
+        super(id, accountNumber, creationDate);
         this.creditCard = creditCard;
+    }
+
+
+    public Integer generateRandomAccountNumber(){
+        Random random = new Random();
+
+        int minNumber = 100000;
+        int maxNumber = 999999;
+
+        return random.nextInt(maxNumber - minNumber + 1) + minNumber;
     }
 }
