@@ -7,4 +7,13 @@ package com.traffic.exceptions;
  * </p>
  */
 public class NoCustomerException extends Exception{
+
+    public NoCustomerException(String message) {
+        super(message);
+    }
+
+    public NoCustomerException(){
+        super();
+    }
+
 }

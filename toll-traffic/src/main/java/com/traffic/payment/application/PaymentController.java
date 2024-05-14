@@ -1,4 +1,4 @@
-package com.traffic.payment.Interface;
+package com.traffic.payment.application;
 
 import com.traffic.dtos.account.CreditCardDTO;
 import com.traffic.dtos.user.UserDTO;
@@ -28,15 +28,18 @@ public interface PaymentController {
     public void customerRegistration(UserDTO user,
                                      CreditCardDTO creditCard) throws ExternalApiException, NoCustomerException;
 
+
     /**
      * Notifica a una API de pagos el pago en cuestion
+     * if notifyPayment fails, it needs to send the message back to the Payment Queue
      * @param user cliente que realiza el pago
      * @param vehicle vehiculo al que se le habilitara el paso
      * @param amount importe de pasada
      * @param creditCard tarjeta asociada a la cuenta del cliente
      * @throws ExternalApiException si hubo un error lanzado por la API de la tarjeta
      * @throws NoCustomerException si el usuario no es cliente, es decir: <code>user.tollCustomer == null</code>
-     * @throws IllegalArgumentException
+     * @throws IllegalArgumentException si tanto el usuario y/o el vehiculo son invalidos
+     *
      */
     public void notifyPayment(UserDTO user,
                               VehicleDTO vehicle,
