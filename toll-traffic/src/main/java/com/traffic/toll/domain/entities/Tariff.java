@@ -1,0 +1,16 @@
+package com.traffic.toll.domain.entities;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+@AllArgsConstructor
+public abstract class Tariff {
+
+    protected Double amount;
+
+    public Tariff() {
+    }
+}
