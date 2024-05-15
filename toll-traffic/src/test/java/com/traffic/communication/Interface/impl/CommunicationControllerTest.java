@@ -12,6 +12,7 @@ import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
@@ -59,6 +60,7 @@ class CommunicationControllerTest {
                 null);
     }
 
+    @DisplayName("Test de para lanzamiento de errores")
     @Test
     void exceptionsThrowsTest(){
         Assertions.assertThrows(NoCustomerException.class, () ->{
@@ -66,6 +68,7 @@ class CommunicationControllerTest {
         });
     }
 
+    @DisplayName("Test de notificaciones correctamente cargadas")
     @Test
     void successTests() throws NoCustomerException{
 
@@ -76,6 +79,7 @@ class CommunicationControllerTest {
         Assertions.assertEquals(actualSize, initialSize + 1);
     }
 
+    @DisplayName("Test para Notificar a todos y buscar notificaciones por usuario")
     @Test
     void notifyAllFindByUserTest(){
         Notification notification = new Notification(LocalDate.now(), "Mensaje prueba");
@@ -93,7 +97,5 @@ class CommunicationControllerTest {
 
 
     }
-
-
 
 }

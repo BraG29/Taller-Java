@@ -49,7 +49,7 @@ public class TollControllerImpl implements TollController {
     }
 
     @Override
-    public Optional<Boolean> isEnabled(IdentifierDTO identifier) throws IllegalArgumentException {
+    public Optional<Boolean> isEnabled(IdentifierDTO identifier) throws IllegalArgumentException, InvalidVehicleException {
 
         if (identifier == null) {
             throw new IllegalArgumentException("identifier is null");
@@ -110,6 +110,7 @@ public class TollControllerImpl implements TollController {
                 }
 
                 if (vehicleOPT.get() instanceof NationalVehicle) {
+                    System.out.println("Procediendo a cobro por Sucive");
                     Optional<Tariff> tariffOPT = tariffRepository.findCommonTariff();
                     CommonTariff commonTariff = (CommonTariff) tariffOPT.orElseThrow(() ->
                             new InternalErrorException("No hay tarifa comun")
@@ -134,10 +135,12 @@ public class TollControllerImpl implements TollController {
                 //Fatal Error
                 System.err.println(e.getMessage());
 
-            } catch (ExternalApiException | InvalidVehicleException e) {
+            } catch (ExternalApiException e) {
                 System.err.println(e.getMessage());
 
             }
+        } else{
+          throw new InvalidVehicleException("No existe vehiculo con esa identificacion");
         }
 
         return Optional.of(false);

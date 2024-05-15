@@ -42,7 +42,10 @@ public class VehicleRepositoryImpl implements VehicleRepository {
                 new NationalVehicle(5L,
                         new Tag(104L),
                         new ArrayList<TollPass>(),
-                        new LicensePlate(2L, "GHI-789"))
+                        new LicensePlate(2L, "GHI-789")),
+                new ForeignVehicle(6L,
+                        new Tag(105L),
+                        new ArrayList<TollPass>())
         );
     }
 
