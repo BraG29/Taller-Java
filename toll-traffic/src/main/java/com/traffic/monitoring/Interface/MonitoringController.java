@@ -1,5 +1,8 @@
 package com.traffic.monitoring.Interface;
 
+import com.traffic.events.VehiclePassEvent;
+import jakarta.enterprise.event.Observes;
+
 /**
  * <p>
  *     Controlador que expone los metodos del modulo de Monitoreo.
@@ -10,7 +13,7 @@ public interface MonitoringController {
     /**
      * Envía un evento que representa el pasaje de un vehículo.
      */
-    public void notifyVehiclePass();
+    public void notifyVehiclePass(@Observes VehiclePassEvent vehiclePassEvent);
 
     /**
      * Envía un evento que representa el cobro con sucive

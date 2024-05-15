@@ -63,7 +63,7 @@ class CommunicationControllerTest {
     @DisplayName("Test de para lanzamiento de errores")
     @Test
     void exceptionsThrowsTest(){
-        Assertions.assertThrows(NoCustomerException.class, () ->{
+        Assertions.assertThrows(NoCustomerException.class, () -> {
             communicationController.notifyNotEnoughBalance(notCustomer);
         });
     }
