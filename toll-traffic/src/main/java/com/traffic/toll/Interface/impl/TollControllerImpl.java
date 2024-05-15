@@ -118,7 +118,7 @@ public class TollControllerImpl implements TollController {
                     LicensePlate licensePlate = ((NationalVehicle) vehicleOPT.get())
                             .getLicensePlate();
 
-                    LicensePlateDTO licensePlateDTO = new LicensePlateDTO(licensePlate.getLicensePlateNumber());
+                    LicensePlateDTO licensePlateDTO = new LicensePlateDTO(licensePlate.getId(), licensePlate.getLicensePlateNumber());
 
                     suciveController.notifyPayment(licensePlateDTO,
                             commonTariff.getAmount());

@@ -17,6 +17,9 @@ public class VehicleRepositoryImpl implements VehicleRepository {
     private List<Vehicle> vehicles;
 
     public VehicleRepositoryImpl() {
+
+        initVehicles();
+
     }
 
     @PostConstruct

@@ -15,6 +15,12 @@ public class TariffRepositoryImpl implements TariffRepository {
 
     private List<Tariff> tariffList;
 
+    public TariffRepositoryImpl() {
+
+        initTariffList();
+
+    }
+
     @PostConstruct
     public void initTariffList(){
         tariffList = List.of(
