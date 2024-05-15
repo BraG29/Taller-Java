@@ -1,6 +1,6 @@
 package com.traffic.monitoring.Interface;
 
-import com.traffic.events.VehiclePassEvent;
+import com.traffic.events.*;
 import jakarta.enterprise.event.Observes;
 
 /**
@@ -18,21 +18,21 @@ public interface MonitoringController {
     /**
      * Envía un evento que representa el cobro con sucive
      */
-    public void notifySucivePayment();
+    public void notifySucivePayment(@Observes SucivePaymentEvent sucivePaymentEvent);
 
     /**
      * Envía un evento que representa el cobro con tarjeta
      */
-    public void notifyCardPayment();
+    public void notifyCardPayment(@Observes CreditCardPaymentEvent creditCardPaymentEvent);
 
     /**
      * Envía un evento que representa el rechazo del cobro por tarjeta.
      */
-    public void notifyCreditCardPaymentRejected();
+    public void notifyCreditCardPaymentRejected(@Observes CreditCardRejectedEvent creditCardRejectedEvent);
 
     /**
      * Envía un evento que representa el rechazo de cobro por saldo insuficiente.
      */
-    public void notifyNotEnoughBalance();
+    public void notifyNotEnoughBalance(@Observes NotEnoughBalanceEvent notEnoughBalanceEvent);
 
 }
