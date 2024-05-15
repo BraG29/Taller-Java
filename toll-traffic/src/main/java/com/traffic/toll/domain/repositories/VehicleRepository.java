@@ -12,6 +12,6 @@ public interface VehicleRepository {
 
     public Optional<Vehicle> findByTag(TagDTO tagDTO);
     public Optional<Vehicle> findByLicensePlate(LicensePlateDTO licensePlateDTO);
-    public void update(Vehicle vehicle);
+    public Optional<Vehicle> update(Vehicle vehicle);
 
 }

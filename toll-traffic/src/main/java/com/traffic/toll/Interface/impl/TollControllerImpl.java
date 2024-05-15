@@ -8,10 +8,10 @@ import com.traffic.dtos.account.PrePayDTO;
 import com.traffic.dtos.vehicle.IdentifierDTO;
 import com.traffic.dtos.vehicle.LicensePlateDTO;
 import com.traffic.dtos.vehicle.TagDTO;
-import com.traffic.exceptions.ExternalApiException;
-import com.traffic.exceptions.InternalErrorException;
-import com.traffic.exceptions.InvalidVehicleException;
-import com.traffic.exceptions.NoCustomerException;
+import com.traffic.dtos.vehicle.TollPassDTO;
+import com.traffic.events.CustomEvent;
+import com.traffic.events.NewTollPassEvent;
+import com.traffic.exceptions.*;
 import com.traffic.sucive.Interface.SuciveController;
 import com.traffic.toll.Interface.TollController;
 import com.traffic.toll.domain.entities.*;
@@ -19,6 +19,7 @@ import com.traffic.toll.domain.repositories.TariffRepository;
 import com.traffic.toll.domain.repositories.VehicleRepository;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
 import org.jboss.logging.annotations.Pos;
 
@@ -38,18 +39,31 @@ public class TollControllerImpl implements TollController {
     private VehicleRepository vehicleRepository;
     @Inject
     private TariffRepository tariffRepository;
+//    @Inject
+//    private Event<CustomEvent> singleEvent;
 
     public TollControllerImpl() {
     }
 
-    private void addTollPass(Vehicle vehicle, Double cost, PaymentTypeData paymentType){
+    private void addTollPass(Vehicle vehicle, Double cost, PaymentTypeData paymentType) throws PersistenceErrorException {
         TollPass tollPass = new TollPass(LocalDate.now(), cost, paymentType);
         vehicle.getTollPasses().add(tollPass);
-        vehicleRepository.update(vehicle);
+
+        Optional<Vehicle> vehicleOPT = vehicleRepository.update(vehicle);
+
+        vehicleOPT.orElseThrow(() -> new PersistenceErrorException("No se ha podido actualizar el vehiculo"));
+
+//        vehicleOPT.ifPresent( v -> {
+//            CustomEvent event = new NewTollPassEvent(
+//                    "Se le ha agregado una nueva pasada por peaje al vehiculo con tag: " + v.getTag().getUniqueId(),
+//                    v.getId(),
+//                    new TollPassDTO(tollPass.getDate(), tollPass.getCost(), tollPass.getPaymentType()));
+//            singleEvent.fire(event);
+//        });
     }
 
     @Override
-    public Optional<Boolean> isEnabled(IdentifierDTO identifier) throws IllegalArgumentException, InvalidVehicleException {
+    public Optional<Boolean> isEnabled(IdentifierDTO identifier) throws IllegalArgumentException, InvalidVehicleException, PersistenceErrorException {
 
         if (identifier == null) {
             throw new IllegalArgumentException("identifier is null");
