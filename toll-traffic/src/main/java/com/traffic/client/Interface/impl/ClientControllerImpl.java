@@ -26,8 +26,10 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @ApplicationScoped
@@ -37,7 +39,7 @@ public class ClientControllerImpl implements ClientController {
     private AccountService accountService; //operaciones de la cuenta.
 
     @Inject
-    private UserService userSerivce; //operaciones del usuario.
+    private UserService userService; //operaciones del usuario.
 
     @Inject
     private VehicleService vehicleService;
@@ -46,7 +48,7 @@ public class ClientControllerImpl implements ClientController {
     public void addTollCostumer(UserDTO userDTO) throws IllegalArgumentException {
 
         if(userDTO == null){
-            throw new IllegalArgumentException("El usuario recibido no existe");
+            throw new IllegalArgumentException("El usuario recibido está vacío");
         }
 
         Long tollCustomerID = userDTO.getTollCustomer().getId();
@@ -71,6 +73,8 @@ public class ClientControllerImpl implements ClientController {
         ForeignVehicleDTO foreignVehicleDTO; //vehiculo extranjero
         Vehicle vehicleObject;
         Tag tag;
+
+        User user = null;
 
         if(userDTO instanceof NationalUserDTO){
 
@@ -110,11 +114,9 @@ public class ClientControllerImpl implements ClientController {
             }
 
             //armo usuario nacional
-            NationalUser user = new NationalUser(linkedVehicles, customer, userDTO.getCi(), userDTO.getName(),
+            user = new NationalUser(linkedVehicles, customer, userDTO.getCi(), userDTO.getName(),
                     userDTO.getPassword(), userDTO.getEmail(), userDTO.getId(), suciveCustomer);
 
-            userSerivce.registerUser(user);
-            //TODO Tirar evento y try and catch
 
         } else if (userDTO instanceof ForeignUserDTO) {
 
@@ -139,88 +141,169 @@ public class ClientControllerImpl implements ClientController {
 
                 linkedVehicles.add(linkObject);
 
+
             }
 
             //armo usuario extranjero.
-            ForeignUser user = new ForeignUser(linkedVehicles, customer, userDTO.getCi(), userDTO.getName(),
+            user = new ForeignUser(linkedVehicles, customer, userDTO.getCi(), userDTO.getName(),
                     userDTO.getPassword(), userDTO.getEmail(), userDTO.getId());
 
-            userSerivce.registerUser(user);
-
-            //TODO TIRAR evento y try and catch
-
         }
-        //userService
+
+        userService.registerUser(user);
+        //TODO TIRAR evento
     }
 
     @Override
     public void linkVehicle(Long id, VehicleDTO vehicleDTO) throws IllegalArgumentException, NoCustomerException {
 
-        List<TollPass> listTollPass = new ArrayList<>();
+        if(vehicleDTO != null){
 
-        List<TollPassDTO> listTollPassDTO = vehicleDTO.getTollPassDTO();
+            List<TollPass> listTollPass = new ArrayList<>();
 
-        TollPass tollPassObject = null;
+            List<TollPassDTO> listTollPassDTO = vehicleDTO.getTollPassDTO();
 
-        Vehicle vehicle = null;
+            TollPass tollPassObject = null;
 
-        for (TollPassDTO tollPassDTO : listTollPassDTO){
+            Vehicle vehicle = null;
 
-            tollPassObject = new TollPass(tollPassDTO.getId(),
-                    tollPassDTO.getDate(), tollPassDTO.getCost(),
-                    tollPassDTO.getPaymentType());
-            listTollPass.add(tollPassObject);
+            for (TollPassDTO tollPassDTO : listTollPassDTO){
 
+                tollPassObject = new TollPass(tollPassDTO.getId(),
+                        tollPassDTO.getDate(), tollPassDTO.getCost(),
+                        tollPassDTO.getPaymentType());
+                listTollPass.add(tollPassObject);
+
+            }
+
+            if(vehicleDTO instanceof NationalVehicleDTO){
+
+                Tag tag = new Tag(vehicleDTO.getTagDTO().getUniqueId());
+                LicensePlate plate = new LicensePlate(((NationalVehicleDTO) vehicleDTO).getLicensePlateDTO().getLicensePlateNumber());
+
+                vehicle = new NationalVehicle(vehicleDTO.getId(), tag,
+                        listTollPass, plate);
+            }else if (vehicleDTO instanceof ForeignVehicleDTO){
+                Tag tag = new Tag(vehicleDTO.getTagDTO().getUniqueId());
+
+                vehicle = new ForeignVehicle(vehicleDTO.getId(), tag, listTollPass);
+            }
+
+
+            vehicleService.linkVehicle(id, vehicle);
         }
-
-        if(vehicleDTO instanceof NationalVehicleDTO){
-
-            Tag tag = new Tag(vehicleDTO.getTagDTO().getUniqueId());
-            LicensePlate plate = new LicensePlate(((NationalVehicleDTO) vehicleDTO).getLicensePlateDTO().getLicensePlateNumber());
-
-            vehicle = new NationalVehicle(vehicleDTO.getId(), tag,
-                    listTollPass, plate);
-        }else if (vehicleDTO instanceof ForeignVehicleDTO){
-            Tag tag = new Tag(vehicleDTO.getTagDTO().getUniqueId());
-
-            vehicle = new ForeignVehicle(vehicleDTO.getId(), tag, listTollPass);
-        }
-
-
-        vehicleService.linkVehicle(id, vehicle);
 
 
     }
 
     @Override
     public void unLinkVehicle(Long id, VehicleDTO vehicleDTO) throws IllegalArgumentException, InvalidVehicleException, NoCustomerException {
+        if (vehicleDTO != null){
+
+            List<TollPass> listTollPass = new ArrayList<>();
+
+            List<TollPassDTO> listTollPassDTO = vehicleDTO.getTollPassDTO();
+
+            TollPass tollPassObject = null;
+
+            Vehicle vehicle = null;
+
+            for (TollPassDTO tollPassDTO : listTollPassDTO){
+
+                tollPassObject = new TollPass(tollPassDTO.getId(),
+                        tollPassDTO.getDate(), tollPassDTO.getCost(),
+                        tollPassDTO.getPaymentType());
+                listTollPass.add(tollPassObject);
+
+            }
+
+            if(vehicleDTO instanceof NationalVehicleDTO){
+
+                Tag tag = new Tag(vehicleDTO.getTagDTO().getUniqueId());
+                LicensePlate plate = new LicensePlate(((NationalVehicleDTO) vehicleDTO).getLicensePlateDTO().getLicensePlateNumber());
+
+                vehicle = new NationalVehicle(vehicleDTO.getId(), tag,
+                        listTollPass, plate);
+
+            }else if (vehicleDTO instanceof ForeignVehicleDTO){
+                Tag tag = new Tag(vehicleDTO.getTagDTO().getUniqueId());
+
+                vehicle = new ForeignVehicle(vehicleDTO.getId(), tag, listTollPass);
+            }
+
+            vehicleService.unLinkVehicle(id, vehicle);
+
+        }
+
     }
+
 
     @Override
     public Optional<List<VehicleDTO>> showLinkedVehicles(Long id) throws IllegalArgumentException, NoCustomerException {
+
+        Optional<List<Vehicle>> vehicleOptionalList =  vehicleService.getLinkedVehicles(id);
+
+        List<Vehicle> vehicleList;
+        List<VehicleDTO> vehicleDTOList = new ArrayList<>();
+        VehicleDTO vehicleObjectDTO = null;
+
+
+        List<TollPassDTO> tollPassDTOList = new ArrayList<>();
+        List<TollPass> tollPassList;
+        TollPassDTO tollPassObjectDTO;
+
+        if(vehicleOptionalList.isPresent()){
+
+            vehicleList = vehicleOptionalList.get();
+
+
+            for (Vehicle vehicle : vehicleList){
+
+                tollPassList = vehicle.getTollPass();
+
+                for (TollPass tollPass : tollPassList){
+
+                    tollPassObjectDTO = new TollPassDTO(tollPass.getId(), tollPass.getPassDate(),
+                            tollPass.getCost(), tollPass.getPaymentType());
+
+                    tollPassDTOList.add(tollPassObjectDTO);
+                }
+
+                if(vehicle instanceof NationalVehicle){
+
+                    TagDTO tag = new TagDTO(vehicle.getTag().getTagId());
+
+                    LicensePlateDTO plate = new LicensePlateDTO(((NationalVehicle) vehicle).getPlate().getId() ,((NationalVehicle) vehicle).getPlate().getLicensePlateNumber());
+
+                    vehicleObjectDTO = new NationalVehicleDTO(vehicle.getId(), tollPassDTOList, tag, plate);
+                } else if (vehicle instanceof ForeignVehicle) {
+
+                    TagDTO tag = new TagDTO(vehicle.getTag().getTagId());
+
+                    vehicleObjectDTO = new ForeignVehicleDTO(vehicle.getId(), tollPassDTOList, tag);
+                }
+
+                vehicleDTOList.add(vehicleObjectDTO);
+            }
+
+            return Optional.of(vehicleDTOList);
+
+        }
+
         return Optional.empty();
     }
 
     @Override
     public void loadBalance(Long id, Double balance) throws IllegalArgumentException, NoCustomerException {
 
-        try{
-            accountService.loadBalance(id, balance);
-        }catch (Exception ignored){
-            //TODO exception
-        }
+        accountService.loadBalance(id, balance);
 
     }
 
     @Override
     public Optional<Double> showBalance(Long id) throws IllegalArgumentException, NoCustomerException {
 
-        try{
-            return accountService.showBalance(id);
-        }catch (Exception ignored){
-            //TODO exception
-        }
-        return Optional.empty();
+        return accountService.showBalance(id);
     }
 
     @Override
@@ -231,30 +314,66 @@ public class ClientControllerImpl implements ClientController {
             card = new CreditCard(creditCard.getId(), creditCard.getCardNumber(),
                     creditCard.getName(), creditCard.getExpireDate());
         }
-        try{
-            accountService.linkCreditCard(id, card);
-        } catch (Exception ignored){
-            //TODO exception
-        }
+
+        accountService.linkCreditCard(id, card);
 
     }
 
     @Override
     public Optional<List<TollPassDTO>> showPastPassages(Long id, LocalDate from, LocalDate to) throws IllegalArgumentException, IllegalRangeException, NoCustomerException {
+
+        long difference = ChronoUnit.DAYS.between(from, to);
+
+        if(difference < 0){
+            throw new IllegalRangeException("El rango de fechas es invalido.");
+        }
+
+        try{
+            Optional<List<TollPass>> tollPassList = vehicleService.getTollPass(id, from, to);
+
+            return  tollPassListToTollPassDTOList(tollPassList);
+        }catch (NoSuchElementException e){
+            System.out.println("No se pudieron encontrar las pasadas. " + e.getMessage());
+        }
+
         return Optional.empty();
     }
 
     @Override
     public Optional<List<TollPassDTO>> showPastPassagesVehicle(TagDTO tag, LocalDate from, LocalDate to) throws IllegalArgumentException, IllegalRangeException, NoCustomerException {
+
+        long difference = ChronoUnit.DAYS.between(from, to);
+
+        if(difference < 0){
+            throw new IllegalRangeException("El rango de fechas es invalido.");
+        }
+
+        if(tag == null){
+            throw new IllegalArgumentException("El tag esta vacío o es invalido");
+        }
+
+        Tag tagObject = new Tag(tag.getUniqueId());
+
+        try{
+            Optional<List<TollPass>> tollPassList = vehicleService.getTollPassByVehicle(tagObject, from , to);
+
+            return tollPassListToTollPassDTOList(tollPassList);
+        }catch (NoSuchElementException e){
+            System.out.println("No se pudieron encontrar las pasadas del vehiculo. " + e.getMessage());
+        }
+
         return Optional.empty();
     }
 
     @Override
     public Optional<List<AccountDTO>> getAccountByTag(TagDTO tagDTO) throws IllegalArgumentException {
 
+        if(tagDTO == null){
+            throw new IllegalArgumentException("Tipo de tag invalido");
+        }
+
         Tag tag = new Tag(tagDTO.getUniqueId());
 
-        //TODO try and catch
         Optional<List<Account>> accounts = accountService.getAccountByTag(tag);
 
         List<AccountDTO> accountsDTO = new ArrayList<>();
@@ -296,16 +415,15 @@ public class ClientControllerImpl implements ClientController {
     }
 
     @Override
-    public void prePay(Double balance, TagDTO tagDTO) throws IllegalArgumentException, NoCustomerException {
+    public void prePay(Double balance, TagDTO tagDTO) throws NoAccountException, IllegalArgumentException, NoCustomerException {
 
         Tag tag = new Tag(tagDTO.getUniqueId());
 
         try{
-
             accountService.prePay(tag, balance);
 
-        }catch (Exception ignored){
-
+        }catch (NoAccountException | IllegalArgumentException | NoCustomerException e){
+            System.out.println("Ocurrio un error: " + e.getMessage());
         }
 
     }
@@ -313,13 +431,48 @@ public class ClientControllerImpl implements ClientController {
     @Override
     public void postPay(Double balance, TagDTO tagDTO) throws IllegalArgumentException, NoCustomerException {
 
+
+
         Tag tag = new Tag(tagDTO.getUniqueId());
         try{
             accountService.postPay(tag, balance);
 
-        }catch(Exception ignored){
-
+        }catch(IllegalArgumentException | NoCustomerException | NoAccountException | ExternalApiException |
+               InvalidVehicleException e){
+            System.out.println("Ocurrio un error: " + e.getMessage());
         }
 
     }
+
+    @Override
+    public Optional<List<User>> listUsers() {
+        return userService.showUsers();
+    }
+
+    //funcion auxiliar de pasaje lista TollPass a lista TollPassDTO.
+    private Optional<List<TollPassDTO>> tollPassListToTollPassDTOList(Optional<List<TollPass>> tollPassList){
+
+        List<TollPass> listTollPass;
+
+        List<TollPassDTO> tollPassDTOList = new ArrayList<>();
+        TollPassDTO tollPassDTO;
+
+        if(tollPassList.isPresent()){
+
+            listTollPass = tollPassList.get();
+
+            for(TollPass tollPass : listTollPass){
+
+                tollPassDTO = new TollPassDTO(tollPass.getId(), tollPass.getPassDate(),
+                        tollPass.getCost(), tollPass.getPaymentType());
+
+                tollPassDTOList.add(tollPassDTO);
+            }
+
+            return Optional.of(tollPassDTOList);
+        }
+
+        return Optional.empty();
+    }
+
 }

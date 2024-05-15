@@ -4,6 +4,7 @@ import com.traffic.client.domain.Vehicle.Tag;
 import com.traffic.client.domain.Vehicle.TollPass;
 import com.traffic.client.domain.Vehicle.Vehicle;
 
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;

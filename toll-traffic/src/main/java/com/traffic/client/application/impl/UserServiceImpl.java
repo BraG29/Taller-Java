@@ -6,6 +6,9 @@ import com.traffic.client.domain.repository.ClientModuleRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import java.util.List;
+import java.util.Optional;
+
 @ApplicationScoped
 public class UserServiceImpl implements UserService {
 
@@ -14,8 +17,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void registerUser(User user) {
-
-        //TODO try and catch
         clientModuleRepository.createUser(user);
+    }
+
+    @Override
+    public Optional<List<User>> showUsers() {
+        return  clientModuleRepository.listUsers();
     }
 }

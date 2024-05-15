@@ -1,8 +1,8 @@
 package com.traffic.client.Interface;
 
+import com.traffic.client.domain.User.User;
 import com.traffic.dtos.account.AccountDTO;
 import com.traffic.dtos.account.CreditCardDTO;
-import com.traffic.dtos.user.UserDTO;
 import com.traffic.dtos.user.UserDTO;
 import com.traffic.dtos.vehicle.TagDTO;
 import com.traffic.dtos.vehicle.TollPassDTO;
@@ -137,8 +137,9 @@ public interface ClientController {
      * @param tagDTO -> Tag del usuario a cobrar.
      * @throws IllegalArgumentException -> Si el tipo de dato es invalido.
      * @throws NoCustomerException -> Si el usuario no es un cliente Telepeaje.
+     * @throws NoAccountException -> Si el usuario no tiene cuenta prePaga.
      */
-    public void prePay(Double balance, TagDTO tagDTO) throws IllegalArgumentException, NoCustomerException;
+    public void prePay(Double balance, TagDTO tagDTO) throws NoAccountException, IllegalArgumentException, NoCustomerException;
 
     /**
      * Realiza un pago utilizando tarjeta de crédito.
@@ -146,6 +147,9 @@ public interface ClientController {
      * @param tagDTO -> Tag del usuario a cobrar.
      * @throws IllegalArgumentException -> Si el tipo de dato es invalido.
      * @throws NoCustomerException -> Si el usuario no es un cliente Telepeaje.
+     * @throws NoAccountException -> Si el usuario no tiene cuenta PostPaga.
      */
-    public void postPay(Double balance, TagDTO tagDTO) throws IllegalArgumentException,  NoCustomerException;
+    public void postPay(Double balance, TagDTO tagDTO) throws NoAccountException, IllegalArgumentException,  NoCustomerException;
+
+    public Optional<List<User>> listUsers();
 }

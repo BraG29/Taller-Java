@@ -7,4 +7,6 @@ package com.traffic.exceptions;
  * </p>
  */
 public class IllegalRangeException extends Exception{
+    public IllegalRangeException(String message) {
+    }
 }

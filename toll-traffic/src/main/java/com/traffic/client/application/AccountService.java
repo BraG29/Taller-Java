@@ -6,6 +6,7 @@ import com.traffic.client.domain.User.User;
 import com.traffic.client.domain.Vehicle.Tag;
 import com.traffic.exceptions.ExternalApiException;
 import com.traffic.exceptions.InvalidVehicleException;
+import com.traffic.exceptions.NoAccountException;
 import com.traffic.exceptions.NoCustomerException;
 
 import java.util.List;
@@ -13,9 +14,9 @@ import java.util.Optional;
 
 public interface AccountService {
 
-    public void prePay(Tag tag, Double cost) throws NoCustomerException;
+    public void prePay(Tag tag, Double cost) throws NoAccountException,  NoCustomerException;
 
-    public void postPay(Tag tag, Double cost) throws ExternalApiException, InvalidVehicleException, NoCustomerException;
+    public void postPay(Tag tag, Double cost) throws NoAccountException, NoCustomerException, ExternalApiException, InvalidVehicleException;
 
     public Optional<List<Account>> getAccountByTag(Tag tag);
 
@@ -28,5 +29,5 @@ public interface AccountService {
      * @param id -> recibo un id del usuario, desde aqui llamo al repositorio para encontrar el usuario.
      * @param creditCard -> recibo el objeto de la tarjeta.
      */
-    public void linkCreditCard(Long id, CreditCard creditCard);
+    public void linkCreditCard(Long id, CreditCard creditCard) ;
 }

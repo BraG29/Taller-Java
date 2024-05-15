@@ -13,6 +13,7 @@ import jakarta.inject.Inject;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @ApplicationScoped
@@ -24,53 +25,48 @@ public class VehicleServiceImpl implements VehicleService {
     @Override
     public void linkVehicle(Long id, Vehicle vehicle) {
 
-        User user = repo.getUserById(id);
+        Optional<User> userOPT = Optional.of(repo.getUserById(id).orElseThrow(() ->
+                new NoSuchElementException("No se ecnontró usuario con id: " + id)));
 
-        try{
-            user.addVehicle(vehicle);
-        } catch(Exception ignored) {
+        User user = userOPT.get();
 
-        }
-
+        repo.linkVehicle(user, vehicle);
     }
 
     @Override
     public void unLinkVehicle(Long id, Vehicle vehicle) {
 
-        User user = repo.getUserById(id);
+        Optional<User> userOPT  = Optional.of(repo.getUserById(id).orElseThrow(() ->
+                new NoSuchElementException("No se encontró usuario con id: " + id)));
 
-        try{
-            user.removeVehicle(vehicle);
-        } catch(Exception ignored) {
-
-        }
+        User user = userOPT.get();
+        repo.unLinkVehicle(user, vehicle);
 
     }
 
     @Override
     public Optional<List<Vehicle>> getLinkedVehicles(Long id) {
 
-        User user = repo.getUserById(id);
+        Optional<User> userOPT  = Optional.of(repo.getUserById(id).orElseThrow(() ->
+                new NoSuchElementException("No se encontró el usuario con id: " + id)));
 
         List<Vehicle> vehicleList = new ArrayList<>();
         Vehicle vehicleObject = null;
 
         List<Link> links = null;
 
-        if(user != null){
+        User user = userOPT.get();
 
-            links = user.getLinkedCars();
+        links = user.getLinkedCars();
 
-            if(links != null){
-                for(Link link : links){
+        if(links != null){
+            for(Link link : links){
 
-                    vehicleObject = link.getVehicle();
-                    vehicleList.add(vehicleObject);
-                }
-
-                return Optional.of(vehicleList);
+                vehicleObject = link.getVehicle();
+                vehicleList.add(vehicleObject);
             }
 
+            return Optional.of(vehicleList);
         }
 
         return Optional.empty();
@@ -79,49 +75,60 @@ public class VehicleServiceImpl implements VehicleService {
     @Override
     public Optional<List<TollPass>> getTollPass(Long id, LocalDate from, LocalDate to) {
 
-        User user = repo.getUserById(id);
+        Optional<User> userOPT = Optional.ofNullable(repo.getUserById(id).orElseThrow(()
+        -> new NoSuchElementException("No se encontró el usuario a consultar pasadas con id: " + id)));
 
         List<TollPass> tollPassList;
         List<TollPass> tollPassListInRange = new ArrayList<>();
         List<Link> linkList = null;
 
-        if(user != null && user.getLinkedCars() != null){
 
-            linkList = user.getLinkedCars();
+        if(userOPT.isPresent()){
 
-            for (Link link : linkList){
+            User user = userOPT.get();
 
-               tollPassList = link.getVehicle().getTollPass();
+            if(user.getLinkedCars() != null){
 
-               for (TollPass tollPass : tollPassList){
+                linkList = user.getLinkedCars();
 
-                   if(tollPass.getPassDate().isAfter(from) && tollPass.getPassDate().isBefore(to)){ //si la fecha se encuentra dentro del rango.
-                       tollPassListInRange.add(tollPass);
-                   }
-               }
-               return Optional.of(tollPassListInRange);
+                for (Link link : linkList){
+
+                    tollPassList = link.getVehicle().getTollPass();
+
+                    for (TollPass tollPass : tollPassList){
+
+                        if(tollPass.getPassDate().isAfter(from) && tollPass.getPassDate().isBefore(to)){ //si la fecha se encuentra dentro del rango.
+                            tollPassListInRange.add(tollPass);
+                        }
+                    }
+                    return Optional.of(tollPassListInRange);
+                }
             }
         }
+
+
         return Optional.empty();
     }
 
     @Override
     public Optional<List<TollPass>> getTollPassByVehicle(Tag tag, LocalDate from, LocalDate to) {
 
-        if(tag != null){
-            Vehicle vehicle = repo.getVehicleByTag(tag);
+            Optional<Vehicle> vehicle = Optional.ofNullable(repo.getVehicleByTag(tag).orElseThrow(() ->
+                    new NoSuchElementException("No se encontró el vehículo con tag: " + tag.getTagId())));
 
-            List<TollPass> tollPassList = vehicle.getTollPass();
-            List<TollPass> tollPassListInRange = new ArrayList<>();
+            if(vehicle.isPresent()){
+                List<TollPass> tollPassList = vehicle.get().getTollPass();
+                List<TollPass> tollPassListInRange = new ArrayList<>();
 
-            for(TollPass tollPass: tollPassList){
+                for(TollPass tollPass: tollPassList){
 
-                if(tollPass.getPassDate().isAfter(from) && tollPass.getPassDate().isBefore(to)){ //si la fecha se encuentra dentro del rango.
-                    tollPassListInRange.add(tollPass);
+                    if(tollPass.getPassDate().isAfter(from) && tollPass.getPassDate().isBefore(to)){ //si la fecha se encuentra dentro del rango.
+                        tollPassListInRange.add(tollPass);
+                    }
                 }
+                return Optional.of(tollPassListInRange);
             }
-            return Optional.of(tollPassListInRange);
-        }
+
         return Optional.empty();
     }
 }
