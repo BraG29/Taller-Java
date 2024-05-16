@@ -3,6 +3,7 @@ package com.traffic.toll.Interface;
 import java.util.Optional;
 import com.traffic.dtos.vehicle.IdentifierDTO;
 import com.traffic.exceptions.InvalidVehicleException;
+import com.traffic.exceptions.PersistenceErrorException;
 
 /**
  * <p>
@@ -22,8 +23,10 @@ public interface TollController {
      *                   si el vehiculo esta habilitado para pasar, caso contrario sera <strong>false</strong>
      * @throws IllegalArgumentException si idenitifier es <code>null</code>
      * @throws InvalidVehicleException si el vehiculo no existe
+     * @throws PersistenceErrorException si hubo algun error a la hora de persisitir los datos
      */
-    public Optional<Boolean> isEnabled(IdentifierDTO identifier) throws IllegalArgumentException, InvalidVehicleException;
+    public Optional<Boolean> isEnabled(IdentifierDTO identifier) throws IllegalArgumentException,
+            InvalidVehicleException, PersistenceErrorException;
 
     /**
      * Actualiza el valor de la tarifa comun

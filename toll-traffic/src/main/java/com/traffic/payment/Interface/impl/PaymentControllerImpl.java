@@ -85,7 +85,7 @@ public class PaymentControllerImpl implements PaymentController {
                 //Iterate through it to get the Domain object list of toll pases for the given vehicle
                 for (TollPassDTO toll : tollPassListToIterate){
 
-                    TollPass tollToAdd = new TollPass(toll.getId(), toll.getDate(),toll.getCost(),toll.getPaymentType());
+                    TollPass tollToAdd = new TollPass(toll.getDate(),toll.getCost(),toll.getPaymentType());
                     passes.add(tollToAdd);
                 }
                 //transform TagDTO to Tag
@@ -107,7 +107,7 @@ public class PaymentControllerImpl implements PaymentController {
                 //Iterate through it to get the Domain object list of toll pases for the given vehicle
                 for (TollPassDTO toll : tollPassListToIterate){
 
-                    TollPass tollToAdd = new TollPass(toll.getId(), toll.getDate(),toll.getCost(),toll.getPaymentType());
+                    TollPass tollToAdd = new TollPass( toll.getDate(),toll.getCost(),toll.getPaymentType());
                     passes.add(tollToAdd);
                 }
 

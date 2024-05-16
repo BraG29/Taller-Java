@@ -76,17 +76,17 @@ public class VehicleRepositoryImpl implements VehicleRepository {
     }
 
     @Override
-    public void update(Vehicle vehicle) {
+    public Optional<Vehicle> update(Vehicle vehicle) {
 
         Optional<Vehicle> vehicleOPT = vehicles.stream()
                 .filter(v -> v.getId().equals(vehicle.getId()))
                 .findFirst();
 
-        if(vehicleOPT.isPresent()){
-            Vehicle savedVehicle = vehicleOPT.get();
 
-            savedVehicle.updateEntity(vehicle);
+        vehicleOPT.ifPresent( v ->{
+            v.updateEntity(vehicle);
+        });
 
-        }
+        return vehicleOPT;
     }
 }
