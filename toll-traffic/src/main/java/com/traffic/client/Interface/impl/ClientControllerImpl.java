@@ -8,23 +8,22 @@ import com.traffic.client.domain.Account.Account;
 import com.traffic.client.domain.Account.CreditCard;
 import com.traffic.client.domain.Account.POSTPay;
 import com.traffic.client.domain.Account.PREPay;
-import com.traffic.client.domain.User.*;
+import com.traffic.client.domain.User.ForeignUser;
+import com.traffic.client.domain.User.NationalUser;
+import com.traffic.client.domain.User.TollCustomer;
+import com.traffic.client.domain.User.User;
 import com.traffic.client.domain.Vehicle.*;
-import com.traffic.client.domain.tariff.CommonTariff;
 import com.traffic.dtos.account.AccountDTO;
 import com.traffic.dtos.account.CreditCardDTO;
 import com.traffic.dtos.account.PostPayDTO;
 import com.traffic.dtos.account.PrePayDTO;
-import com.traffic.dtos.tariff.CommonTariffDTO;
 import com.traffic.dtos.user.ForeignUserDTO;
 import com.traffic.dtos.user.NationalUserDTO;
-import com.traffic.dtos.user.SuciveCustomerDTO;
 import com.traffic.dtos.user.UserDTO;
 import com.traffic.dtos.vehicle.*;
 import com.traffic.exceptions.*;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -34,6 +33,7 @@ import java.util.Optional;
 
 @ApplicationScoped
 public class ClientControllerImpl implements ClientController {
+
 
     @Inject
     private AccountService accountService; //operaciones de la cuenta.
@@ -118,7 +118,6 @@ public class ClientControllerImpl implements ClientController {
 
             vehicleService.linkVehicle(id, vehicle);
         }
-
 
     }
 
@@ -224,6 +223,7 @@ public class ClientControllerImpl implements ClientController {
 
         accountService.loadBalance(id, balance);
 
+
     }
 
     @Override
@@ -243,6 +243,7 @@ public class ClientControllerImpl implements ClientController {
         }
 
         accountService.linkCreditCard(id, card);
+
 
     }
 
@@ -353,12 +354,11 @@ public class ClientControllerImpl implements ClientController {
             System.out.println("Ocurrio un error: " + e.getMessage());
         }
 
+
     }
 
     @Override
     public void postPay(Double balance, TagDTO tagDTO) throws IllegalArgumentException, NoCustomerException {
-
-
 
         Tag tag = new Tag(tagDTO.getUniqueId());
         try{
