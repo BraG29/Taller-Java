@@ -11,6 +11,8 @@ import com.traffic.dtos.vehicle.IdentifierDTO;
 import com.traffic.dtos.vehicle.LicensePlateDTO;
 import com.traffic.dtos.vehicle.TagDTO;
 import com.traffic.exceptions.InvalidVehicleException;
+import com.traffic.exceptions.NoAccountException;
+import com.traffic.exceptions.NoCustomerException;
 import com.traffic.exceptions.PersistenceErrorException;
 import com.traffic.sucive.Interface.SuciveController;
 import com.traffic.sucive.Interface.impl.SuciveControllerImpl;
@@ -97,6 +99,14 @@ class TollControllerTest {
                 } else{
                     return Optional.empty();
                 }
+            }
+
+            @Override
+            public void prePay(Double balance, TagDTO tagDTO) throws NoAccountException, IllegalArgumentException, NoCustomerException {
+            }
+
+            @Override
+            public void postPay(Double balance, TagDTO tagDTO) throws IllegalArgumentException, NoCustomerException {
             }
         };
     }
