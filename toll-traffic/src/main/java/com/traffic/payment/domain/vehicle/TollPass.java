@@ -9,7 +9,6 @@ import java.time.LocalDate;
 @Getter
 @AllArgsConstructor
 public class TollPass {
-    private Long id;
     private LocalDate date;
     private Double cost;
     private PaymentTypeData paymentType;
