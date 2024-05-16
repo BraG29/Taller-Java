@@ -7,4 +7,8 @@ package com.traffic.exceptions;
  * </p>
  */
 public class InvalidVehicleException extends Exception{
+
+    public InvalidVehicleException(String message) {
+        super(message);
+    }
 }

@@ -24,4 +24,9 @@ public class PaymentRepositoryImplementation implements PaymentRepository {
         users.add(userToAdd);
         System.out.println(userToAdd.getName());
     }
+
+    public ArrayList<User> getAllUsers() {
+        return users;
+    }
+
 }
