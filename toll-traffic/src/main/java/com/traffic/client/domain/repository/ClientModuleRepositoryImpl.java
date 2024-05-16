@@ -9,10 +9,14 @@ import com.traffic.client.domain.User.TollCustomer;
 import com.traffic.client.domain.User.User;
 import com.traffic.client.domain.Vehicle.*;
 import com.traffic.dtos.PaymentTypeData;
+import com.traffic.dtos.user.NationalUserDTO;
+import com.traffic.dtos.user.UserDTO;
+import com.traffic.exceptions.NoCustomerException;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.jboss.jdeparser.JArrayExpr;
 
+import javax.swing.text.html.Option;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +34,9 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
     List<Link> vehiculosExtranjero;
     List<TollPass> pasadas;
 
+    public ClientModuleRepositoryImpl(){
+        usersInit();
+    }
 
     @PostConstruct
     public void usersInit(){
@@ -71,11 +78,22 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
         
         User foreignUser = new ForeignUser(vehiculosExtranjero, customer, "1.234.512-2",
                 "Felipe", "1234", "Felipe@mail.com", 2L);
-        
+
+
+        /********************/
+        TollCustomer customerTest = new TollCustomer(51L, null, null);
+        User userTestRepo = new NationalUser(null, customerTest, "5.123.636-8","Matias",
+                "1234", "matias@mail.com" ,51L, null) ;
+
+
         usuarios.add(nationalUser);
         usuarios.add(foreignUser);
+        usuarios.add(userTestRepo);
 
     }
+
+    //TODO falta actualizar la lista en las operaciones necesarias
+
 
     @Override
     public void linkVehicle(User usr, Vehicle vehicle) {
@@ -99,15 +117,47 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
         return Optional.of(vehicles);
     }
 
+    //TODO aca no hago esto. llamo a la oper de martin
     @Override
     public void linkCreditCard(User usr, CreditCard card) {
+
+        Integer accountNumber = POSTPay.generateRandomAccountNumber();
+
+        if(usr.getTollCustomer() == null){ //si no es cliente le armo un objeto para crearle la cuenta.
+
+            usr.setTollCustomer(new TollCustomer(usr.getId(), new POSTPay(usr.getId(), accountNumber, LocalDate.now(), card), null)); //le doy al usuario el cliente,
+
+        }else if (usr.getTollCustomer().getPostPay() == null){ //si es cliente pero no tiene cuentaPostPay
+
+            usr.getTollCustomer().setPostPay(new POSTPay(usr.getId(), accountNumber, LocalDate.now(), card)); //Creo una y agrego tarjeta.
+
+        }else{ //si es cliente y tiene cuenta.
             usr.getTollCustomer().getPostPay().setCreditCard(card);
+        }
+
     }
 
     @Override
-    public void loadBalance(User usr, Double balance) {
-        usr.getTollCustomer().getPrePay().loadBalance(balance);
+    public void loadBalance(User usr, Double balance) throws NoCustomerException {
+
+        Integer accountNumber = PREPay.generateRandomAccountNumber();
+
+        if (usr.getTollCustomer() == null) { //si no es cliente creo el objeto
+
+             throw new NoCustomerException();
+
+        } else if(usr.getTollCustomer().getPrePay() == null){
+
+            usr.getTollCustomer().setPrePay(new PREPay(usr.getId(), accountNumber, LocalDate.now(), balance));
+
+
+        } else {
+            usr.getTollCustomer().getPrePay().loadBalance(balance);
+
+
+        }
     }
+
 
     @Override
     public Optional<Double> showBalance(User usr) {
@@ -144,13 +194,14 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
         }
 
         return Optional.empty();
-
     }
 
     @Override
     public void createUser(User user) {
         usuarios.add(user);
     }
+
+
 
     @Override
     public Optional<User> getUserById(Long id) {

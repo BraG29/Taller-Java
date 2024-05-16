@@ -7,6 +7,7 @@ import com.traffic.client.domain.Vehicle.Tag;
 import com.traffic.client.domain.Vehicle.TollPass;
 import com.traffic.client.domain.Vehicle.Vehicle;
 import com.traffic.client.domain.repository.ClientModuleRepository;
+import com.traffic.client.domain.repository.ClientModuleRepositoryImpl;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -21,6 +22,10 @@ public class VehicleServiceImpl implements VehicleService {
 
     @Inject
     ClientModuleRepository repo;
+
+    public VehicleServiceImpl(){
+        repo = new ClientModuleRepositoryImpl();
+    }
 
     @Override
     public void linkVehicle(Long id, Vehicle vehicle) {

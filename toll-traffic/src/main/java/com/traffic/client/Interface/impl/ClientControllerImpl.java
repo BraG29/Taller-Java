@@ -47,105 +47,32 @@ public class ClientControllerImpl implements ClientController {
     @Override
     public void addTollCostumer(UserDTO userDTO) throws IllegalArgumentException {
 
+        //TODO quitar tollCustomer y vehiculo, darle esa carga a las oper de vincular tarjeta, vehiculo y cargar saldo.
+
         if(userDTO == null){
             throw new IllegalArgumentException("El usuario recibido está vacío");
         }
 
-        Long tollCustomerID = userDTO.getTollCustomer().getId();
-
-        //armo cliente telepeaje
-        TollCustomer customer = new TollCustomer(tollCustomerID, null, null);
-
-        //Armado del vehiculo
-
-        //Lista de vinculos
-        List<LinkDTO> linkDTO = userDTO.getLinkedVehicles();
-        List<Link> linkedVehicles = new ArrayList<>();
-        Link linkObject;
-
-        //Lista de pasadas
-        List<TollPassDTO> tollPassDTO;
-        List<TollPass> tollPassList = new ArrayList<>();
-        TollPass pass;
-
-        //objeto vehiculo.
-        NationalVehicleDTO nationalVehicleDTO; //vehiculo nacional
-        ForeignVehicleDTO foreignVehicleDTO; //vehiculo extranjero
-        Vehicle vehicleObject;
-        Tag tag;
 
         User user = null;
+
+        TollCustomer tollCustomer;
 
         if(userDTO instanceof NationalUserDTO){
 
             //En esta parte hay que armar la lista de vinculos, que tiene vehiculos con una lista de pasadas.
             //Y un objeto tag. Se itera en la lista de DTO, se crea un objeto, y se lo agrega a una lista común.
 
-            SuciveCustomerDTO suciveCustomerDTO = ((NationalUserDTO) userDTO).getSuciveCustomer();
-            CommonTariffDTO commonTariffDTO= suciveCustomerDTO.getCommonTariff();
-
-
-            CommonTariff tariff = new CommonTariff(commonTariffDTO.getAmount(),commonTariffDTO.getId());
-            SuciveCustomer suciveCustomer = new SuciveCustomer(suciveCustomerDTO.getId(), tariff);
-
-            for (LinkDTO link : linkDTO) {
-
-                //Armado del objeto vehiculo.
-                nationalVehicleDTO = (NationalVehicleDTO) link.getVehicle();
-
-                tollPassDTO = nationalVehicleDTO.getTollPassDTO();
-                for (TollPassDTO tollPass : tollPassDTO){ //obtengo pasas del vehiculo en DTO
-                    pass = new TollPass(tollPass.getId(), tollPass.getDate(), tollPass.getCost(), tollPass.getPaymentType()); //arreglar esto talvez puedo usar PaymentTypeData en lugar de crear otro enum.
-                    tollPassList.add(pass);//guardo pasadas en DTO en lista comun.
-                }
-
-                tag = new Tag(nationalVehicleDTO.getTagDTO().getUniqueId()); //paso de TagDTO a tag
-
-                LicensePlate plate = new LicensePlate(
-                        nationalVehicleDTO.getLicensePlateDTO().getLicensePlateNumber()); //paso de matriculaDTO a matricula.
-
-                //armo objeto auto, con la lista de pasadas.
-                vehicleObject = new NationalVehicle(nationalVehicleDTO.getId(), tag, tollPassList, plate);
-
-                linkObject = new Link(link.getId(), link.getActive(), vehicleObject, link.getInitialDate());
-
-                linkedVehicles.add(linkObject);
-
-            }
-
             //armo usuario nacional
-            user = new NationalUser(linkedVehicles, customer, userDTO.getCi(), userDTO.getName(),
-                    userDTO.getPassword(), userDTO.getEmail(), userDTO.getId(), suciveCustomer);
+            tollCustomer = new TollCustomer(userDTO.getId(), null, null);
+            user = new NationalUser(null,  tollCustomer, userDTO.getCi(), userDTO.getName(),
+                    userDTO.getPassword(), userDTO.getEmail(), userDTO.getId(), null);
 
 
         } else if (userDTO instanceof ForeignUserDTO) {
-
-            for (LinkDTO link : linkDTO) {
-
-                //Armado del objeto vehiculo.
-                foreignVehicleDTO = (ForeignVehicleDTO) link.getVehicle();
-
-                tollPassDTO = foreignVehicleDTO.getTollPassDTO();
-
-                for (TollPassDTO tollPass : tollPassDTO){ //obtengo pasas del vehiculo en DTO
-                    pass = new TollPass(tollPass.getId(), tollPass.getDate(), tollPass.getCost(), tollPass.getPaymentType()); //arreglar esto talvez puedo usar PaymentTypeData en lugar de crear otro enum.
-                    tollPassList.add(pass);//guardo pasadas en DTO en lista comun.
-                }
-
-                tag = new Tag(foreignVehicleDTO .getTagDTO().getUniqueId()); //paso de TagDTO a tag
-
-                //armo objeto auto, con la lista de pasadas.
-                vehicleObject = new ForeignVehicle(foreignVehicleDTO.getId(), tag, tollPassList);
-
-                linkObject = new Link(link.getId(), link.getActive(), vehicleObject, link.getInitialDate());
-
-                linkedVehicles.add(linkObject);
-
-
-            }
-
+            tollCustomer = new TollCustomer(userDTO.getId(), null, null);
             //armo usuario extranjero.
-            user = new ForeignUser(linkedVehicles, customer, userDTO.getCi(), userDTO.getName(),
+            user = new ForeignUser(null, tollCustomer, userDTO.getCi(), userDTO.getName(),
                     userDTO.getPassword(), userDTO.getEmail(), userDTO.getId());
 
         }
@@ -157,11 +84,11 @@ public class ClientControllerImpl implements ClientController {
     @Override
     public void linkVehicle(Long id, VehicleDTO vehicleDTO) throws IllegalArgumentException, NoCustomerException {
 
-        if(vehicleDTO != null){
+        if(vehicleDTO != null){ //si no es vacio.
 
-            List<TollPass> listTollPass = new ArrayList<>();
+            List<TollPass> listTollPass = new ArrayList<>(); //armo una lista de pasadas.
 
-            List<TollPassDTO> listTollPassDTO = vehicleDTO.getTollPassDTO();
+            List<TollPassDTO> listTollPassDTO = vehicleDTO.getTollPassDTO(); //obtengo lista de pasadas
 
             TollPass tollPassObject = null;
 
@@ -188,7 +115,6 @@ public class ClientControllerImpl implements ClientController {
 
                 vehicle = new ForeignVehicle(vehicleDTO.getId(), tag, listTollPass);
             }
-
 
             vehicleService.linkVehicle(id, vehicle);
         }
@@ -310,6 +236,7 @@ public class ClientControllerImpl implements ClientController {
     public void linkCreditCard(Long id, CreditCardDTO creditCard) throws IllegalArgumentException, NoCustomerException {
 
         CreditCard card = null;
+
         if(creditCard != null){
             card = new CreditCard(creditCard.getId(), creditCard.getCardNumber(),
                     creditCard.getName(), creditCard.getExpireDate());

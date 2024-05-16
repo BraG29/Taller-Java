@@ -5,6 +5,7 @@ import com.traffic.client.domain.Account.CreditCard;
 import com.traffic.client.domain.User.User;
 import com.traffic.client.domain.Vehicle.Tag;
 import com.traffic.client.domain.Vehicle.Vehicle;
+import com.traffic.exceptions.NoCustomerException;
 
 import java.util.List;
 import java.util.Optional;
@@ -44,7 +45,7 @@ public interface ClientModuleRepository {
 
     public void linkCreditCard(User usr, CreditCard card);
 
-    public void loadBalance(User usr, Double balance);
+    public void loadBalance(User usr, Double balance) throws NoCustomerException;
 
     public Optional<Double> showBalance(User usr);
 

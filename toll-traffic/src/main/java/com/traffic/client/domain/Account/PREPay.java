@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.time.LocalDate;
+import java.util.Random;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -25,5 +26,14 @@ public class PREPay extends Account{
 
     public void loadBalance(Double balance){
         this.balance += balance;
+    }
+
+    public static Integer generateRandomAccountNumber(){
+        Random random = new Random();
+
+        int minNumber = 100000;
+        int maxNumber = 999999;
+
+        return random.nextInt(maxNumber - minNumber + 1) + minNumber;
     }
 }

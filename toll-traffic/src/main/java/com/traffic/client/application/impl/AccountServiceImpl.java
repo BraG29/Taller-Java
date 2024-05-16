@@ -7,9 +7,11 @@ import com.traffic.client.domain.Account.POSTPay;
 import com.traffic.client.domain.Account.PREPay;
 import com.traffic.client.domain.User.ForeignUser;
 import com.traffic.client.domain.User.NationalUser;
+import com.traffic.client.domain.User.TollCustomer;
 import com.traffic.client.domain.User.User;
 import com.traffic.client.domain.Vehicle.*;
 import com.traffic.client.domain.repository.ClientModuleRepository;
+import com.traffic.client.domain.repository.ClientModuleRepositoryImpl;
 import com.traffic.communication.Interface.CommunicationController;
 import com.traffic.dtos.account.CreditCardDTO;
 import com.traffic.dtos.account.PostPayDTO;
@@ -47,6 +49,11 @@ public class AccountServiceImpl implements AccountService {
     
     @Inject
     private CommunicationController communicationController;
+
+    public AccountServiceImpl(){
+        repo = new ClientModuleRepositoryImpl();
+    }
+
 
     @Override
     public void prePay(Tag tag, Double cost) throws NoAccountException,  NoCustomerException {
@@ -210,7 +217,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public void loadBalance(Long id, Double balance) {
+    public void loadBalance(Long id, Double balance) throws NoCustomerException {
 
         Optional<User> usrOPT = repo.getUserById(id);
 
@@ -218,10 +225,8 @@ public class AccountServiceImpl implements AccountService {
 
             User usr = usrOPT.get();
 
-            if(usr.getTollCustomer() != null){
+            repo.loadBalance(usr, balance);
 
-                repo.loadBalance(usr, balance);
-            }
         }
     }
 

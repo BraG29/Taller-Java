@@ -20,7 +20,7 @@ public interface AccountService {
 
     public Optional<List<Account>> getAccountByTag(Tag tag);
 
-    public void loadBalance(Long id, Double balance);
+    public void loadBalance(Long id, Double balance) throws NoCustomerException;
 
     public Optional<Double> showBalance(Long id);
 

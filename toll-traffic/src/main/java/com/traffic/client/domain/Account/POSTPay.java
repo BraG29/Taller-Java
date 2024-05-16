@@ -21,7 +21,7 @@ public class POSTPay extends Account{
     }
 
 
-    public Integer generateRandomAccountNumber(){
+    public static Integer generateRandomAccountNumber(){
         Random random = new Random();
 
         int minNumber = 100000;
