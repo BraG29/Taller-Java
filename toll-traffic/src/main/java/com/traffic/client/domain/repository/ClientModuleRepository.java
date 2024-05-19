@@ -27,29 +27,41 @@ public interface ClientModuleRepository {
      */
     public Optional<User> findByTag(Tag tag);
 
+    /**
+     * Lista de usersList del sistema.
+     * @return -> devuelve una lista con todos los usersList del sistema.
+     */
     public Optional<List<User>> listUsers();
 
+    /**
+     * Crea un usuario.
+     * @param user -> Recibe el usuario a crear.
+     */
     public void createUser(User user);
 
+    /**
+     * Busca y devuelve un usuario en particular.
+     * @param id -> identificador del usuario a buscar.
+     * @return -> devuelve un usuario.
+     */
     public Optional<User> getUserById(Long id);
 
+    /**
+     * Busca y devuelve un vehiculo en particular.
+     * @param tag -> Recibe el tag del vehiculo a buscar.
+     * @return -> devuelve un vehiculo.
+     */
     public Optional<Vehicle> getVehicleByTag(Tag tag);
 
+    /**
+     * Inicia lista con datos de prueba.
+     */
     public void usersInit();
 
-    public void linkVehicle(User usr, Vehicle vehicle);
+    /**
+     * Actualiza cambios de un usuario en una lista.
+     * @param usr -> recibe el usuario a actualizar en la lista.
+     */
+    public void update(User usr);
 
-    public void unLinkVehicle(User usr, Vehicle vehicle);
-
-    public Optional<List<Vehicle>> showLinkedVehicles(User usr);
-
-    public void linkCreditCard(User usr, CreditCard card);
-
-    public void loadBalance(User usr, Double balance) throws NoCustomerException;
-
-    public Optional<Double> showBalance(User usr);
-
-    public void payPrePay(User usr, Double balance);
-
-    //pasadas
 }

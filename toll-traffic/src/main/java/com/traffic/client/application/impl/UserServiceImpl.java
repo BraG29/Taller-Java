@@ -16,11 +16,6 @@ public class UserServiceImpl implements UserService {
     @Inject
     private ClientModuleRepository clientModuleRepository;
 
-    //inicailizo apra el test.
-    public UserServiceImpl(){
-        clientModuleRepository = new ClientModuleRepositoryImpl();
-    }
-
     @Override
     public void registerUser(User user) {
         clientModuleRepository.createUser(user);

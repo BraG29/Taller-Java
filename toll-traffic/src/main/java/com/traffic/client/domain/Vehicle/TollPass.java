@@ -16,6 +16,7 @@ public class TollPass {
     public TollPass(){}
 
     public TollPass(Long id,LocalDate passDate, Double cost, PaymentTypeData payment) {
+        this.id = id;
         this.passDate = passDate;
         this.cost = cost;
         paymentType = payment;
