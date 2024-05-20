@@ -73,9 +73,9 @@ mockito less
 
         //I create 3 tollPasses for a given toll Customer
         TollCustomerDTO tollCustomer = new TollCustomerDTO(0L,postPayDTO,prePayDTO);
-        TollPassDTO tollPass1 = new TollPassDTO(0L,LocalDate.now(),500D,PaymentTypeData.PRE_PAYMENT);
-        TollPassDTO tollPass2 = new TollPassDTO(1L,LocalDate.now(),500D,PaymentTypeData.POST_PAYMENT);
-        TollPassDTO tollPass3 = new TollPassDTO(2L,LocalDate.now(),1000D,PaymentTypeData.SUCIVE);
+        TollPassDTO tollPass1 = new TollPassDTO(LocalDate.now(),500D,PaymentTypeData.PRE_PAYMENT);
+        TollPassDTO tollPass2 = new TollPassDTO(LocalDate.now(),500D,PaymentTypeData.POST_PAYMENT);
+        TollPassDTO tollPass3 = new TollPassDTO(LocalDate.now(),1000D,PaymentTypeData.SUCIVE);
 
         List<TollPassDTO> tollPassDTOList = new ArrayList<>();
         tollPassDTOList.add(tollPass1);

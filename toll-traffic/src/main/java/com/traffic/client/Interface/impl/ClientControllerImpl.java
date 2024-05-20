@@ -96,8 +96,7 @@ public class ClientControllerImpl implements ClientController {
 
             for (TollPassDTO tollPassDTO : listTollPassDTO){
 
-                tollPassObject = new TollPass(tollPassDTO.getId(),
-                        tollPassDTO.getDate(), tollPassDTO.getCost(),
+                tollPassObject = new TollPass(tollPassDTO.getDate(), tollPassDTO.getCost(),
                         tollPassDTO.getPaymentType());
                 listTollPass.add(tollPassObject);
 
@@ -135,8 +134,7 @@ public class ClientControllerImpl implements ClientController {
 
             for (TollPassDTO tollPassDTO : listTollPassDTO){
 
-                tollPassObject = new TollPass(tollPassDTO.getId(),
-                        tollPassDTO.getDate(), tollPassDTO.getCost(),
+                tollPassObject = new TollPass(tollPassDTO.getDate(), tollPassDTO.getCost(),
                         tollPassDTO.getPaymentType());
                 listTollPass.add(tollPassObject);
 
@@ -188,7 +186,7 @@ public class ClientControllerImpl implements ClientController {
 
                 for (TollPass tollPass : tollPassList){
 
-                    tollPassObjectDTO = new TollPassDTO(tollPass.getId(), tollPass.getPassDate(),
+                    tollPassObjectDTO = new TollPassDTO(tollPass.getPassDate(),
                             tollPass.getCost(), tollPass.getPaymentType());
 
                     tollPassDTOList.add(tollPassObjectDTO);
@@ -390,7 +388,7 @@ public class ClientControllerImpl implements ClientController {
 
             for(TollPass tollPass : listTollPass){
 
-                tollPassDTO = new TollPassDTO(tollPass.getId(), tollPass.getPassDate(),
+                tollPassDTO = new TollPassDTO(tollPass.getPassDate(),
                         tollPass.getCost(), tollPass.getPaymentType());
 
                 tollPassDTOList.add(tollPassDTO);
