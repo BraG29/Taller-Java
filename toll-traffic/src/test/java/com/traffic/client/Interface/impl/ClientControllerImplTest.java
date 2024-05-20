@@ -272,10 +272,11 @@ class ClientControllerImplTest {
         if(tollPassDTOListOPT.isPresent()){
 
             List<TollPassDTO> tollPassDTOList = tollPassDTOListOPT.get();
-
+            Integer i = 0;
             for (TollPassDTO pass : tollPassDTOList){
-            System.out.println("Pasada Nº: " + pass.getId() + " Tipo de pago: " + pass.getPaymentType()
+            System.out.println("Pasada Nº: " + i + " Tipo de pago: " + pass.getPaymentType()
                     + " Costo: " + pass.getCost() + " Fecha: " + pass.getDate());
+            i++;
 
             }
         }else {
@@ -294,10 +295,11 @@ class ClientControllerImplTest {
 
         if(tollPassDTOListOPT.isPresent()){
             List<TollPassDTO> tollPassDTOList = tollPassDTOListOPT.get();
-
+            Integer i = 0;
             for (TollPassDTO pass : tollPassDTOList){
-                System.out.println("Pasada Nº: " + pass.getId() + " Tipo de pago: " + pass.getPaymentType()
+                System.out.println("Pasada Nº: " + i + " Tipo de pago: " + pass.getPaymentType()
                         + " Costo: " + pass.getCost() + " Fecha: " + pass.getDate());
+                i++;
             }
         }else {
             System.out.println("El vehiculo no tiene pasadas.");

@@ -72,8 +72,9 @@ public class AccountServiceImpl implements AccountService {
 
                     if(cost > prePay.getBalance()){
 
-                        //TODO evento para modulo monitoreo.
-                        monitoringController.notifyNotEnoughBalance();
+                        //TODO: lanzar evento no llamar a la funcion
+//                        monitoringController.notifyNotEnoughBalance();
+
 
                         //lanzo notificacion armo UserDTO con cosas basicas.
                         if(usr instanceof NationalUser){
@@ -150,7 +151,7 @@ public class AccountServiceImpl implements AccountService {
                         listTollPass = vehicle.getTollPass();
 
                         for (TollPass tollPass : listTollPass){ //obtengo pasadas del vehiculo, y las paso a una listaDTO.
-                            tollPassObject = new TollPassDTO(tollPass.getId(), tollPass.getPassDate(), tollPass.getCost(), tollPass.getPaymentType());
+                            tollPassObject = new TollPassDTO(tollPass.getPassDate(), tollPass.getCost(), tollPass.getPaymentType());
                             listTollPassDTO.add(tollPassObject);
                         }
 

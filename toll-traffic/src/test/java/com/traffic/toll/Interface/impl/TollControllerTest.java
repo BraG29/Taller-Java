@@ -11,6 +11,7 @@ import com.traffic.dtos.vehicle.IdentifierDTO;
 import com.traffic.dtos.vehicle.LicensePlateDTO;
 import com.traffic.dtos.vehicle.TagDTO;
 import com.traffic.exceptions.InvalidVehicleException;
+import com.traffic.exceptions.PersistenceErrorException;
 import com.traffic.sucive.Interface.SuciveController;
 import com.traffic.sucive.Interface.impl.SuciveControllerImpl;
 import com.traffic.toll.domain.entities.CommonTariff;
@@ -20,7 +21,6 @@ import com.traffic.toll.domain.repositories.VehicleRepository;
 import com.traffic.toll.domain.repositories.impl.TariffRepositoryImpl;
 import com.traffic.toll.domain.repositories.impl.VehicleRepositoryImpl;
 import jakarta.enterprise.context.ApplicationScoped;
-import org.jboss.weld.config.Description;
 import org.jboss.weld.junit.MockBean;
 import org.jboss.weld.junit5.WeldInitiator;
 import org.jboss.weld.junit5.WeldJunit5Extension;
@@ -103,20 +103,25 @@ class TollControllerTest {
 
     @DisplayName("Tests para cuando isEnable devuelve true")
     @Test
-    void isEnableSuccessTrueTest(TollControllerImpl tollController) throws InvalidVehicleException {
+    void isEnableSuccessTrueTest(TollControllerImpl tollController, VehicleRepository vehicleRepository) throws InvalidVehicleException {
         IdentifierDTO withPrePay = new TagDTO(100L);
         IdentifierDTO withPrePayLicensePlate = new LicensePlateDTO(1L, "ABC-123");
         IdentifierDTO withPostPay = new TagDTO(101L);
         IdentifierDTO withSucive = new TagDTO(102L);
 
-        //Caso de cliente que tiene cuenta PrePaga con saldo suficiente
-        Assertions.assertTrue(tollController.isEnabled(withPrePay).orElse(false));
-        //Caso de cliente que tiene cuenta PrePaga con saldo suficiente (buscado por LicensePlate)
-        Assertions.assertTrue(tollController.isEnabled(withPrePayLicensePlate).orElse(false));
-        //Caso de cliente que tiene cuenta PostPaga
-        Assertions.assertTrue(tollController.isEnabled(withPostPay).orElse(false));
-        //Caso de cliente nacional sin cuentas, se le cobra por Sucive
-        Assertions.assertTrue(tollController.isEnabled(withSucive).orElse(false));
+        //Para catchear PersistenceErrorException
+        Assertions.assertDoesNotThrow( () -> {
+            //Caso de cliente que tiene cuenta PrePaga con saldo suficiente
+            Assertions.assertTrue(tollController.isEnabled(withPrePay).orElse(false));
+            //Caso de cliente que tiene cuenta PrePaga con saldo suficiente (buscado por LicensePlate)
+            Assertions.assertTrue(tollController.isEnabled(withPrePayLicensePlate).orElse(false));
+            //Caso de cliente que tiene cuenta PostPaga
+            Assertions.assertTrue(tollController.isEnabled(withPostPay).orElse(false));
+            //Caso de cliente nacional sin cuentas, se le cobra por Sucive
+            Assertions.assertTrue(tollController.isEnabled(withSucive).orElse(false));
+        });
+
+
     }
 
     @DisplayName("Tests para cuando isEnable devuelve false")
@@ -125,10 +130,15 @@ class TollControllerTest {
         IdentifierDTO withNotEnoughBalance = new TagDTO(103L);
         IdentifierDTO withNoAccounts = new TagDTO(105L);
 
-        //Caso de cliente extranjero con solo cuenta PrePaga sin saldo suficiente
-        Assertions.assertFalse(tollController.isEnabled(withNotEnoughBalance).orElse(true));
-        //Caso de cliente extranjero sin cuentas
-        Assertions.assertFalse(tollController.isEnabled(withNoAccounts).orElse(true));
+        //Para catchear PersistenceErrorException
+        Assertions.assertDoesNotThrow( () -> {
+            //Caso de cliente extranjero con solo cuenta PrePaga sin saldo suficiente
+            Assertions.assertFalse(tollController.isEnabled(withNotEnoughBalance).orElse(true));
+            //Caso de cliente extranjero sin cuentas
+            Assertions.assertFalse(tollController.isEnabled(withNoAccounts).orElse(true));
+        });
+
+
     }
 
     @DisplayName("Tests para cuando isEnable lanza una excepcion")

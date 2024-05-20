@@ -8,7 +8,10 @@ import com.traffic.client.domain.Account.Account;
 import com.traffic.client.domain.Account.CreditCard;
 import com.traffic.client.domain.Account.POSTPay;
 import com.traffic.client.domain.Account.PREPay;
-import com.traffic.client.domain.User.*;
+import com.traffic.client.domain.User.ForeignUser;
+import com.traffic.client.domain.User.NationalUser;
+import com.traffic.client.domain.User.TollCustomer;
+import com.traffic.client.domain.User.User;
 import com.traffic.client.domain.Vehicle.*;
 import com.traffic.dtos.account.AccountDTO;
 import com.traffic.dtos.account.CreditCardDTO;
@@ -22,7 +25,6 @@ import com.traffic.exceptions.*;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -32,6 +34,7 @@ import java.util.Optional;
 
 @ApplicationScoped
 public class ClientControllerImpl implements ClientController {
+
 
     @Inject
     private AccountService accountService; //operaciones de la cuenta.
@@ -88,10 +91,11 @@ public class ClientControllerImpl implements ClientController {
             if(listTollPassDTO != null){
                 for (TollPassDTO tollPassDTO : listTollPassDTO){
 
-                    tollPassObject = new TollPass(tollPassDTO.getId(),
+                    tollPassObject = new TollPass(
                             tollPassDTO.getDate(), tollPassDTO.getCost(),
                             tollPassDTO.getPaymentType());
                     listTollPass.add(tollPassObject);//armo la lista de pasadas con el DTO de pasadas.
+
 
                 }
             }
@@ -114,7 +118,6 @@ public class ClientControllerImpl implements ClientController {
             vehicleService.linkVehicle(id, vehicle);
         }
 
-
     }
 
     @Override //tic
@@ -129,13 +132,15 @@ public class ClientControllerImpl implements ClientController {
 
             Vehicle vehicle = null;
 
-            if(listTollPassDTO != null){
-                for (TollPassDTO tollPassDTO : listTollPassDTO){
 
-                    tollPassObject = new TollPass(tollPassDTO.getId(),
-                            tollPassDTO.getDate(), tollPassDTO.getCost(),
-                            tollPassDTO.getPaymentType());
-                    listTollPass.add(tollPassObject);
+            if(listTollPassDTO != null){
+
+            for (TollPassDTO tollPassDTO : listTollPassDTO){
+
+                tollPassObject = new TollPass(tollPassDTO.getDate(), tollPassDTO.getCost(),
+                        tollPassDTO.getPaymentType());
+                listTollPass.add(tollPassObject);
+
                 }
             }
 
@@ -185,8 +190,8 @@ public class ClientControllerImpl implements ClientController {
                 if(tollPassList != null){
                     for (TollPass tollPass : tollPassList){
 
-                        tollPassObjectDTO = new TollPassDTO(tollPass.getId(), tollPass.getPassDate(),
-                                tollPass.getCost(), tollPass.getPaymentType());
+                    tollPassObjectDTO = new TollPassDTO(tollPass.getPassDate(),
+                            tollPass.getCost(), tollPass.getPaymentType());
 
                         tollPassDTOList.add(tollPassObjectDTO);
                     }
@@ -221,6 +226,7 @@ public class ClientControllerImpl implements ClientController {
 
         accountService.loadBalance(id, balance);
 
+
     }
 
     @Override //tic
@@ -241,6 +247,7 @@ public class ClientControllerImpl implements ClientController {
 
 
         accountService.linkCreditCard(id, card);
+
 
     }
 
@@ -394,7 +401,7 @@ public class ClientControllerImpl implements ClientController {
 
             for(TollPass tollPass : listTollPass){
 
-                tollPassDTO = new TollPassDTO(tollPass.getId(), tollPass.getPassDate(),
+                tollPassDTO = new TollPassDTO(tollPass.getPassDate(),
                         tollPass.getCost(), tollPass.getPaymentType());
 
                 tollPassDTOList.add(tollPassDTO);

@@ -1,7 +1,6 @@
 package com.traffic.monitoring.Interface.impl;
 
-import com.traffic.events.CustomEvent;
-import com.traffic.events.VehiclePassEvent;
+import com.traffic.events.*;
 import com.traffic.monitoring.Interface.MonitoringController;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
@@ -18,26 +17,27 @@ public class MonitoringControllerImpl implements MonitoringController {
     @Override
     public void notifyVehiclePass(@Observes VehiclePassEvent vehiclePassEvent) {
         System.out.println(vehiclePassEvent.getDescription());
-//        singleEvent.fire(vehiclePassEvent);
     }
 
     @Override
-    public void notifySucivePayment() {
-
+    public void notifySucivePayment(@Observes SucivePaymentEvent sucivePaymentEvent) {
+        System.out.println(sucivePaymentEvent.getDescription());
     }
 
     @Override
-    public void notifyCardPayment() {
-
-    }
-
-    @Override
-    public void notifyCreditCardPaymentRejected() {
+    public void notifyCardPayment(@Observes CreditCardPaymentEvent creditCardPaymentEvent) {
+        System.out.println(creditCardPaymentEvent.getDescription());
 
     }
 
     @Override
-    public void notifyNotEnoughBalance() {
+    public void notifyCreditCardPaymentRejected(@Observes CreditCardRejectedEvent creditCardRejectedEvent) {
+        System.out.println(creditCardRejectedEvent.getDescription());
 
+    }
+
+    @Override
+    public void notifyNotEnoughBalance(@Observes NotEnoughBalanceEvent notEnoughBalanceEvent) {
+        System.out.println(notEnoughBalanceEvent.getDescription());
     }
 }

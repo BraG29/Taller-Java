@@ -1,19 +1,15 @@
-package com.traffic.client.domain.Vehicle;
+package com.traffic.payment.domain.vehicle;
 
 import com.traffic.dtos.PaymentTypeData;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 import java.time.LocalDate;
 
 @Getter
-@Setter
-@NoArgsConstructor
 @AllArgsConstructor
 public class TollPass {
-
-//    private Long id;
-    private LocalDate passDate;
+    private LocalDate date;
     private Double cost;
     private PaymentTypeData paymentType;
-
 }

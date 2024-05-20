@@ -37,9 +37,10 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
         this.foreignVehicles = new ArrayList<>();
         this.passList = new ArrayList<>();
 
-        passList.add(new TollPass(0L, LocalDate.now(),200D, PaymentTypeData.PRE_PAYMENT));
-        passList.add(new TollPass(1L, LocalDate.now(),2300D, PaymentTypeData.POST_PAYMENT));
-        passList.add(new TollPass(2L, LocalDate.now(),5500D, PaymentTypeData.SUCIVE));
+        passList.add(new TollPass(LocalDate.now(),200D, PaymentTypeData.PRE_PAYMENT));
+        passList.add(new TollPass(LocalDate.now(),2300D, PaymentTypeData.POST_PAYMENT));
+        passList.add(new TollPass(LocalDate.now(),5500D, PaymentTypeData.SUCIVE));
+
 
         TollCustomer customer = new TollCustomer(1L, new POSTPay(1L, 3231, LocalDate.now(),
                 new CreditCard(1L,"1234.1561.1236.6236" ,"Pepe" ,LocalDate.now())),
