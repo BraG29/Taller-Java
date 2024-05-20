@@ -10,18 +10,16 @@ import com.traffic.dtos.vehicle.LicensePlateDTO;
 import com.traffic.dtos.vehicle.TagDTO;
 import com.traffic.dtos.vehicle.TollPassDTO;
 import com.traffic.events.CustomEvent;
-import com.traffic.events.NewTollPassEvent;
+import com.traffic.events.VehiclePassEvent;
 import com.traffic.exceptions.*;
 import com.traffic.sucive.Interface.SuciveController;
 import com.traffic.toll.Interface.TollController;
 import com.traffic.toll.domain.entities.*;
 import com.traffic.toll.domain.repositories.TariffRepository;
 import com.traffic.toll.domain.repositories.VehicleRepository;
-import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
-import org.jboss.logging.annotations.Pos;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -39,8 +37,12 @@ public class TollControllerImpl implements TollController {
     private VehicleRepository vehicleRepository;
     @Inject
     private TariffRepository tariffRepository;
-//    @Inject
-//    private Event<CustomEvent> singleEvent;
+    /**
+     * Cuando corran los tests, singleEvent no se inyectara y quedara en null
+     * ya que no sera hasta la fase de integracion que se probaran los eventos.
+     */
+    @Inject
+    private Event<CustomEvent> singleEvent;
 
     public TollControllerImpl() {
     }
@@ -53,13 +55,20 @@ public class TollControllerImpl implements TollController {
 
         vehicleOPT.orElseThrow(() -> new PersistenceErrorException("No se ha podido actualizar el vehiculo"));
 
-//        vehicleOPT.ifPresent( v -> {
-//            CustomEvent event = new NewTollPassEvent(
-//                    "Se le ha agregado una nueva pasada por peaje al vehiculo con tag: " + v.getTag().getUniqueId(),
-//                    v.getId(),
-//                    new TollPassDTO(tollPass.getDate(), tollPass.getCost(), tollPass.getPaymentType()));
-//            singleEvent.fire(event);
-//        });
+        vehicleOPT.ifPresent( v -> {
+            /**
+             * Si singleEvent no fue inyectado (fase de testeo) no se lanzara
+             * ningun evento.
+             */
+            if(singleEvent != null){
+                CustomEvent event = new VehiclePassEvent(
+                        "Se le ha agregado una nueva pasada por peaje al vehiculo con tag: " +
+                                v.getTag().getUniqueId(),
+                        v.getId(),
+                        new TollPassDTO(tollPass.getDate(), tollPass.getCost(), tollPass.getPaymentType()));
+                singleEvent.fire(event);
+            }
+        });
     }
 
     @Override

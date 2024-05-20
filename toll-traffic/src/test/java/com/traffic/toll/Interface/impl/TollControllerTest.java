@@ -147,8 +147,6 @@ class TollControllerTest {
             //Caso de cliente extranjero sin cuentas
             Assertions.assertFalse(tollController.isEnabled(withNoAccounts).orElse(true));
         });
-
-
     }
 
     @DisplayName("Tests para cuando isEnable lanza una excepcion")
