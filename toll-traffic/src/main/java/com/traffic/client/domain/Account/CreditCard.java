@@ -20,4 +20,10 @@ public class CreditCard {
         this.name = name;
         this.expireDate = expireDate;
     }
+
+    @Override
+    public String toString(){
+        return "Tarjeta de crédito [ Id: " + id +
+                " Nombre: " + name + " Nº tarjeta: " + cardNumber + " Fecha de vencimiento: " + expireDate.toString() + " ]";
+    }
 }

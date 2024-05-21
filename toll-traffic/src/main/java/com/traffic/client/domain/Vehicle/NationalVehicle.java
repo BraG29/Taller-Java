@@ -17,4 +17,9 @@ public class NationalVehicle extends Vehicle {
         super(id, tag, tollPass);
         this.plate = plate;
     }
+
+    @Override
+    public String toString(){
+        return super.toString() + plate.toString();
+    }
 }

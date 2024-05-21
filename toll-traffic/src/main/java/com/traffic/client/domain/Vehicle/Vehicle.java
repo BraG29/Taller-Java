@@ -18,4 +18,10 @@ public abstract class Vehicle {
         this.tag = tag;
         this.tollPass = tollPass;
     }
+
+    @Override
+    public String toString(){
+        return " [Id: " + id + tag.toString() + tollPass.toString();
+    }
+
 }

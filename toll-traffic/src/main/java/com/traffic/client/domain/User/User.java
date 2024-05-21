@@ -65,4 +65,12 @@ public abstract class User {
         }
     }
 
+    @Override
+    public String toString(){
+        return "[ ID: " + id + " Nombre: " + name
+                + " Ci: " +  ci + " Email: " + email
+                + " Vehiculo/s: " + linkedCars.toString()
+                + " Cuenta/s: " + tollCustomer.toString() + " ]";
+    }
+
 }

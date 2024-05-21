@@ -64,12 +64,6 @@
             <version>5.1.2.Final</version>
         </dependency>
         <dependency>
-            <groupId>org.jboss.weld</groupId>
-            <artifactId>weld-junit5</artifactId>
-            <version>4.0.0.Final</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
             <version>${junit.version}</version>
@@ -81,7 +75,6 @@
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>org.jboss.weld</groupId>
             <artifactId>weld-junit5</artifactId>
