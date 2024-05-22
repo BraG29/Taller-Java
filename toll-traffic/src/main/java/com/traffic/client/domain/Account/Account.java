@@ -19,4 +19,11 @@ public abstract class Account {
         this.accountNumber = accountNumber;
         this.creationDate = creationDate;
     }
+
+    @Override
+    public String toString(){
+        return "Cuenta [Id: " + id +
+                " Nº cuenta: " + accountNumber +
+                " Fecha de creacion: " + creationDate.toString();
+    }
 }

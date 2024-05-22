@@ -15,4 +15,10 @@ public class ForeignVehicle extends Vehicle {
     public ForeignVehicle(Long id, Tag tag, List<TollPass> tollPass) {
         super(id, tag, tollPass);
     }
+
+
+    @Override
+    public String toString(){
+        return super.toString() + " ]";
+    }
 }

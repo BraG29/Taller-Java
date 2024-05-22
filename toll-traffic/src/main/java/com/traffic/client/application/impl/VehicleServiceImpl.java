@@ -23,19 +23,16 @@ public class VehicleServiceImpl implements VehicleService {
     @Inject
     ClientModuleRepository repo;
 
-    public VehicleServiceImpl(){
-        repo = new ClientModuleRepositoryImpl();
-    }
-
     @Override
     public void linkVehicle(Long id, Vehicle vehicle) {
 
         Optional<User> userOPT = Optional.of(repo.getUserById(id).orElseThrow(() ->
-                new NoSuchElementException("No se ecnontró usuario con id: " + id)));
+                new NoSuchElementException("No se encontró usuario con id: " + id)));
 
         User user = userOPT.get();
 
-        repo.linkVehicle(user, vehicle);
+        user.addVehicle(vehicle); //agrego vehiculo
+        repo.update(user); //actualizo lista
     }
 
     @Override
@@ -45,7 +42,9 @@ public class VehicleServiceImpl implements VehicleService {
                 new NoSuchElementException("No se encontró usuario con id: " + id)));
 
         User user = userOPT.get();
-        repo.unLinkVehicle(user, vehicle);
+
+        user.removeVehicle(vehicle);
+        repo.update(user);
 
     }
 
@@ -58,11 +57,9 @@ public class VehicleServiceImpl implements VehicleService {
         List<Vehicle> vehicleList = new ArrayList<>();
         Vehicle vehicleObject = null;
 
-        List<Link> links = null;
-
         User user = userOPT.get();
 
-        links = user.getLinkedCars();
+        List<Link> links = user.getLinkedCars();
 
         if(links != null){
             for(Link link : links){
@@ -87,7 +84,6 @@ public class VehicleServiceImpl implements VehicleService {
         List<TollPass> tollPassListInRange = new ArrayList<>();
         List<Link> linkList = null;
 
-
         if(userOPT.isPresent()){
 
             User user = userOPT.get();
@@ -100,13 +96,17 @@ public class VehicleServiceImpl implements VehicleService {
 
                     tollPassList = link.getVehicle().getTollPass();
 
-                    for (TollPass tollPass : tollPassList){
+                    if(tollPassList != null){
+                        for (TollPass tollPass : tollPassList){
 
-                        if(tollPass.getPassDate().isAfter(from) && tollPass.getPassDate().isBefore(to)){ //si la fecha se encuentra dentro del rango.
-                            tollPassListInRange.add(tollPass);
+                            if(!tollPass.getPassDate().isAfter(from) && !tollPass.getPassDate().isBefore(to)){ //si la fecha se encuentra dentro del rango (inclusive).
+                                tollPassListInRange.add(tollPass);
+                            }
                         }
+                        return Optional.of(tollPassListInRange);
                     }
-                    return Optional.of(tollPassListInRange);
+
+                    return Optional.empty();
                 }
             }
         }
@@ -125,13 +125,18 @@ public class VehicleServiceImpl implements VehicleService {
                 List<TollPass> tollPassList = vehicle.get().getTollPass();
                 List<TollPass> tollPassListInRange = new ArrayList<>();
 
-                for(TollPass tollPass: tollPassList){
+                if(tollPassList != null){
+                    for(TollPass tollPass: tollPassList){
 
-                    if(tollPass.getPassDate().isAfter(from) && tollPass.getPassDate().isBefore(to)){ //si la fecha se encuentra dentro del rango.
-                        tollPassListInRange.add(tollPass);
+                        if(!tollPass.getPassDate().isAfter(from) && !tollPass.getPassDate().isBefore(to)){ //si la fecha se encuentra dentro del rango (inclusive).
+                            tollPassListInRange.add(tollPass);
+                        }
                     }
+                    return Optional.of(tollPassListInRange);
+                } else{
+                    return Optional.empty();
                 }
-                return Optional.of(tollPassListInRange);
+
             }
 
         return Optional.empty();

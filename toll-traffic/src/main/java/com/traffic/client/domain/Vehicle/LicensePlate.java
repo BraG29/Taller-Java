@@ -14,4 +14,9 @@ public class LicensePlate {
     public LicensePlate(String licensePlateNumber) {
         this.licensePlateNumber = licensePlateNumber;
     }
+
+    @Override
+    public String toString(){
+        return "Matricula: [" + licensePlateNumber + " ]";
+    }
 }

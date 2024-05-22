@@ -20,4 +20,10 @@ public class Link {
         this.vehicle = vehicle;
         this.initialDate = initialDate;
     }
+
+    @Override
+    public String toString(){
+        return "Vinculo: [" + id + " activo?: " + active + " Vehiculo: " +
+                vehicle.toString() + " Fecha vinculación: " + initialDate.toString();
+    }
 }
