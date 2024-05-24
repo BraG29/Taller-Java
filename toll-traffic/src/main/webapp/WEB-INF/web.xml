@@ -1,0 +1,38 @@
+<web-app version="6.0"
+         xmlns="https://jakarta.ee/xml/ns/jakartaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd">
+
+    <servlet>
+        <servlet-name>jakarta.ws.rs.core.Application</servlet-name>
+    </servlet>
+
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Endpoints modulo de gestion protegidos</web-resource-name>
+            <url-pattern>/api/TollCustomer/administrator/*</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>administrator</role-name> <!-- usuarios definidos en wildfly con este rol -->
+        </auth-constraint>
+        <user-data-constraint>
+            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+        </user-data-constraint>
+    </security-constraint>
+
+    <!--  este rol tiene que estar definido en el servidor wildfly -->
+    <security-role>
+        <role-name>administrator</role-name>
+    </security-role>
+
+    <login-config>
+        <auth-method>BASIC</auth-method>
+        <realm-name>ApplicationRealm</realm-name>
+    </login-config>
+
+    <servlet-mapping>
+        <servlet-name>jakarta.ws.rs.core.Application</servlet-name>
+        <url-pattern>/api/*</url-pattern>
+    </servlet-mapping>
+
+</web-app>

@@ -2,6 +2,8 @@ package com.traffic.client.domain.User;
 
 import com.traffic.client.domain.Account.CreditCard;
 import com.traffic.client.domain.Vehicle.Link;
+import com.traffic.client.domain.Vehicle.Tag;
+import com.traffic.client.domain.Vehicle.TollPass;
 import com.traffic.client.domain.Vehicle.Vehicle;
 import lombok.Data;
 

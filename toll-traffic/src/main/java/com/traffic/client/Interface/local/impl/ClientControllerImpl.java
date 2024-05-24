@@ -1,6 +1,6 @@
-package com.traffic.client.Interface.impl;
+package com.traffic.client.Interface.local.impl;
 
-import com.traffic.client.Interface.ClientController;
+import com.traffic.client.Interface.local.ClientController;
 import com.traffic.client.application.AccountService;
 import com.traffic.client.application.UserService;
 import com.traffic.client.application.VehicleService;
@@ -22,7 +22,6 @@ import com.traffic.dtos.user.NationalUserDTO;
 import com.traffic.dtos.user.UserDTO;
 import com.traffic.dtos.vehicle.*;
 import com.traffic.exceptions.*;
-import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.time.LocalDate;
@@ -81,7 +80,7 @@ public class ClientControllerImpl implements ClientController {
 
         if(vehicleDTO != null){ //si no es vacio.
 
-            List<TollPass> listTollPass = null; //armo una lista de pasadas.
+            List<TollPass> listTollPass = new ArrayList<>(); //armo una lista de pasadas.
 
             List<TollPassDTO> listTollPassDTO = vehicleDTO.getTollPassDTO(); //obtengo lista de pasadas
 
@@ -116,6 +115,7 @@ public class ClientControllerImpl implements ClientController {
             }
 
             vehicleService.linkVehicle(id, vehicle);
+            //TODO disparo evento vehiculo nuevo.
         }
 
     }
@@ -160,6 +160,7 @@ public class ClientControllerImpl implements ClientController {
 
             vehicleService.unLinkVehicle(id, vehicle);
 
+            //TODO disparo evento vehiculo eliminado.
         }
 
     }
@@ -245,9 +246,8 @@ public class ClientControllerImpl implements ClientController {
         CreditCard card = new CreditCard(creditCard.getId(), creditCard.getCardNumber(),
                 creditCard.getName(), creditCard.getExpireDate());
 
-
         accountService.linkCreditCard(id, card);
-
+        //TODO disparo evento tarjeta nueva.
 
     }
 
@@ -365,6 +365,7 @@ public class ClientControllerImpl implements ClientController {
         return false;
     }
 
+
     @Override
     public Boolean postPay(Double balance, TagDTO tagDTO) throws IllegalArgumentException, NoCustomerException {
 
@@ -381,6 +382,7 @@ public class ClientControllerImpl implements ClientController {
 
         return null;
     }
+
 
     @Override //tic
     public Optional<List<User>> listUsers() {

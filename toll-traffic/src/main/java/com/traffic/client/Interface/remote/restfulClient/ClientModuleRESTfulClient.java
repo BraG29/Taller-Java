@@ -1,6 +1,6 @@
-package com.traffic.client.application.restfulClient;
+package com.traffic.client.Interface.remote.restfulClient;
 
-import com.traffic.client.Interface.ClientController;
+import com.traffic.client.Interface.local.ClientController;
 import com.traffic.client.domain.User.User;
 import com.traffic.dtos.account.AccountDTO;
 import com.traffic.dtos.account.CreditCardDTO;
@@ -41,8 +41,12 @@ public class ClientModuleRESTfulClient {
         return user;
     }
 
+    //curl -v http://localhost:8080/TollPass/api/TollCustomer/users
+
+    //curl --cacert certificadoPrueba.pem --user test:1234 -v https://localhost:8443/TollPass/api/TollCustomer/administrator/users
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @Path("/administrator/users")
     public Optional<List<User>> getAllUsers(){
         return controller.listUsers();
     }
@@ -75,53 +79,85 @@ public class ClientModuleRESTfulClient {
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/vehicle/{userId}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Optional<List<VehicleDTO>> getVehicles(@PathParam("userId") Long id) throws NoCustomerException {
+    public Response getVehicles(@PathParam("userId") Long id) throws NoCustomerException {
         //TODO controles
-        return  controller.showLinkedVehicles(id);
+        Optional<List<VehicleDTO>> vehicles = controller.showLinkedVehicles(id);
+
+        if(vehicles.isPresent()){
+            return Response.ok(vehicles.get()).build();
+        }else{
+            return Response.status(Response.Status.NOT_FOUND).entity("No se encontraron vehiculos del usuario"
+                    + " con el id: " + id ).build();
+        }
     }
 
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/showPass/{userId}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Optional<List<TollPassDTO>> showPass(@PathParam("userId") Long id, @QueryParam("from") String from,
+    public Response showPass(@PathParam("userId") Long id, @QueryParam("from") String from,
                                                 @QueryParam("to") String to)
             throws NoCustomerException, IllegalRangeException {
 
         LocalDate fromDate = LocalDate.parse(from, DateTimeFormatter.ISO_DATE);
         LocalDate toDate = LocalDate.parse(to, DateTimeFormatter.ISO_DATE);
+        Optional<List<TollPassDTO>> listPass = controller.showPastPassages(id, fromDate, toDate);
 
-        //TODO controles
-        return  controller.showPastPassages(id, fromDate, toDate);
+        if(listPass.isPresent()){
+            return Response.ok(listPass.get()).build();
+        }else{
+            return Response.status(Response.Status.NOT_FOUND).entity("No se encontraron pasadas del usuario" +
+                    " con el id: " + id ).build();
+        }
+
     }
 
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/showPassVehicle/{tag}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Optional<List<TollPassDTO>> showPassVehicle(@QueryParam("from") String from,
+    public Response showPassVehicle(@QueryParam("from") String from,
                                                 @QueryParam("to") String to, @PathParam("tag") Long tag)
             throws NoCustomerException, IllegalRangeException {
 
         LocalDate fromDate = LocalDate.parse(from, DateTimeFormatter.ISO_DATE);
         LocalDate toDate = LocalDate.parse(to, DateTimeFormatter.ISO_DATE);
-
         TagDTO tagDTO = new TagDTO(tag);
 
-        //TODO controles
-        return  controller.showPastPassagesVehicle(tagDTO, fromDate, toDate);
+        Optional<List<TollPassDTO>> listPass = controller.showPastPassagesVehicle(tagDTO, fromDate, toDate);
+
+        if(listPass.isPresent()){
+
+            return Response.ok(listPass.get()).build();
+
+        }else{
+
+            return Response.status(Response.Status.NOT_FOUND).entity("No se encontraron pasadas" +
+                    " con el vehiculo: " + tag).build();
+
+        }
+
     }
 
     //cuentas
 
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/getAccounts/{tag}")
+    @Path("/Accounts/{tag}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Optional<List<AccountDTO>> getAccountsByTag(@PathParam("tag") Long tag){
+    public Response getAccountsByTag(@PathParam("tag") Long tag){
+
         TagDTO tagDTO = new TagDTO(tag);
-        //TODO controles
-        return controller.getAccountByTag(tagDTO);
+
+        Optional<List<AccountDTO>> listAccount = controller.getAccountByTag(tagDTO);
+
+        if(listAccount.isPresent()){
+            return Response.ok(listAccount.get()).build();
+        }else{
+            return Response.status(Response.Status.NOT_FOUND).entity("No se encontraron cuentas del usuario" +
+                    " con tag:  " + tag).build();
+        }
+
     }
 
     @PUT
@@ -134,27 +170,33 @@ public class ClientModuleRESTfulClient {
     }
 
     @GET
-    @Path("/balance")
+    @Path("/balance/{userId}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Optional<Double> showBalance(@QueryParam("userId") Long id) throws NoCustomerException {
-        //TODO controles
-        return controller.showBalance(id);
+    public Response showBalance(@PathParam("userId") Long id) throws NoCustomerException {
+        Optional<Double> balance = controller.showBalance(id);
+        if (balance.isPresent()) {
+            return Response.ok(balance.get()).build();
+        } else {
+            return Response.status(Response.Status.NOT_FOUND).entity("No se encontró balance para el usuario" +
+                    " con id: " + id).build();
+        }
     }
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/postPay/{userId}")
+    @Path("/linkCard/{userId}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response linkCreditCard(@PathParam("userId") Long id, CreditCardDTO creditCard) throws NoCustomerException {
-        //TODO controles
-        controller.linkCreditCard(id, creditCard);
+    public Response linkCreditCard(@PathParam("userId") Long id,
+                                   CreditCardDTO creditCard) throws NoCustomerException {
 
+        //TODO controles
+        System.out.println("Nombre tarjeta: " + creditCard.getName());
+
+        controller.linkCreditCard(id, creditCard);
         return  Response.status(Response.Status.CREATED).entity("Tarjeta " +
                 "vinculada con exito.: "+ id).build();
-    }
 
-    //prepay
-    //postPay
+    }
 
 
 }

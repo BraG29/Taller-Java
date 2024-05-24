@@ -7,11 +7,11 @@ import com.traffic.client.domain.Account.POSTPay;
 import com.traffic.client.domain.Account.PREPay;
 import com.traffic.client.domain.User.ForeignUser;
 import com.traffic.client.domain.User.NationalUser;
-import com.traffic.client.domain.User.TollCustomer;
 import com.traffic.client.domain.User.User;
 import com.traffic.client.domain.Vehicle.*;
 import com.traffic.client.domain.repository.ClientModuleRepository;
 import com.traffic.communication.Interface.CommunicationController;
+import com.traffic.dtos.PaymentTypeData;
 import com.traffic.dtos.account.CreditCardDTO;
 import com.traffic.dtos.account.PostPayDTO;
 import com.traffic.dtos.account.PrePayDTO;
@@ -44,16 +44,17 @@ public class AccountServiceImpl implements AccountService {
     private PaymentController paymentController;
 
     @Inject
-    private MonitoringController monitoringController;
-    
-    @Inject
     private CommunicationController communicationController;
 
 
 
     @Override
     public Boolean prePay(Tag tag, Double cost) throws NoAccountException,  NoCustomerException {
-        
+
+        if(cost <= 0){
+            throw new IllegalArgumentException("El costo no puede ser 0 o menor");
+        }
+
         Optional<User> usrOPT = repo.findByTag(tag);
         
         UserDTO userDTO = null;
@@ -75,7 +76,6 @@ public class AccountServiceImpl implements AccountService {
                         //TODO: lanzar evento no llamar a la funcion
 //                        monitoringController.notifyNotEnoughBalance();
 
-
                         //lanzo notificacion armo UserDTO con cosas basicas.
                         if(usr instanceof NationalUser){
                             userDTO = new NationalUserDTO(usr.getId(), usr.getEmail(), usr.getPassword(),
@@ -89,11 +89,22 @@ public class AccountServiceImpl implements AccountService {
 
                         //llamo oper modulo comunicacion.
                         communicationController.notifyNotEnoughBalance(userDTO);
-                        return false;
+
+                        throw new IllegalArgumentException("Saldo insuficiente");
+                        //return false;
 
                     }else{
 
                         //TODO evento de pago.
+                        TollPass newPass = new TollPass(LocalDate.now(), cost, PaymentTypeData.PRE_PAYMENT);
+
+                        for(Link link : usr.getLinkedCars()){
+                            Vehicle vehicle = link.getVehicle();
+                            if(vehicle.getTag().equals(tag)){
+                                vehicle.addPass(newPass);
+                            }
+                        }
+
                         usr.getTollCustomer().getPrePay().pay(cost);
                         repo.update(usr);
                         return true;
@@ -130,6 +141,7 @@ public class AccountServiceImpl implements AccountService {
                 //Armo el customerDTO utilizando una funcion auxiliar.
                 TollCustomerDTO customerDTO = getTollCustomerDTO(usr);
 
+                //armo la lista de vinculos, armo el auto, sus pasadas, su placa si tiene, etc.
                 List<Link> vehicles = usr.getLinkedCars();
                 List<LinkDTO> linkListDTO = new ArrayList<>();
                 LinkDTO linkObject;
@@ -142,52 +154,55 @@ public class AccountServiceImpl implements AccountService {
                 VehicleDTO vehicleDTO = null;
                 LicensePlateDTO licencePlate;
                 TagDTO tagDTO;
-
-                //en  este bloque se arma la lista de vinculos.
-                for (Link link : vehicles) {
-                    if (link.getVehicle().getTag().getTagId().equals(tag.getTagId())) { //Si el vehiculo esta en la lista
-                        vehicle = link.getVehicle();
-
-                        listTollPass = vehicle.getTollPass();
-
-                        for (TollPass tollPass : listTollPass){ //obtengo pasadas del vehiculo, y las paso a una listaDTO.
-                            tollPassObject = new TollPassDTO(tollPass.getPassDate(), tollPass.getCost(), tollPass.getPaymentType());
-                            listTollPassDTO.add(tollPassObject);
-                        }
-
-                        if(vehicle instanceof NationalVehicle){
-
-                            tagDTO = new TagDTO(vehicle.getTag().getTagId());
-                            licencePlate = new LicensePlateDTO(((NationalVehicle) vehicle).getPlate().getId() ,((NationalVehicle) vehicle).getPlate().getLicensePlateNumber());
-                            vehicleDTO = new NationalVehicleDTO(vehicle.getId(), listTollPassDTO, tagDTO, licencePlate);
-
-                        } else if (vehicle instanceof  ForeignVehicle){
-                            tagDTO = new TagDTO(vehicle.getTag().getTagId());
-                            vehicleDTO = new ForeignVehicleDTO(vehicle.getId(), listTollPassDTO, tagDTO);
-                        }
-
-                        linkObject = new LinkDTO(link.getId(), link.getInitialDate(), link.getActive(), vehicleDTO);
-                        linkListDTO.add(linkObject); //obtengo como resultado final una lista de linkDTO.
-                    }
-                }
-
-                //en este bloque se arman los usuarios.
-                if(usr instanceof NationalUser){
-                    userDTO = new NationalUserDTO(usr.getId(), usr.getEmail(), usr.getPassword(), usr.getName(),
-                            usr.getCi(), customerDTO, linkListDTO, null, null);//Es necesario pasar en el usuario sucive y notificaciones?
-                } else if(usr instanceof  ForeignUser){
-                    userDTO = new ForeignUserDTO(usr.getId(), usr.getEmail(), usr.getPassword(), usr.getName(),
-                            usr.getCi(), customerDTO, linkListDTO, null);
-                }
-
-
                 try{
-                    //TODO cachear excepciones de notificar pago si tiene.
-                    //llamo oper de la interfaz del modulo de pagos
-                    paymentController.notifyPayment(userDTO, vehicleDTO, cost, customerDTO.getPostPayDTO().getCreditCardDTO());
-                    return true;
-                }catch (Exception ignored){
+                    //en  este bloque se arma la lista de vinculos.
+                    for (Link link : vehicles) {
+                        if (link.getVehicle().getTag().getTagId().equals(tag.getTagId())) { //Si el vehiculo esta en la lista
 
+                            vehicle = link.getVehicle();
+
+                            //agrego nueva pasada al vehiculo, asi le mando datos actualizados al otro modulo.
+                            TollPass newPass = new TollPass(LocalDate.now(), cost, PaymentTypeData.POST_PAYMENT);
+                            vehicle.addPass(newPass);
+
+                            listTollPass = vehicle.getTollPass();
+
+                            for (TollPass tollPass : listTollPass){ //obtengo pasadas del vehiculo, y las paso a una listaDTO.
+                                tollPassObject = new TollPassDTO(tollPass.getPassDate(), tollPass.getCost(), tollPass.getPaymentType());
+                                listTollPassDTO.add(tollPassObject);
+                            }
+
+                            if(vehicle instanceof NationalVehicle){
+
+                                tagDTO = new TagDTO(vehicle.getTag().getTagId());
+                                licencePlate = new LicensePlateDTO(((NationalVehicle) vehicle).getPlate().getId() ,((NationalVehicle) vehicle).getPlate().getLicensePlateNumber());
+                                vehicleDTO = new NationalVehicleDTO(vehicle.getId(), listTollPassDTO, tagDTO, licencePlate);
+
+                            } else if (vehicle instanceof  ForeignVehicle){
+                                tagDTO = new TagDTO(vehicle.getTag().getTagId());
+                                vehicleDTO = new ForeignVehicleDTO(vehicle.getId(), listTollPassDTO, tagDTO);
+                            }
+
+                            linkObject = new LinkDTO(link.getId(), link.getInitialDate(), link.getActive(), vehicleDTO);
+                            linkListDTO.add(linkObject); //obtengo como resultado final una lista de linkDTO.
+                        }
+                    }
+
+                    //en este bloque se arman los usuarios.
+                    if(usr instanceof NationalUser){
+                        userDTO = new NationalUserDTO(usr.getId(), usr.getEmail(), usr.getPassword(), usr.getName(),
+                                usr.getCi(), customerDTO, linkListDTO, null, null);//Es necesario pasar en el usuario sucive y notificaciones?
+                    } else if(usr instanceof  ForeignUser){
+                        userDTO = new ForeignUserDTO(usr.getId(), usr.getEmail(), usr.getPassword(), usr.getName(),
+                                usr.getCi(), customerDTO, linkListDTO, null);
+                    }
+
+                    paymentController.notifyPayment(userDTO, vehicleDTO, cost, customerDTO.getPostPayDTO().getCreditCardDTO());
+
+                    repo.update(usr);//actualizo lista de usuario futura bd
+                    return true;
+                }catch (Exception e){
+                    System.out.println("Ocurrio un error al realizar el pago" + e.getMessage());
                 }
             }
             return false;
@@ -291,6 +306,7 @@ public class AccountServiceImpl implements AccountService {
                 usr.getTollCustomer().setPostPay(postPay);
 
             }else{ //si ya tiene cuenta postpaga, cambio la tarjeta, por ahora maneja una tarjeta sola.
+                //usr.addCreditCard(creditCard);
                 usr.getTollCustomer().getPostPay().setCreditCard(creditCard);
             }
             repo.update(usr);

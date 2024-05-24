@@ -3,12 +3,14 @@ package com.traffic.dtos.user;
 import com.traffic.dtos.vehicle.LinkDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
 
 @Getter
 @AllArgsConstructor
+@NoArgsConstructor
 public abstract class UserDTO {
 
     protected Long id;

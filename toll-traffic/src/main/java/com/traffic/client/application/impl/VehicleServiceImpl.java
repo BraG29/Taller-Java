@@ -106,7 +106,6 @@ public class VehicleServiceImpl implements VehicleService {
                         return Optional.of(tollPassListInRange);
                     }
 
-                    return Optional.empty();
                 }
             }
         }

@@ -1,4 +1,4 @@
-package com.traffic.client.Interface;
+package com.traffic.client.Interface.local;
 
 import com.traffic.client.domain.User.User;
 import com.traffic.dtos.account.AccountDTO;

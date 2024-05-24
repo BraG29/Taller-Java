@@ -1,6 +1,6 @@
 package com.traffic.toll.Interface.impl;
 
-import com.traffic.client.Interface.ClientController;
+import com.traffic.client.Interface.local.ClientController;
 import com.traffic.dtos.PaymentTypeData;
 import com.traffic.dtos.account.AccountDTO;
 import com.traffic.dtos.account.PostPayDTO;
@@ -8,20 +8,14 @@ import com.traffic.dtos.account.PrePayDTO;
 import com.traffic.dtos.vehicle.IdentifierDTO;
 import com.traffic.dtos.vehicle.LicensePlateDTO;
 import com.traffic.dtos.vehicle.TagDTO;
-import com.traffic.dtos.vehicle.TollPassDTO;
-import com.traffic.events.CustomEvent;
-import com.traffic.events.NewTollPassEvent;
 import com.traffic.exceptions.*;
 import com.traffic.sucive.Interface.SuciveController;
 import com.traffic.toll.Interface.TollController;
 import com.traffic.toll.domain.entities.*;
 import com.traffic.toll.domain.repositories.TariffRepository;
 import com.traffic.toll.domain.repositories.VehicleRepository;
-import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
-import org.jboss.logging.annotations.Pos;
 
 import java.time.LocalDate;
 import java.util.List;
