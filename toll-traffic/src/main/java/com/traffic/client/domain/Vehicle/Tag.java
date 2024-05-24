@@ -14,4 +14,8 @@ public class Tag {
         this.tagId = tag;
     }
 
+    @Override
+    public String toString() {
+        return "Tag [" + tagId + "]";
+    }
 }

@@ -16,4 +16,9 @@ public class TollPass {
     private Double cost;
     private PaymentTypeData paymentType;
 
+
+    @Override
+    public String toString(){
+        return "[ " + passDate + cost + paymentType + " ]";
+    }
 }

@@ -11,7 +11,6 @@ import com.traffic.client.domain.User.TollCustomer;
 import com.traffic.client.domain.User.User;
 import com.traffic.client.domain.Vehicle.*;
 import com.traffic.client.domain.repository.ClientModuleRepository;
-import com.traffic.client.domain.repository.ClientModuleRepositoryImpl;
 import com.traffic.communication.Interface.CommunicationController;
 import com.traffic.dtos.account.CreditCardDTO;
 import com.traffic.dtos.account.PostPayDTO;
@@ -50,13 +49,10 @@ public class AccountServiceImpl implements AccountService {
     @Inject
     private CommunicationController communicationController;
 
-    public AccountServiceImpl(){
-        repo = new ClientModuleRepositoryImpl();
-    }
 
 
     @Override
-    public void prePay(Tag tag, Double cost) throws NoAccountException,  NoCustomerException {
+    public Boolean prePay(Tag tag, Double cost) throws NoAccountException,  NoCustomerException {
         
         Optional<User> usrOPT = repo.findByTag(tag);
         
@@ -75,55 +71,64 @@ public class AccountServiceImpl implements AccountService {
                     prePay = usr.getTollCustomer().getPrePay();
 
                     if(cost > prePay.getBalance()){
+
                         //TODO: lanzar evento no llamar a la funcion
 //                        monitoringController.notifyNotEnoughBalance();
 
-                        //lanzonotificacion armo UserDTO con cosas basicas.
+
+                        //lanzo notificacion armo UserDTO con cosas basicas.
                         if(usr instanceof NationalUser){
                             userDTO = new NationalUserDTO(usr.getId(), usr.getEmail(), usr.getPassword(),
-                                    usr.getName(), usr.getCi(), new TollCustomerDTO(), null, null,
+                                    usr.getName(), usr.getCi(), null, null, null,
                                     null);
+
                         }else if (usr instanceof ForeignUser){
                             userDTO = new ForeignUserDTO(usr.getId(), usr.getEmail(), usr.getPassword(),
-                                    usr.getName(), usr.getCi(), new TollCustomerDTO(), null, null);
+                                    usr.getName(), usr.getCi(), null, null, null);
                         }
 
+                        //llamo oper modulo comunicacion.
                         communicationController.notifyNotEnoughBalance(userDTO);
-                        //TODO notifico saldo insuficiente
+                        return false;
+
                     }else{
-                        repo.payPrePay(usr, cost);
+
+                        //TODO evento de pago.
+                        usr.getTollCustomer().getPrePay().pay(cost);
+                        repo.update(usr);
+                        return true;
                     }
 
                 }else {
                     throw new NoAccountException("El usuario no tiene cuenta prepaga");
                 }
 
-            } else {
-                System.out.println("El usuario no es cliente");// no existe usuario o no es Cliente
             }
+            return false;
         }
+
+        return false;
     }
 
     @Override
-    public void postPay(Tag tag, Double cost) throws NoAccountException, NoCustomerException, ExternalApiException, InvalidVehicleException {
+    public Boolean postPay(Tag tag, Double cost) throws NoAccountException, NoCustomerException, ExternalApiException, InvalidVehicleException {
 
         Optional<User> usrOPT = repo.findByTag(tag);
 
         UserDTO userDTO = null;
 
         if(usrOPT.isPresent()){
+
             User usr = usrOPT.get();
             if(usr.getTollCustomer() != null){
-
-                TollCustomerDTO customerDTO = null;
 
                 if(usr.getTollCustomer().getPostPay() == null){
 
                     throw new NoAccountException("El usuario: " + usr.getId() + "No tiene cuenta postPaga");
                 }
 
-                //Armo cuenta prepago y cliente para enviar notificacion de pago al modulo de medios de pago.
-                customerDTO = getTollCustomerDTO(usr);
+                //Armo el customerDTO utilizando una funcion auxiliar.
+                TollCustomerDTO customerDTO = getTollCustomerDTO(usr);
 
                 List<Link> vehicles = usr.getLinkedCars();
                 List<LinkDTO> linkListDTO = new ArrayList<>();
@@ -138,6 +143,7 @@ public class AccountServiceImpl implements AccountService {
                 LicensePlateDTO licencePlate;
                 TagDTO tagDTO;
 
+                //en  este bloque se arma la lista de vinculos.
                 for (Link link : vehicles) {
                     if (link.getVehicle().getTag().getTagId().equals(tag.getTagId())) { //Si el vehiculo esta en la lista
                         vehicle = link.getVehicle();
@@ -161,11 +167,11 @@ public class AccountServiceImpl implements AccountService {
                         }
 
                         linkObject = new LinkDTO(link.getId(), link.getInitialDate(), link.getActive(), vehicleDTO);
-                        linkListDTO.add(linkObject);
+                        linkListDTO.add(linkObject); //obtengo como resultado final una lista de linkDTO.
                     }
-
                 }
 
+                //en este bloque se arman los usuarios.
                 if(usr instanceof NationalUser){
                     userDTO = new NationalUserDTO(usr.getId(), usr.getEmail(), usr.getPassword(), usr.getName(),
                             usr.getCi(), customerDTO, linkListDTO, null, null);//Es necesario pasar en el usuario sucive y notificaciones?
@@ -174,43 +180,46 @@ public class AccountServiceImpl implements AccountService {
                             usr.getCi(), customerDTO, linkListDTO, null);
                 }
 
-                //este llamado me obliga tirar excepciones.
-                paymentController.notifyPayment(userDTO, vehicleDTO, cost, customerDTO.getPostPayDTO().getCreditCardDTO());
-                System.out.println("pago realizado con exito.");
 
-            } else{
-                System.out.println("El usuario no es cliente");// no existe usuario o no es Cliente
+                try{
+                    //TODO cachear excepciones de notificar pago si tiene.
+                    //llamo oper de la interfaz del modulo de pagos
+                    paymentController.notifyPayment(userDTO, vehicleDTO, cost, customerDTO.getPostPayDTO().getCreditCardDTO());
+                    return true;
+                }catch (Exception ignored){
+
+                }
             }
-
+            return false;
         }
-
+        return false;
     }
 
     @Override
     public Optional<List<Account>> getAccountByTag(Tag tag) {
 
-        Optional<User> usrOPT = repo.findByTag(tag); //Este usuario lo voy a traer desde un repositorio que  hablara con una BD en el futuro. Injectando uno
+        Optional<User> usrOPT = repo.findByTag(tag);
 
         if(usrOPT.isPresent()){
 
             User usr = usrOPT.get();
 
             if(usr.getTollCustomer() != null){//si es cliente
-
-                //el usuario siempre tiene prepaga, SI ES CLIENTE.
                 List<Account> accounts = new ArrayList<Account>();
-                accounts.add(usr.getTollCustomer().getPrePay());
+
+                if(usr.getTollCustomer().getPrePay() != null){//le agrego una cuenta post paga si tiene.
+                    accounts.add(usr.getTollCustomer().getPrePay());
+                }
 
                 if(usr.getTollCustomer().getPostPay() != null){ //agrego postpaga, si tiene.
-
                     accounts.add(usr.getTollCustomer().getPostPay());
                 }
+
                 return Optional.of(accounts);//devuelvo cuentas
 
             } else{
                 return Optional.empty();
             }
-
         }
 
         return Optional.empty();
@@ -226,8 +235,19 @@ public class AccountServiceImpl implements AccountService {
 
             User usr = usrOPT.get();
 
-            repo.loadBalance(usr, balance);
+            Integer accountNumber = PREPay.generateRandomAccountNumber();
 
+            if (usr.getTollCustomer() == null) { //si no es cliente creo el objeto
+                throw new NoCustomerException();
+
+            } else if(usr.getTollCustomer().getPrePay() == null){ //si es cliente pero no tiene cuenta.
+                usr.getTollCustomer().setPrePay(new PREPay(usr.getId(), accountNumber, LocalDate.now(), balance));
+
+            } else { //si es cliente y tiene cuenta.
+                usr.getTollCustomer().getPrePay().loadBalance(balance);
+            }
+
+            repo.update(usr);
         }
     }
 
@@ -241,7 +261,7 @@ public class AccountServiceImpl implements AccountService {
             User usr = usrOPT.get();
             if (usr.getTollCustomer() != null && usr.getTollCustomer().getPrePay() != null){
 
-                return repo.showBalance(usr);
+                return Optional.of(usr.getTollCustomer().getPrePay().getBalance());
             }
         }
 
@@ -257,29 +277,35 @@ public class AccountServiceImpl implements AccountService {
 
             User usr = usrOPT.get();
 
-            POSTPay postPay = new POSTPay();
+            POSTPay postPay;
 
             LocalDate creationDate = LocalDate.now();
 
+            //nunca deberia cumplirse que no es cliente ya que solo la llamaran clientes a esta oper.
             if (usr.getTollCustomer().getPostPay() == null){ //si no tiene cuenta postPaga le creo una y le agrego la tarjeta.
 
-                Integer accountNumber = postPay.generateRandomAccountNumber();//si postPay se inicializa en null aca tengo nullpointerException.
+                Integer accountNumber = POSTPay.generateRandomAccountNumber();
 
                 postPay = new POSTPay(id,accountNumber, creationDate, creditCard);
 
                 usr.getTollCustomer().setPostPay(postPay);
 
+            }else{ //si ya tiene cuenta postpaga, cambio la tarjeta, por ahora maneja una tarjeta sola.
+                usr.getTollCustomer().getPostPay().setCreditCard(creditCard);
             }
-
-            repo.linkCreditCard(usr, creditCard);
-
+            repo.update(usr);
         }
-
     }
 
 
-    //funciones auxiliares:
+    //auxiliares:
 
+    /**
+     * Función auxiliar encargada de realizar un pasaje de objeto  TollCustomer a TollCustomerDTO.
+     *
+     * @param usr -> recibe un usr, concramente utilizará el objeto TollCustomer de este.
+     * @return -> retorna como resultado el armado del objeto TollCustomerDTO
+     */
     private static TollCustomerDTO getTollCustomerDTO(User usr) {
         PREPay prePay = null;
         PrePayDTO prePayDTO = null;
@@ -290,8 +316,9 @@ public class AccountServiceImpl implements AccountService {
         CreditCard card = null;
         CreditCardDTO cardDTO = null;
 
-        //armo cuenta postpay
+        //armo cuenta postpay si tiene
         if(usr.getTollCustomer().getPostPay() != null){
+
             card = usr.getTollCustomer().getPostPay().getCreditCard();
             cardDTO = new CreditCardDTO(card.getId(), card.getCardNumber(), card.getName(), card.getExpireDate());
 
@@ -300,7 +327,7 @@ public class AccountServiceImpl implements AccountService {
 
         }
 
-        //armo cuenta prepay
+        //armo cuenta prepay si tiene
         if(usr.getTollCustomer().getPrePay() != null){
             prePay = usr.getTollCustomer().getPrePay();
             prePayDTO = new PrePayDTO(prePay.getId(), prePay.getAccountNumber(), prePay.getCreationDate(), prePay.getBalance());

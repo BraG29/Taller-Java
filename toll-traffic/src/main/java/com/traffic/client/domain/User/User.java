@@ -54,7 +54,6 @@ public abstract class User {
 
     public void removeVehicle(Vehicle vehicle){
         if(linkedCars != null){
-
             for (Link link : linkedCars){
 
                 Long id = vehicle.getTag().getTagId();
@@ -64,6 +63,14 @@ public abstract class User {
                 }
             }
         }
+    }
+
+    @Override
+    public String toString(){
+        return "[ ID: " + id + " Nombre: " + name
+                + " Ci: " +  ci + " Email: " + email
+                + " Vehiculo/s: " + linkedCars.toString()
+                + " Cuenta/s: " + tollCustomer.toString() + " ]";
     }
 
 }

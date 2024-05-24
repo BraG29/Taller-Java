@@ -36,4 +36,9 @@ public class PREPay extends Account{
 
         return random.nextInt(maxNumber - minNumber + 1) + minNumber;
     }
+
+    @Override
+    public String toString(){
+        return super.toString() + " Tipo de cuenta: PrePaga"  + " Balance: " + balance + " ]";
+    }
 }

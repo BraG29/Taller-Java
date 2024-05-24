@@ -21,4 +21,10 @@ public class NationalUser extends User{
         this.suciveCustomer = suciveCustomer;
 
     }
+
+
+    @Override
+    public String toString(){
+        return super.toString();
+    }
 }

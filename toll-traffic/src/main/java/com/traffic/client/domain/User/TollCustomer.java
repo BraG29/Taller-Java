@@ -20,4 +20,9 @@ public class TollCustomer {
         this.postPay = postPay;
         this.prePay = prePay;
     }
+
+    @Override
+    public String toString() {
+        return "Cuenta/s del cliente [ Id:" + id + ", postPaga: " + postPay.toString() + ", prePaga: " + prePay.toString();
+    }
 }

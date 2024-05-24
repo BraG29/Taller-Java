@@ -133,23 +133,27 @@ public interface ClientController {
 
     /**
      * Descuenta el importe del pago al saldo del usuario, de su cuenta PRE paga.
+     *
      * @param balance -> Importe de tipo Double a descontar.
-     * @param tagDTO -> Tag del usuario a cobrar.
+     * @param tagDTO  -> Tag del usuario a cobrar.
+     * @return
      * @throws IllegalArgumentException -> Si el tipo de dato es invalido.
-     * @throws NoCustomerException -> Si el usuario no es un cliente Telepeaje.
-     * @throws NoAccountException -> Si el usuario no tiene cuenta prePaga.
+     * @throws NoCustomerException      -> Si el usuario no es un cliente Telepeaje.
+     * @throws NoAccountException       -> Si el usuario no tiene cuenta prePaga.
      */
-    public void prePay(Double balance, TagDTO tagDTO) throws NoAccountException, IllegalArgumentException, NoCustomerException;
+    public Boolean prePay(Double balance, TagDTO tagDTO) throws NoAccountException, IllegalArgumentException, NoCustomerException;
 
     /**
      * Realiza un pago utilizando tarjeta de crédito.
+     *
      * @param balance -> Importe a cobrar.
-     * @param tagDTO -> Tag del usuario a cobrar.
+     * @param tagDTO  -> Tag del usuario a cobrar.
+     * @return
      * @throws IllegalArgumentException -> Si el tipo de dato es invalido.
-     * @throws NoCustomerException -> Si el usuario no es un cliente Telepeaje.
-     * @throws NoAccountException -> Si el usuario no tiene cuenta PostPaga.
+     * @throws NoCustomerException      -> Si el usuario no es un cliente Telepeaje.
+     * @throws NoAccountException       -> Si el usuario no tiene cuenta PostPaga.
      */
-    public void postPay(Double balance, TagDTO tagDTO) throws NoAccountException, IllegalArgumentException,  NoCustomerException;
+    public Boolean postPay(Double balance, TagDTO tagDTO) throws NoAccountException, IllegalArgumentException,  NoCustomerException;
 
     public Optional<List<User>> listUsers();
 }
