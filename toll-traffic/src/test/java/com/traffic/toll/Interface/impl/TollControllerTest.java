@@ -1,6 +1,5 @@
 package com.traffic.toll.Interface.impl;
 
-import com.sun.istack.NotNull;
 import com.traffic.client.Interface.ClientController;
 import com.traffic.client.Interface.impl.ClientControllerImpl;
 import com.traffic.dtos.account.AccountDTO;
@@ -13,7 +12,6 @@ import com.traffic.dtos.vehicle.TagDTO;
 import com.traffic.exceptions.InvalidVehicleException;
 import com.traffic.exceptions.NoAccountException;
 import com.traffic.exceptions.NoCustomerException;
-import com.traffic.exceptions.PersistenceErrorException;
 import com.traffic.sucive.Interface.SuciveController;
 import com.traffic.sucive.Interface.impl.SuciveControllerImpl;
 import com.traffic.toll.domain.entities.CommonTariff;

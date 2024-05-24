@@ -1,5 +1,6 @@
 package com.traffic.payment.Interface.impl;
 
+import com.traffic.dtos.PaymentTypeData;
 import com.traffic.dtos.account.CreditCardDTO;
 import com.traffic.dtos.account.PostPayDTO;
 import com.traffic.dtos.account.PrePayDTO;
@@ -154,7 +155,9 @@ public class PaymentControllerImpl implements PaymentController {
             throw new IllegalArgumentException("La tarjeta de crédito está vencida");
         }
 
-
+        //TODO figure out wtf do I have to do here, maybe ask los pibes?
+        //especially Lucas, he needs to fiddle with this function, even if it's just a simple event call
+        //hah get it? fiddle, Fidel Techera (God I am so unfunny)
 
 
 
@@ -178,12 +181,12 @@ public class PaymentControllerImpl implements PaymentController {
 
                 for (TollPass toll : tollPasses){
 
-                    if ( toll.getDate().isAfter(from) && toll.getDate().isBefore(to)){ //if the toll pass is between the 2 dates
-                        allPayments.add(toll.getCost());
+                    if ( toll.getDate().isAfter(from) && toll.getDate().isBefore(to) && toll.getPaymentType() != PaymentTypeData.SUCIVE){ //if the toll pass is between the 2 dates AND is not sucive
+                            allPayments.add(toll.getCost());
                     }
                 }
             }
-        }
+        }//everyday that passes, we stray further from God. . .
 
 
         if (allPayments.isEmpty()){
@@ -194,7 +197,8 @@ public class PaymentControllerImpl implements PaymentController {
     }
 
     @Override
-    public Optional<List<Double>> paymentInquiry(UserDTO user) throws NoCustomerException { //TODO check all the potential controls are properly implemented
+    public Optional<List<Double>> paymentInquiry(UserDTO user) throws NoCustomerException {
+
         //check for the customer to be properly initialized
         if (user.getTollCustomer() == null){
             throw new NoCustomerException("El cliente no está registrado a Telepeaje");
@@ -207,13 +211,16 @@ public class PaymentControllerImpl implements PaymentController {
         ArrayList<Double> allPayments = new ArrayList<>();
 
         for (LinkDTO link : userLinks){ //for each link in user, I get the vehicle, and from the vehicle I get the TollPasses
+
             VehicleDTO userVehicleDTO  = link.getVehicle();
             ArrayList<TollPassDTO> tollPassDTOArrayList = (ArrayList<TollPassDTO>) userVehicleDTO.getTollPassDTO();
 
             for(TollPassDTO toll : tollPassDTOArrayList) {
-                allPayments.add(toll.getCost());
+
+                if (toll.getPaymentType() != PaymentTypeData.SUCIVE) //I only get the payments from post and pre pay payments
+                    allPayments.add(toll.getCost());
+                }
             }
-        }
 
         if (allPayments.isEmpty()){
             return Optional.empty();
@@ -247,12 +254,15 @@ public class PaymentControllerImpl implements PaymentController {
                 ArrayList<TollPassDTO> tollPassDTOArrayList = (ArrayList<TollPassDTO>) userVehicleDTO.getTollPassDTO();
 
                 for(TollPassDTO toll : tollPassDTOArrayList) {
-                    allPayments.add(toll.getCost());
+
+                    if (toll.getPaymentType() != PaymentTypeData.SUCIVE){//again, I only get toll payments from pre & post pagos
+
+                        allPayments.add(toll.getCost());
+                    }
                 }
                 return Optional.of(allPayments);
             }
         }
-
         return Optional.empty();
-    }
+    }//this code it's so nested, it makes me wish for WW3. . .
 }
