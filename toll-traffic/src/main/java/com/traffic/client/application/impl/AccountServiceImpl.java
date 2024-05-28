@@ -157,12 +157,12 @@ public class AccountServiceImpl implements AccountService {
 
                         if(vehicle instanceof NationalVehicle){
 
-                            tagDTO = new TagDTO(vehicle.getTag().getTagId());
+                            tagDTO = new TagDTO(vehicle.getTag().getTagId(), null);
                             licencePlate = new LicensePlateDTO(((NationalVehicle) vehicle).getPlate().getId() ,((NationalVehicle) vehicle).getPlate().getLicensePlateNumber());
                             vehicleDTO = new NationalVehicleDTO(vehicle.getId(), listTollPassDTO, tagDTO, licencePlate);
 
                         } else if (vehicle instanceof  ForeignVehicle){
-                            tagDTO = new TagDTO(vehicle.getTag().getTagId());
+                            tagDTO = new TagDTO(vehicle.getTag().getTagId(), null);
                             vehicleDTO = new ForeignVehicleDTO(vehicle.getId(), listTollPassDTO, tagDTO);
                         }
 

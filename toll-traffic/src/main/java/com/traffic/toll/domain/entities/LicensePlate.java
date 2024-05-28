@@ -12,8 +12,8 @@ import lombok.*;
 public class LicensePlate {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.TABLE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column
+    @Column(name = "license_plate_number")
     private String licensePlateNumber;
 }

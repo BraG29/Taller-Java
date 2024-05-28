@@ -104,13 +104,13 @@ public class ClientControllerImpl implements ClientController {
             //armo objeto vehiculo.
             if(vehicleDTO instanceof NationalVehicleDTO){
 
-                Tag tag = new Tag(vehicleDTO.getTagDTO().getUniqueId());
+                Tag tag = new Tag(vehicleDTO.getTagDTO().getId());
                 LicensePlate plate = new LicensePlate(((NationalVehicleDTO) vehicleDTO).getLicensePlateDTO().getLicensePlateNumber());
 
                 vehicle = new NationalVehicle(vehicleDTO.getId(), tag,
                         listTollPass, plate);
             }else if (vehicleDTO instanceof ForeignVehicleDTO){
-                Tag tag = new Tag(vehicleDTO.getTagDTO().getUniqueId());
+                Tag tag = new Tag(vehicleDTO.getTagDTO().getId());
 
                 vehicle = new ForeignVehicle(vehicleDTO.getId(), tag, listTollPass);
             }
@@ -146,14 +146,14 @@ public class ClientControllerImpl implements ClientController {
 
             if(vehicleDTO instanceof NationalVehicleDTO){
 
-                Tag tag = new Tag(vehicleDTO.getTagDTO().getUniqueId());
+                Tag tag = new Tag(vehicleDTO.getTagDTO().getId());
                 LicensePlate plate = new LicensePlate(((NationalVehicleDTO) vehicleDTO).getLicensePlateDTO().getLicensePlateNumber());
 
                 vehicle = new NationalVehicle(vehicleDTO.getId(), tag,
                         listTollPass, plate);
 
             }else if (vehicleDTO instanceof ForeignVehicleDTO){
-                Tag tag = new Tag(vehicleDTO.getTagDTO().getUniqueId());
+                Tag tag = new Tag(vehicleDTO.getTagDTO().getId());
 
                 vehicle = new ForeignVehicle(vehicleDTO.getId(), tag, listTollPass);
             }
@@ -199,14 +199,14 @@ public class ClientControllerImpl implements ClientController {
 
                 if(vehicle instanceof NationalVehicle){
 
-                    TagDTO tag = new TagDTO(vehicle.getTag().getTagId());
+                    TagDTO tag = new TagDTO(vehicle.getTag().getTagId(), null);
 
                     LicensePlateDTO plate = new LicensePlateDTO(((NationalVehicle) vehicle).getPlate().getId() ,((NationalVehicle) vehicle).getPlate().getLicensePlateNumber());
 
                     vehicleObjectDTO = new NationalVehicleDTO(vehicle.getId(), tollPassDTOList, tag, plate);
                 } else if (vehicle instanceof ForeignVehicle) {
 
-                    TagDTO tag = new TagDTO(vehicle.getTag().getTagId());
+                    TagDTO tag = new TagDTO(vehicle.getTag().getTagId(), null);
 
                     vehicleObjectDTO = new ForeignVehicleDTO(vehicle.getId(), tollPassDTOList, tag);
                 }
@@ -284,7 +284,7 @@ public class ClientControllerImpl implements ClientController {
             throw new IllegalArgumentException("El tag esta vacío o es invalido");
         }
 
-        Tag tagObject = new Tag(tag.getUniqueId());
+        Tag tagObject = new Tag(tag.getId());
 
         try{
             Optional<List<TollPass>> tollPassList = vehicleService.getTollPassByVehicle(tagObject, from , to);
@@ -304,7 +304,7 @@ public class ClientControllerImpl implements ClientController {
             throw new IllegalArgumentException("Tipo de tag invalido");
         }
 
-        Tag tag = new Tag(tagDTO.getUniqueId());
+        Tag tag = new Tag(tagDTO.getId());
 
         Optional<List<Account>> accounts = accountService.getAccountByTag(tag);
 
@@ -353,7 +353,7 @@ public class ClientControllerImpl implements ClientController {
             throw new NoCustomerException();
         }
 
-        Tag tag = new Tag(tagDTO.getUniqueId());
+        Tag tag = new Tag(tagDTO.getId());
 
         try{
             return accountService.prePay(tag, balance);
@@ -369,7 +369,7 @@ public class ClientControllerImpl implements ClientController {
     public Boolean postPay(Double balance, TagDTO tagDTO) throws IllegalArgumentException, NoCustomerException {
 
         //TODO revisar.
-        Tag tag = new Tag(tagDTO.getUniqueId());
+        Tag tag = new Tag(tagDTO.getId());
 
         try{
             return accountService.postPay(tag, balance);

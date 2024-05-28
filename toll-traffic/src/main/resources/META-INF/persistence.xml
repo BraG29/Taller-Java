@@ -19,13 +19,13 @@
 <!--            <property name="jakarta.persistence.jdbc.url" value="jdbc:mariadb://localhost:3306/toll_db"/>-->
 <!--            <property name="jakarta.persistence.jdbc.user" value="admin"/>-->
 <!--            <property name="jakarta.persistence.jdbc.password" value="sanguja4"/>-->
-            <property name="jakarta.persistence.schema-generation.database.action" value="none" />
+            <property name="jakarta.persistence.schema-generation.database.action" value="drop-and-create" />
 <!--            <property name="hibernate.dialect" value="org.hibernate.dialect.MariaDBDialect"/>-->
-<!--            <property name="jakarta.persistence.sql-load-script-source"-->
-<!--                      value="META-INF/initial_data.sql" />-->
+            <property name="jakarta.persistence.sql-load-script-source" value="META-INF/toll-init-data.sql" />
             <property name="eclipselink.logging.level.sql" value="FINE" />
             <property name="eclipselink.logging.parameters" value="true" />
             <property name="hibernate.show_sql" value="true" />
+
         </properties>
     </persistence-unit>
 <!--    <persistence-unit name="jpa-hibernate-mysql">-->

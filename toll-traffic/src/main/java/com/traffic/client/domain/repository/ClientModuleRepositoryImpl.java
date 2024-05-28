@@ -31,6 +31,8 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
 
     @PostConstruct
     public void usersInit(){
+
+        System.err.println("En el PostConstruct del " + this.getClass());
         
         this.usersList = new ArrayList<>();
         this.nationalVehicles = new ArrayList<>();
