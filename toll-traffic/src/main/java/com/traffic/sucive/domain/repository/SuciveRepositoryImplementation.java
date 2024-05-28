@@ -4,6 +4,7 @@ import com.traffic.sucive.domain.user.User;
 import jakarta.annotation.PostConstruct;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class SuciveRepositoryImplementation  implements SuciveRepository {
 
@@ -18,6 +19,11 @@ public class SuciveRepositoryImplementation  implements SuciveRepository {
     @Override
     public void addUser(User user){
         users.add(user);
+    }
+
+    @Override
+    public List<User> getAllUsers() {
+        return users;
     }
 
 }

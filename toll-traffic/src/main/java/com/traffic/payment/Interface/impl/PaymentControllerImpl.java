@@ -48,7 +48,7 @@ public class PaymentControllerImpl implements PaymentController {
             throw new InternalErrorException("La tarjeta de crédito está vencida");
         }
 
-        //another cute thing TODO would be to move my DTO to Domain object functions to my Domain classes
+        //TODO would be to move my DTO to Domain object functions to my Domain classes
 
         //preparo los DTOs para ser pasados a objetos de Dominio
         // creditCard > pre & postPay > tollCustomer
