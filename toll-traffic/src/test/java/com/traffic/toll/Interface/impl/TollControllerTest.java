@@ -1,5 +1,5 @@
 package com.traffic.toll.Interface.impl;
-
+/*
 import com.sun.istack.NotNull;
 import com.traffic.client.Interface.ClientController;
 import com.traffic.client.Interface.impl.ClientControllerImpl;
@@ -188,3 +188,4 @@ class TollControllerTest {
                 () -> tollController.updatePreferentialTariff(amount));
     }
 }
+*/

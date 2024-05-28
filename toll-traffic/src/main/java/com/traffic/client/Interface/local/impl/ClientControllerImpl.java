@@ -34,7 +34,6 @@ import java.util.Optional;
 @ApplicationScoped
 public class ClientControllerImpl implements ClientController {
 
-
     @Inject
     private AccountService accountService; //operaciones de la cuenta.
 
@@ -42,7 +41,7 @@ public class ClientControllerImpl implements ClientController {
     private UserService userService; //operaciones del usuario.
 
     @Inject
-    private VehicleService vehicleService;
+    private VehicleService vehicleService; //operaciones del vehiculo.
 
     @Override //tic
     public void addTollCostumer(UserDTO userDTO) throws IllegalArgumentException {
@@ -76,7 +75,7 @@ public class ClientControllerImpl implements ClientController {
     }
 
     @Override //tic
-    public void linkVehicle(Long id, VehicleDTO vehicleDTO) throws IllegalArgumentException, NoCustomerException {
+    public void linkVehicle(Long id, VehicleDTO vehicleDTO) throws IllegalArgumentException {
 
         if(vehicleDTO != null){ //si no es vacio.
 
@@ -84,13 +83,13 @@ public class ClientControllerImpl implements ClientController {
 
             List<TollPassDTO> listTollPassDTO = vehicleDTO.getTollPassDTO(); //obtengo lista de pasadas
 
-            TollPass tollPassObject = null;
+            TollPass tollPassObject;
 
             Vehicle vehicle = null;
             if(listTollPassDTO != null){
                 for (TollPassDTO tollPassDTO : listTollPassDTO){
 
-                    tollPassObject = new TollPass(
+                    tollPassObject = new TollPass(tollPassDTO.getId(),
                             tollPassDTO.getDate(), tollPassDTO.getCost(),
                             tollPassDTO.getPaymentType());
                     listTollPass.add(tollPassObject);//armo la lista de pasadas con el DTO de pasadas.
@@ -121,14 +120,14 @@ public class ClientControllerImpl implements ClientController {
     }
 
     @Override //tic
-    public void unLinkVehicle(Long id, VehicleDTO vehicleDTO) throws IllegalArgumentException, InvalidVehicleException, NoCustomerException {
+    public void unLinkVehicle(Long id, VehicleDTO vehicleDTO) throws IllegalArgumentException, InvalidVehicleException {
         if (vehicleDTO != null){
 
             List<TollPass> listTollPass = new ArrayList<>();
 
             List<TollPassDTO> listTollPassDTO = vehicleDTO.getTollPassDTO();
 
-            TollPass tollPassObject = null;
+            TollPass tollPassObject;
 
             Vehicle vehicle = null;
 
@@ -137,7 +136,7 @@ public class ClientControllerImpl implements ClientController {
 
             for (TollPassDTO tollPassDTO : listTollPassDTO){
 
-                tollPassObject = new TollPass(tollPassDTO.getDate(), tollPassDTO.getCost(),
+                tollPassObject = new TollPass(tollPassDTO.getId(),tollPassDTO.getDate(), tollPassDTO.getCost(),
                         tollPassDTO.getPaymentType());
                 listTollPass.add(tollPassObject);
 
@@ -162,12 +161,13 @@ public class ClientControllerImpl implements ClientController {
 
             //TODO disparo evento vehiculo eliminado.
         }
+        throw new InvalidVehicleException("El vehiculo no existe.");
 
     }
 
 
     @Override //tic
-    public Optional<List<VehicleDTO>> showLinkedVehicles(Long id) throws IllegalArgumentException, NoCustomerException {
+    public Optional<List<VehicleDTO>> showLinkedVehicles(Long id) throws IllegalArgumentException {
 
         Optional<List<Vehicle>> vehicleOptionalList =  vehicleService.getLinkedVehicles(id);
 
@@ -177,7 +177,7 @@ public class ClientControllerImpl implements ClientController {
 
 
         List<TollPassDTO> tollPassDTOList = new ArrayList<>();
-        List<TollPass> tollPassList = null;
+        List<TollPass> tollPassList;
         TollPassDTO tollPassObjectDTO;
 
         if(vehicleOptionalList.isPresent()){
@@ -191,7 +191,7 @@ public class ClientControllerImpl implements ClientController {
                 if(tollPassList != null){
                     for (TollPass tollPass : tollPassList){
 
-                    tollPassObjectDTO = new TollPassDTO(tollPass.getPassDate(),
+                    tollPassObjectDTO = new TollPassDTO(tollPass.getId(),tollPass.getPassDate(),
                             tollPass.getCost(), tollPass.getPaymentType());
 
                         tollPassDTOList.add(tollPassObjectDTO);
@@ -231,13 +231,13 @@ public class ClientControllerImpl implements ClientController {
     }
 
     @Override //tic
-    public Optional<Double> showBalance(Long id) throws IllegalArgumentException, NoCustomerException {
+    public Optional<Double> showBalance(Long id) throws IllegalArgumentException {
 
         return accountService.showBalance(id);
     }
 
     @Override //tic
-    public void linkCreditCard(Long id, CreditCardDTO creditCard) throws IllegalArgumentException, NoCustomerException {
+    public void linkCreditCard(Long id, CreditCardDTO creditCard) throws IllegalArgumentException {
 
         if(creditCard == null){
             throw new IllegalArgumentException("La tarjeta ingresada no existe");
@@ -252,7 +252,7 @@ public class ClientControllerImpl implements ClientController {
     }
 
     @Override //tic
-    public Optional<List<TollPassDTO>> showPastPassages(Long id, LocalDate from, LocalDate to) throws IllegalArgumentException, IllegalRangeException, NoCustomerException {
+    public Optional<List<TollPassDTO>> showPastPassages(Long id, LocalDate from, LocalDate to) throws IllegalArgumentException, IllegalRangeException{
 
         long difference = ChronoUnit.DAYS.between(from, to);
 
@@ -272,7 +272,7 @@ public class ClientControllerImpl implements ClientController {
     }
 
     @Override //tic
-    public Optional<List<TollPassDTO>> showPastPassagesVehicle(TagDTO tag, LocalDate from, LocalDate to) throws IllegalArgumentException, IllegalRangeException, NoCustomerException {
+    public Optional<List<TollPassDTO>> showPastPassagesVehicle(TagDTO tag, LocalDate from, LocalDate to) throws IllegalArgumentException, IllegalRangeException{
 
         long difference = ChronoUnit.DAYS.between(from, to);
 
@@ -347,40 +347,40 @@ public class ClientControllerImpl implements ClientController {
     }
 
     @Override
-    public Boolean prePay(Double balance, TagDTO tagDTO) throws NoAccountException, IllegalArgumentException, NoCustomerException {
+    public void prePay(Double balance, TagDTO tagDTO) throws IllegalArgumentException {
 
         if(tagDTO == null){
-            throw new NoCustomerException();
+            throw new IllegalArgumentException("No se encontró el tag");
         }
 
         Tag tag = new Tag(tagDTO.getUniqueId());
 
         try{
-            return accountService.prePay(tag, balance);
+
+            accountService.prePay(tag, balance);
 
         }catch (NoAccountException | IllegalArgumentException | NoCustomerException e){
             System.out.println("Ocurrio un error: " + e.getMessage());
         }
 
-        return false;
     }
 
 
     @Override
-    public Boolean postPay(Double balance, TagDTO tagDTO) throws IllegalArgumentException, NoCustomerException {
+    public void postPay(Double balance, TagDTO tagDTO) throws IllegalArgumentException{
 
         //TODO revisar.
         Tag tag = new Tag(tagDTO.getUniqueId());
 
         try{
-            return accountService.postPay(tag, balance);
+
+            accountService.postPay(tag, balance);
 
         }catch(IllegalArgumentException | NoCustomerException | NoAccountException | ExternalApiException |
                InvalidVehicleException e){
             System.out.println("Ocurrio un error: " + e.getMessage());
         }
 
-        return null;
     }
 
 
@@ -403,7 +403,7 @@ public class ClientControllerImpl implements ClientController {
 
             for(TollPass tollPass : listTollPass){
 
-                tollPassDTO = new TollPassDTO(tollPass.getPassDate(),
+                tollPassDTO = new TollPassDTO(tollPass.getId(),tollPass.getPassDate(),
                         tollPass.getCost(), tollPass.getPaymentType());
 
                 tollPassDTOList.add(tollPassDTO);

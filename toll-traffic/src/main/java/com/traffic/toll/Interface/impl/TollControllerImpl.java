@@ -112,11 +112,6 @@ public class TollControllerImpl implements TollController {
                 } catch (NoSuchElementException e) {
                     System.out.println("El cliente no tiene cuentas");
 
-                } catch (NoCustomerException e) {
-                    System.err.println(e.getMessage());
-
-                } catch (NoAccountException e) {
-                    throw new RuntimeException(e);
                 }
 
                 if (vehicleOPT.get() instanceof NationalVehicle) {

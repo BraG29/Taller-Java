@@ -1,15 +1,26 @@
 package com.traffic.client.domain.Vehicle;
 
+import com.traffic.client.domain.User.User;
+import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDate;
 
 @Data
+@Entity(name = "ClientModule_Link")
 public class Link {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Boolean active;
+    @OneToOne
+    @JoinColumn(name = "Vehicle_id")
     private Vehicle vehicle;
+
+    @ManyToOne
+    private User user;
+
     private LocalDate initialDate;
 
     public Link(){}

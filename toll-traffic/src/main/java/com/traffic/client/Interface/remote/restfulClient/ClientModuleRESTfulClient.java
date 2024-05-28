@@ -1,8 +1,6 @@
 package com.traffic.client.Interface.remote.restfulClient;
-
 import com.traffic.client.Interface.local.ClientController;
 import com.traffic.client.domain.User.User;
-import com.traffic.dtos.account.AccountDTO;
 import com.traffic.dtos.account.CreditCardDTO;
 import com.traffic.dtos.user.UserDTO;
 import com.traffic.dtos.vehicle.TagDTO;
@@ -16,11 +14,11 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+
 
 @ApplicationScoped
 @Path("/TollCustomer")
@@ -44,11 +42,18 @@ public class ClientModuleRESTfulClient {
     //curl -v http://localhost:8080/TollPass/api/TollCustomer/users
 
     //curl --cacert certificadoPrueba.pem --user test:1234 -v https://localhost:8443/TollPass/api/TollCustomer/administrator/users
+
+    //@Path("/administrator/users")
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/administrator/users")
-    public Optional<List<User>> getAllUsers(){
-        return controller.listUsers();
+    @Path("/users")
+    public List<User> getAllUsers(){
+
+        Optional<List<User>> users = controller.listUsers();
+
+        return users.orElse(null);
+
     }
 
     //vehiculos
@@ -80,7 +85,7 @@ public class ClientModuleRESTfulClient {
     @Path("/vehicle/{userId}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getVehicles(@PathParam("userId") Long id) throws NoCustomerException {
-        //TODO controles
+
         Optional<List<VehicleDTO>> vehicles = controller.showLinkedVehicles(id);
 
         if(vehicles.isPresent()){
@@ -140,7 +145,7 @@ public class ClientModuleRESTfulClient {
     }
 
     //cuentas
-
+/*
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/Accounts/{tag}")
@@ -159,6 +164,7 @@ public class ClientModuleRESTfulClient {
         }
 
     }
+*/
 
     @PUT
     @Path("/addBalance")
@@ -200,3 +206,5 @@ public class ClientModuleRESTfulClient {
 
 
 }
+
+

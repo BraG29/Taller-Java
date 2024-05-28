@@ -1,13 +1,16 @@
 package com.traffic.client.domain.User;
 
 import com.traffic.client.domain.Vehicle.Link;
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-
 import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
+@Entity
+@DiscriminatorValue("foreign")
 public class ForeignUser extends User {
 
 

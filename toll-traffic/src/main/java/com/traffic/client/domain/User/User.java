@@ -5,6 +5,7 @@ import com.traffic.client.domain.Vehicle.Link;
 import com.traffic.client.domain.Vehicle.Tag;
 import com.traffic.client.domain.Vehicle.TollPass;
 import com.traffic.client.domain.Vehicle.Vehicle;
+import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -12,14 +13,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
+@Entity(name = "ClientModule_User")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "DTYPE", discriminatorType = DiscriminatorType.STRING)
 public abstract class User {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String email;
     private String password;
     private String name;
     private String ci;
+
+    @OneToOne
+    @JoinColumn(name = "tollCustomer_id")
     private TollCustomer tollCustomer;
+
+    @OneToMany(mappedBy = "user")
     private List<Link> linkedCars;
 
     public User(){}

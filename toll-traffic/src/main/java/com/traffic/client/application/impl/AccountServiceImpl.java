@@ -20,11 +20,8 @@ import com.traffic.dtos.user.NationalUserDTO;
 import com.traffic.dtos.user.TollCustomerDTO;
 import com.traffic.dtos.user.UserDTO;
 import com.traffic.dtos.vehicle.*;
-import com.traffic.exceptions.ExternalApiException;
-import com.traffic.exceptions.InvalidVehicleException;
 import com.traffic.exceptions.NoAccountException;
 import com.traffic.exceptions.NoCustomerException;
-import com.traffic.monitoring.Interface.MonitoringController;
 import com.traffic.payment.Interface.PaymentController;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -49,32 +46,28 @@ public class AccountServiceImpl implements AccountService {
 
 
     @Override
-    public Boolean prePay(Tag tag, Double cost) throws NoAccountException,  NoCustomerException {
+    public void prePay(Tag tag, Double cost) throws NoAccountException,  NoCustomerException {
 
         if(cost <= 0){
-            throw new IllegalArgumentException("El costo no puede ser 0 o menor");
+            throw new IllegalArgumentException("El costo no puede ser menor o igual a 0");
         }
 
         Optional<User> usrOPT = repo.findByTag(tag);
-        
         UserDTO userDTO = null;
-
         if(usrOPT.isPresent()){
-
             User usr = usrOPT.get();
 
             if(usr.getTollCustomer() != null){
 
-                PREPay prePay = null;
+                PREPay prePay;
 
                 if(usr.getTollCustomer().getPrePay() != null){
 
                     prePay = usr.getTollCustomer().getPrePay();
 
-                    if(cost > prePay.getBalance()){
+                    if(cost > prePay.getBalance()){ //no tiene saldo suficiente.
 
                         //TODO: lanzar evento no llamar a la funcion
-//                        monitoringController.notifyNotEnoughBalance();
 
                         //lanzo notificacion armo UserDTO con cosas basicas.
                         if(usr instanceof NationalUser){
@@ -91,12 +84,13 @@ public class AccountServiceImpl implements AccountService {
                         communicationController.notifyNotEnoughBalance(userDTO);
 
                         throw new IllegalArgumentException("Saldo insuficiente");
-                        //return false;
 
-                    }else{
+                    }else{ //no hay problemas se procede a pagar.
 
                         //TODO evento de pago.
-                        TollPass newPass = new TollPass(LocalDate.now(), cost, PaymentTypeData.PRE_PAYMENT);
+                        //TODO puede explotar al hacer getId en tollpass y que sea null.
+
+                        TollPass newPass = new TollPass(null, LocalDate.now(), cost, PaymentTypeData.PRE_PAYMENT);
 
                         for(Link link : usr.getLinkedCars()){
                             Vehicle vehicle = link.getVehicle();
@@ -107,7 +101,7 @@ public class AccountServiceImpl implements AccountService {
 
                         usr.getTollCustomer().getPrePay().pay(cost);
                         repo.update(usr);
-                        return true;
+
                     }
 
                 }else {
@@ -115,14 +109,14 @@ public class AccountServiceImpl implements AccountService {
                 }
 
             }
-            return false;
+            throw new NoCustomerException("El usuario no tiene cuenta prepaga");
         }
 
-        return false;
+
     }
 
     @Override
-    public Boolean postPay(Tag tag, Double cost) throws NoAccountException, NoCustomerException, ExternalApiException, InvalidVehicleException {
+    public void postPay(Tag tag, Double cost) throws NoAccountException, NoCustomerException {
 
         Optional<User> usrOPT = repo.findByTag(tag);
 
@@ -134,7 +128,6 @@ public class AccountServiceImpl implements AccountService {
             if(usr.getTollCustomer() != null){
 
                 if(usr.getTollCustomer().getPostPay() == null){
-
                     throw new NoAccountException("El usuario: " + usr.getId() + "No tiene cuenta postPaga");
                 }
 
@@ -154,26 +147,30 @@ public class AccountServiceImpl implements AccountService {
                 VehicleDTO vehicleDTO = null;
                 LicensePlateDTO licencePlate;
                 TagDTO tagDTO;
+
                 try{
                     //en  este bloque se arma la lista de vinculos.
                     for (Link link : vehicles) {
-                        if (link.getVehicle().getTag().getTagId().equals(tag.getTagId())) { //Si el vehiculo esta en la lista
+                        if (link.getVehicle().getTag().getTagId().equals(tag.getTagId())) {
 
                             vehicle = link.getVehicle();
 
                             //agrego nueva pasada al vehiculo, asi le mando datos actualizados al otro modulo.
-                            TollPass newPass = new TollPass(LocalDate.now(), cost, PaymentTypeData.POST_PAYMENT);
+                            TollPass newPass = new TollPass(null,LocalDate.now(), cost, PaymentTypeData.POST_PAYMENT);
                             vehicle.addPass(newPass);
 
                             listTollPass = vehicle.getTollPass();
 
-                            for (TollPass tollPass : listTollPass){ //obtengo pasadas del vehiculo, y las paso a una listaDTO.
-                                tollPassObject = new TollPassDTO(tollPass.getPassDate(), tollPass.getCost(), tollPass.getPaymentType());
+                            //TODO puede explotar al hacer getId y que sea null.
+
+                            //en este bloque  se arma la lista de pasadas de un vehiculo
+                            for (TollPass tollPass : listTollPass){
+                                tollPassObject = new TollPassDTO(tollPass.getId(),tollPass.getPassDate(), tollPass.getCost(), tollPass.getPaymentType());
                                 listTollPassDTO.add(tollPassObject);
                             }
 
+                            //en este bloque se arman los vehiculos
                             if(vehicle instanceof NationalVehicle){
-
                                 tagDTO = new TagDTO(vehicle.getTag().getTagId());
                                 licencePlate = new LicensePlateDTO(((NationalVehicle) vehicle).getPlate().getId() ,((NationalVehicle) vehicle).getPlate().getLicensePlateNumber());
                                 vehicleDTO = new NationalVehicleDTO(vehicle.getId(), listTollPassDTO, tagDTO, licencePlate);
@@ -183,6 +180,7 @@ public class AccountServiceImpl implements AccountService {
                                 vehicleDTO = new ForeignVehicleDTO(vehicle.getId(), listTollPassDTO, tagDTO);
                             }
 
+                            //Se añade el objeto a la lista de vinculos.
                             linkObject = new LinkDTO(link.getId(), link.getInitialDate(), link.getActive(), vehicleDTO);
                             linkListDTO.add(linkObject); //obtengo como resultado final una lista de linkDTO.
                         }
@@ -197,17 +195,18 @@ public class AccountServiceImpl implements AccountService {
                                 usr.getCi(), customerDTO, linkListDTO, null);
                     }
 
+                    //se notifica al modulo de medio de pagos.
                     paymentController.notifyPayment(userDTO, vehicleDTO, cost, customerDTO.getPostPayDTO().getCreditCardDTO());
 
                     repo.update(usr);//actualizo lista de usuario futura bd
-                    return true;
+
                 }catch (Exception e){
                     System.out.println("Ocurrio un error al realizar el pago" + e.getMessage());
                 }
             }
-            return false;
+            throw new NoCustomerException();
         }
-        return false;
+
     }
 
     @Override
@@ -220,7 +219,7 @@ public class AccountServiceImpl implements AccountService {
             User usr = usrOPT.get();
 
             if(usr.getTollCustomer() != null){//si es cliente
-                List<Account> accounts = new ArrayList<Account>();
+                List<Account> accounts = new ArrayList<>();
 
                 if(usr.getTollCustomer().getPrePay() != null){//le agrego una cuenta post paga si tiene.
                     accounts.add(usr.getTollCustomer().getPrePay());
@@ -314,7 +313,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
 
-    //auxiliares:
+    //auxiliar:
 
     /**
      * Función auxiliar encargada de realizar un pasaje de objeto  TollCustomer a TollCustomerDTO.
@@ -323,14 +322,14 @@ public class AccountServiceImpl implements AccountService {
      * @return -> retorna como resultado el armado del objeto TollCustomerDTO
      */
     private static TollCustomerDTO getTollCustomerDTO(User usr) {
-        PREPay prePay = null;
+        PREPay prePay;
         PrePayDTO prePayDTO = null;
 
-        POSTPay postPay = null;
+        POSTPay postPay;
         PostPayDTO postPayDTO = null;
 
-        CreditCard card = null;
-        CreditCardDTO cardDTO = null;
+        CreditCard card;
+        CreditCardDTO cardDTO;
 
         //armo cuenta postpay si tiene
         if(usr.getTollCustomer().getPostPay() != null){

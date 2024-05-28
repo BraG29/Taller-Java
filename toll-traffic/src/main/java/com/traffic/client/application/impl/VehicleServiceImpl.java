@@ -7,7 +7,6 @@ import com.traffic.client.domain.Vehicle.Tag;
 import com.traffic.client.domain.Vehicle.TollPass;
 import com.traffic.client.domain.Vehicle.Vehicle;
 import com.traffic.client.domain.repository.ClientModuleRepository;
-import com.traffic.client.domain.repository.ClientModuleRepositoryImpl;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -55,7 +54,7 @@ public class VehicleServiceImpl implements VehicleService {
                 new NoSuchElementException("No se encontró el usuario con id: " + id)));
 
         List<Vehicle> vehicleList = new ArrayList<>();
-        Vehicle vehicleObject = null;
+        Vehicle vehicleObject;
 
         User user = userOPT.get();
 
@@ -82,7 +81,7 @@ public class VehicleServiceImpl implements VehicleService {
 
         List<TollPass> tollPassList;
         List<TollPass> tollPassListInRange = new ArrayList<>();
-        List<Link> linkList = null;
+        List<Link> linkList;
 
         if(userOPT.isPresent()){
 
