@@ -48,6 +48,13 @@
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.32</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -56,6 +63,27 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
                 <version>3.3.2</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.wildfly.plugins</groupId>
+                <artifactId>wildfly-maven-plugin</artifactId>
+                <version>5.0.0.Final</version>
+                <configuration>
+                    <!--suppress UnresolvedMavenProperty -->
+                    <version>${wildfly.version}</version>
+                    <server-config>standalone-full.xml</server-config>
+                    <add-user>
+                        <users>
+                            <user>
+                                <username>root</username>
+                                <password>rootpass1234</password>
+                                <application-user>false</application-user>
+                            </user>
+                        </users>
+                    </add-user>
+
+                </configuration>
             </plugin>
         </plugins>
     </build>
