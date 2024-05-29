@@ -2,13 +2,17 @@ package com.traffic.sucive.Interface.impl;
 
 import com.traffic.dtos.PaymentTypeData;
 import com.traffic.dtos.vehicle.LicensePlateDTO;
+import com.traffic.exceptions.ExternalApiException;
+import com.traffic.exceptions.InvalidVehicleException;
 import com.traffic.sucive.Interface.SuciveController;
+import com.traffic.sucive.domain.entities.*;
 import com.traffic.sucive.domain.repository.SuciveRepository;
-import com.traffic.sucive.domain.user.User;
-import com.traffic.sucive.domain.vehicle.*;
+//import com.traffic.sucive.domain.vehicle.*;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import okhttp3.*;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,10 +25,33 @@ public class SuciveControllerImpl implements SuciveController {
     private SuciveRepository repository;
 
     @Override
-    public void notifyPayment(LicensePlateDTO licensePlate, Double amount) {
+    public void notifyPayment(LicensePlateDTO licensePlate, Double amount)  throws ExternalApiException, IllegalArgumentException, InvalidVehicleException {
 
+        //TODO call the mock API for Sucive 👁👄👁
+
+        OkHttpClient client = new OkHttpClient();
+
+        String json = "{\"id\":0,\"licensePlateNumber\":\""+licensePlate.getLicensePlateNumber()+"\"}";
+        RequestBody body = RequestBody.create(json, MediaType.get("application/json"));
+
+        Request request = new Request.Builder()
+                .url("http://localhost:8080/sucive-service/api/controller/suciveCheck/")
+                .post(body)
+                .build();
+
+        try {
+            Response response = client.newCall(request).execute();
+            System.out.println(response.body().string());
+
+            if (response.code() == 200){
+                repository.updateVehicleTollPass(licensePlate, amount);
+            }else {
+                throw new ExternalApiException("No se pudo validar la compra sucive");
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
-
 
     @Override
     public Optional<List<Double>> paymentInquiry(LocalDate from, LocalDate to) {
@@ -36,7 +63,7 @@ public class SuciveControllerImpl implements SuciveController {
         //for each user from the BDD
         for (User user : users){
             //I get all the links from the user
-            ArrayList<Link> userLinks = (ArrayList<Link>) user.getLinkedVehicles();
+            ArrayList<Link> userLinks = (ArrayList<Link>) user.getLinkedCars();
 
             //for each link the given user has
             for (Link link : userLinks){
@@ -51,7 +78,7 @@ public class SuciveControllerImpl implements SuciveController {
                 for (TollPass toll : tollPasses){
 
                     //if the toll pass is between the 2 dates AND is sucive
-                    if ( toll.getDate().isAfter(from) && toll.getDate().isBefore(to) && toll.getPaymentType() == PaymentTypeData.SUCIVE){
+                    if ( toll.getPassDate().isAfter(from) && toll.getPassDate().isBefore(to) && toll.getPaymentType() == PaymentTypeData.SUCIVE){
                         allPayments.add(toll.getCost());
                     }
                 }
@@ -79,11 +106,11 @@ public class SuciveControllerImpl implements SuciveController {
 
         for (User user : users){//for each user I get
 
-            for (Link link : user.getLinkedVehicles()){//for each linked Vehicle
+            for (Link link : user.getLinkedCars()){//for each linked Vehicle
 
                 if (link.getVehicle() instanceof NationalVehicle){ //I check only for National Vehicles
 
-                    if(( (NationalVehicle) link.getVehicle()).getLicensePlate().equals(licenseToCheck) ){ //I make sure I am on the vehicle with the correct License Plate
+                    if(( (NationalVehicle) link.getVehicle()).getPlate().getLicensePlateNumber().equalsIgnoreCase(licenseToCheck.getLicensePlateNumber())){ //I make sure I am on the vehicle with the correct License Plate
 
                         for (TollPass toll : link.getVehicle().getTollPass()){ //for all the toll passes for the vehicle with the correct License Plate
 
