@@ -1,6 +1,7 @@
 package com.traffic.client.domain.repository;
 
 
+import com.traffic.client.domain.Account.Account;
 import com.traffic.client.domain.Account.CreditCard;
 import com.traffic.client.domain.User.User;
 import com.traffic.client.domain.Vehicle.Tag;
@@ -53,10 +54,6 @@ public interface ClientModuleRepository {
      */
     public Optional<Vehicle> getVehicleByTag(Tag tag);
 
-    /**
-     * Inicia lista con datos de prueba.
-     */
-    public void usersInit();
 
     /**
      * Actualiza cambios de un usuario en una lista.
@@ -64,4 +61,11 @@ public interface ClientModuleRepository {
      */
     public void update(User usr);
 
+    public Optional<List<Account>> getAccountsByTag(Long id);
+
+    public void loadBalance(Long tagId, Double balance) throws Exception;
+
+    public void prePay(Long tagId, Double balance) throws Exception;
+
+    public void postPay(Long tagId, Double cost) throws Exception;
 }

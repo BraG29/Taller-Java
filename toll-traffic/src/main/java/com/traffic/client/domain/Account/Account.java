@@ -9,7 +9,6 @@ import java.util.Random;
 @Data
 @Entity(name = "ClientModule_Account")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-
 public abstract class Account {
 
     @Id

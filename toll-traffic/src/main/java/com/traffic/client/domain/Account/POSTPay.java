@@ -1,8 +1,6 @@
 package com.traffic.client.domain.Account;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import java.time.LocalDate;
@@ -11,10 +9,11 @@ import java.time.LocalDate;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
+@DiscriminatorValue("POSTPay")
 public class POSTPay extends Account{
 
-    @OneToOne
-    @JoinColumn(name = "CreditCard_id")
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "creditCard_id")
     private CreditCard creditCard;
 
     public POSTPay(){

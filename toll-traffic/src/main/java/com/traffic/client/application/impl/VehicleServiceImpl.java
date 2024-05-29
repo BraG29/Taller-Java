@@ -117,7 +117,7 @@ public class VehicleServiceImpl implements VehicleService {
     public Optional<List<TollPass>> getTollPassByVehicle(Tag tag, LocalDate from, LocalDate to) {
 
             Optional<Vehicle> vehicle = Optional.ofNullable(repo.getVehicleByTag(tag).orElseThrow(() ->
-                    new NoSuchElementException("No se encontró el vehículo con tag: " + tag.getTagId())));
+                    new NoSuchElementException("No se encontró el vehículo con tag: " + tag.getId())));
 
             if(vehicle.isPresent()){
                 List<TollPass> tollPassList = vehicle.get().getTollPass();

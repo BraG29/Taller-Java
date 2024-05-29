@@ -72,7 +72,7 @@ public interface ClientController {
      * @throws NoCustomerException -> Si el usuario no es un cliente Telepeaje.
      */
     public void loadBalance(Long id,
-                            Double balance) throws IllegalArgumentException, NoCustomerException;
+                            Double balance) throws Exception;
 
     /**
      * Devuelve el saldo de una cuenta PRE paga de un usuario

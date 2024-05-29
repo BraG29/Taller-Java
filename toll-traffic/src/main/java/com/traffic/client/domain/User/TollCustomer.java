@@ -14,11 +14,11 @@ public class TollCustomer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "POSTPay_id")
     private POSTPay postPay;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "PREPay_id")
     private PREPay prePay;
 

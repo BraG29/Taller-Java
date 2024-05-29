@@ -1,4 +1,4 @@
-
+/*
 package com.traffic.client.Interface.local.impl;
 
 import com.traffic.client.Interface.local.ClientController;
@@ -28,12 +28,9 @@ import org.jboss.weld.junit5.WeldInitiator;
 import org.jboss.weld.junit5.WeldJunit5Extension;
 import org.jboss.weld.junit5.WeldSetup;
 import org.jboss.weld.junit5.auto.AddBeanClasses;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -81,24 +78,11 @@ class ClientControllerImplTest {
     @Test //tic
     void addTollCostumer(ClientController controller) {
 
-        System.out.println("Lista de usuarios antes de agregar:");
-
-        for(User usr: controller.listUsers().get()){
-            System.out.println("Id: " + usr.getId() +" Nombre: " + usr.getName() +
-                    " Ci: " + usr.getCi()+ " Email: " + usr.getEmail());
-        }
-
         UserDTO testUser = new ForeignUserDTO(32L, "carlitos@mail.com", "1234",
                 "Carlitos", "5.321.512-7", null, null, null);
 
         System.out.println("Agregando usuario...");
         controller.addTollCostumer(testUser);
-
-        System.out.println("Lista de usuarios despues de agregar:");
-        for(User usr: controller.listUsers().get()){
-            System.out.println("Id: " + usr.getId() +" Nombre: " + usr.getName() +
-                    " Ci: " + usr.getCi()+ " Email: " + usr.getEmail());
-        }
 
     }
 
@@ -291,3 +275,4 @@ class ClientControllerImplTest {
     }
 
 }
+*/

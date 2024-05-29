@@ -11,6 +11,7 @@ import com.traffic.exceptions.InvalidVehicleException;
 import com.traffic.exceptions.NoCustomerException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -22,6 +23,7 @@ import java.util.Optional;
 
 @ApplicationScoped
 @Path("/TollCustomer")
+@Transactional
 public class ClientModuleRESTfulClient {
 
     @Inject
@@ -117,19 +119,19 @@ public class ClientModuleRESTfulClient {
 
     }
 
-    @GET
+    @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/showPassVehicle/{tag}")
+    @Path("/showPassVehicle")
     @Produces(MediaType.APPLICATION_JSON)
     public Response showPassVehicle(@QueryParam("from") String from,
-                                                @QueryParam("to") String to, @PathParam("tag") Long tag)
+                                                @QueryParam("to") String to, TagDTO tag)
+
             throws NoCustomerException, IllegalRangeException {
 
         LocalDate fromDate = LocalDate.parse(from, DateTimeFormatter.ISO_DATE);
         LocalDate toDate = LocalDate.parse(to, DateTimeFormatter.ISO_DATE);
-        TagDTO tagDTO = new TagDTO(tag);
 
-        Optional<List<TollPassDTO>> listPass = controller.showPastPassagesVehicle(tagDTO, fromDate, toDate);
+        Optional<List<TollPassDTO>> listPass = controller.showPastPassagesVehicle(tag, fromDate, toDate);
 
         if(listPass.isPresent()){
 

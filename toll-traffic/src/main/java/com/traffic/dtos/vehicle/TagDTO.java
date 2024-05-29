@@ -8,5 +8,8 @@ import lombok.Getter;
 public class TagDTO extends IdentifierDTO {
 
     private Long uniqueId;
+    private String UUID;
+
+
 
 }

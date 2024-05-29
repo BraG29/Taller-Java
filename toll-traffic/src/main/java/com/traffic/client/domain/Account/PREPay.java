@@ -1,6 +1,8 @@
 package com.traffic.client.domain.Account;
 
+import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import java.time.LocalDate;
@@ -8,6 +10,7 @@ import java.time.LocalDate;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
+@DiscriminatorValue("PREPay")
 public class PREPay extends Account{
 
     private Double balance;

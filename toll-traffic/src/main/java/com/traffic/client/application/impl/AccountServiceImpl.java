@@ -46,223 +46,35 @@ public class AccountServiceImpl implements AccountService {
 
 
     @Override
-    public void prePay(Tag tag, Double cost) throws NoAccountException,  NoCustomerException {
+    public void prePay(Tag tag, Double cost) throws Exception {
 
         if(cost <= 0){
             throw new IllegalArgumentException("El costo no puede ser menor o igual a 0");
         }
 
-        Optional<User> usrOPT = repo.findByTag(tag);
-        UserDTO userDTO = null;
-        if(usrOPT.isPresent()){
-            User usr = usrOPT.get();
-
-            if(usr.getTollCustomer() != null){
-
-                PREPay prePay;
-
-                if(usr.getTollCustomer().getPrePay() != null){
-
-                    prePay = usr.getTollCustomer().getPrePay();
-
-                    if(cost > prePay.getBalance()){ //no tiene saldo suficiente.
-
-                        //TODO: lanzar evento no llamar a la funcion
-
-                        //lanzo notificacion armo UserDTO con cosas basicas.
-                        if(usr instanceof NationalUser){
-                            userDTO = new NationalUserDTO(usr.getId(), usr.getEmail(), usr.getPassword(),
-                                    usr.getName(), usr.getCi(), null, null, null,
-                                    null);
-
-                        }else if (usr instanceof ForeignUser){
-                            userDTO = new ForeignUserDTO(usr.getId(), usr.getEmail(), usr.getPassword(),
-                                    usr.getName(), usr.getCi(), null, null, null);
-                        }
-
-                        //llamo oper modulo comunicacion.
-                        communicationController.notifyNotEnoughBalance(userDTO);
-
-                        throw new IllegalArgumentException("Saldo insuficiente");
-
-                    }else{ //no hay problemas se procede a pagar.
-
-                        //TODO evento de pago.
-                        //TODO puede explotar al hacer getId en tollpass y que sea null.
-
-                        TollPass newPass = new TollPass(null, LocalDate.now(), cost, PaymentTypeData.PRE_PAYMENT);
-
-                        for(Link link : usr.getLinkedCars()){
-                            Vehicle vehicle = link.getVehicle();
-                            if(vehicle.getTag().equals(tag)){
-                                vehicle.addPass(newPass);
-                            }
-                        }
-
-                        usr.getTollCustomer().getPrePay().pay(cost);
-                        repo.update(usr);
-
-                    }
-
-                }else {
-                    throw new NoAccountException("El usuario no tiene cuenta prepaga");
-                }
-
-            }
-            throw new NoCustomerException("El usuario no tiene cuenta prepaga");
-        }
-
-
+        repo.prePay(tag.getId(), cost);
     }
 
     @Override
-    public void postPay(Tag tag, Double cost) throws NoAccountException, NoCustomerException {
+    public void postPay(Tag tag, Double cost) throws Exception {
 
-        Optional<User> usrOPT = repo.findByTag(tag);
-
-        UserDTO userDTO = null;
-
-        if(usrOPT.isPresent()){
-
-            User usr = usrOPT.get();
-            if(usr.getTollCustomer() != null){
-
-                if(usr.getTollCustomer().getPostPay() == null){
-                    throw new NoAccountException("El usuario: " + usr.getId() + "No tiene cuenta postPaga");
-                }
-
-                //Armo el customerDTO utilizando una funcion auxiliar.
-                TollCustomerDTO customerDTO = getTollCustomerDTO(usr);
-
-                //armo la lista de vinculos, armo el auto, sus pasadas, su placa si tiene, etc.
-                List<Link> vehicles = usr.getLinkedCars();
-                List<LinkDTO> linkListDTO = new ArrayList<>();
-                LinkDTO linkObject;
-
-                List<TollPass> listTollPass;
-                List<TollPassDTO> listTollPassDTO = new ArrayList<>();
-                TollPassDTO tollPassObject;
-
-                Vehicle vehicle;
-                VehicleDTO vehicleDTO = null;
-                LicensePlateDTO licencePlate;
-                TagDTO tagDTO;
-
-                try{
-                    //en  este bloque se arma la lista de vinculos.
-                    for (Link link : vehicles) {
-                        if (link.getVehicle().getTag().getTagId().equals(tag.getTagId())) {
-
-                            vehicle = link.getVehicle();
-
-                            //agrego nueva pasada al vehiculo, asi le mando datos actualizados al otro modulo.
-                            TollPass newPass = new TollPass(null,LocalDate.now(), cost, PaymentTypeData.POST_PAYMENT);
-                            vehicle.addPass(newPass);
-
-                            listTollPass = vehicle.getTollPass();
-
-                            //TODO puede explotar al hacer getId y que sea null.
-
-                            //en este bloque  se arma la lista de pasadas de un vehiculo
-                            for (TollPass tollPass : listTollPass){
-                                tollPassObject = new TollPassDTO(tollPass.getId(),tollPass.getPassDate(), tollPass.getCost(), tollPass.getPaymentType());
-                                listTollPassDTO.add(tollPassObject);
-                            }
-
-                            //en este bloque se arman los vehiculos
-                            if(vehicle instanceof NationalVehicle){
-                                tagDTO = new TagDTO(vehicle.getTag().getTagId());
-                                licencePlate = new LicensePlateDTO(((NationalVehicle) vehicle).getPlate().getId() ,((NationalVehicle) vehicle).getPlate().getLicensePlateNumber());
-                                vehicleDTO = new NationalVehicleDTO(vehicle.getId(), listTollPassDTO, tagDTO, licencePlate);
-
-                            } else if (vehicle instanceof  ForeignVehicle){
-                                tagDTO = new TagDTO(vehicle.getTag().getTagId());
-                                vehicleDTO = new ForeignVehicleDTO(vehicle.getId(), listTollPassDTO, tagDTO);
-                            }
-
-                            //Se añade el objeto a la lista de vinculos.
-                            linkObject = new LinkDTO(link.getId(), link.getInitialDate(), link.getActive(), vehicleDTO);
-                            linkListDTO.add(linkObject); //obtengo como resultado final una lista de linkDTO.
-                        }
-                    }
-
-                    //en este bloque se arman los usuarios.
-                    if(usr instanceof NationalUser){
-                        userDTO = new NationalUserDTO(usr.getId(), usr.getEmail(), usr.getPassword(), usr.getName(),
-                                usr.getCi(), customerDTO, linkListDTO, null, null);//Es necesario pasar en el usuario sucive y notificaciones?
-                    } else if(usr instanceof  ForeignUser){
-                        userDTO = new ForeignUserDTO(usr.getId(), usr.getEmail(), usr.getPassword(), usr.getName(),
-                                usr.getCi(), customerDTO, linkListDTO, null);
-                    }
-
-                    //se notifica al modulo de medio de pagos.
-                    paymentController.notifyPayment(userDTO, vehicleDTO, cost, customerDTO.getPostPayDTO().getCreditCardDTO());
-
-                    repo.update(usr);//actualizo lista de usuario futura bd
-
-                }catch (Exception e){
-                    System.out.println("Ocurrio un error al realizar el pago" + e.getMessage());
-                }
-            }
-            throw new NoCustomerException();
+        if(tag == null){
+            throw new NoCustomerException("El tag es vacio.");
         }
+
+        repo.postPay(tag.getId(), cost);
 
     }
 
     @Override
     public Optional<List<Account>> getAccountByTag(Tag tag) {
-
-        Optional<User> usrOPT = repo.findByTag(tag);
-
-        if(usrOPT.isPresent()){
-
-            User usr = usrOPT.get();
-
-            if(usr.getTollCustomer() != null){//si es cliente
-                List<Account> accounts = new ArrayList<>();
-
-                if(usr.getTollCustomer().getPrePay() != null){//le agrego una cuenta post paga si tiene.
-                    accounts.add(usr.getTollCustomer().getPrePay());
-                }
-
-                if(usr.getTollCustomer().getPostPay() != null){ //agrego postpaga, si tiene.
-                    accounts.add(usr.getTollCustomer().getPostPay());
-                }
-
-                return Optional.of(accounts);//devuelvo cuentas
-
-            } else{
-                return Optional.empty();
-            }
-        }
-
-        return Optional.empty();
-
+        return repo.getAccountsByTag(tag.getId());
     }
 
     @Override
-    public void loadBalance(Long id, Double balance) throws NoCustomerException {
+    public void loadBalance(Long id, Double balance) throws Exception {
 
-        Optional<User> usrOPT = repo.getUserById(id);
-
-        if(usrOPT.isPresent()){
-
-            User usr = usrOPT.get();
-
-            Integer accountNumber = PREPay.generateRandomAccountNumber();
-
-            if (usr.getTollCustomer() == null) { //si no es cliente creo el objeto
-                throw new NoCustomerException();
-
-            } else if(usr.getTollCustomer().getPrePay() == null){ //si es cliente pero no tiene cuenta.
-                usr.getTollCustomer().setPrePay(new PREPay(usr.getId(), accountNumber, LocalDate.now(), balance));
-
-            } else { //si es cliente y tiene cuenta.
-                usr.getTollCustomer().getPrePay().loadBalance(balance);
-            }
-
-            repo.update(usr);
-        }
+       repo.loadBalance(id, balance);
     }
 
     @Override

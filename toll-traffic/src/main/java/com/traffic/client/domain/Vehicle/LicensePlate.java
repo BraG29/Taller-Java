@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 @Data
-@Entity(name = "ClientModule_LicencePlate")
+@Entity(name = "ClientModule_LicensePlate")
 public class LicensePlate {
 
     @Id

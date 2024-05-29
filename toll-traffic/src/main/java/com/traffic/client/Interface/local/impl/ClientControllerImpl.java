@@ -26,10 +26,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 
 @ApplicationScoped
 public class ClientControllerImpl implements ClientController {
@@ -43,7 +40,7 @@ public class ClientControllerImpl implements ClientController {
     @Inject
     private VehicleService vehicleService; //operaciones del vehiculo.
 
-    @Override //tic
+    @Override
     public void addTollCostumer(UserDTO userDTO) throws IllegalArgumentException {
 
         if(userDTO == null){
@@ -60,7 +57,7 @@ public class ClientControllerImpl implements ClientController {
             //armo usuario nacional
             tollCustomer = new TollCustomer(userDTO.getId(), null, null);
             user = new NationalUser(null,  tollCustomer, userDTO.getCi(), userDTO.getName(),
-                    userDTO.getPassword(), userDTO.getEmail(), userDTO.getId(), null);
+                    userDTO.getPassword(), userDTO.getEmail(), userDTO.getId());
 
         } else if (userDTO instanceof ForeignUserDTO) {
             tollCustomer = new TollCustomer(userDTO.getId(), null, null);
@@ -74,7 +71,7 @@ public class ClientControllerImpl implements ClientController {
         //TODO TIRAR evento de registro usr
     }
 
-    @Override //tic
+    @Override
     public void linkVehicle(Long id, VehicleDTO vehicleDTO) throws IllegalArgumentException {
 
         if(vehicleDTO != null){ //si no es vacio.
@@ -102,13 +99,18 @@ public class ClientControllerImpl implements ClientController {
             //armo objeto vehiculo.
             if(vehicleDTO instanceof NationalVehicleDTO){
 
-                Tag tag = new Tag(vehicleDTO.getTagDTO().getUniqueId());
+                UUID uuid = UUID.fromString(vehicleDTO.getTagDTO().getUUID());
+
+                Tag tag = new Tag(vehicleDTO.getTagDTO().getUniqueId(), uuid);
                 LicensePlate plate = new LicensePlate(((NationalVehicleDTO) vehicleDTO).getLicensePlateDTO().getLicensePlateNumber());
 
                 vehicle = new NationalVehicle(vehicleDTO.getId(), tag,
                         listTollPass, plate);
             }else if (vehicleDTO instanceof ForeignVehicleDTO){
-                Tag tag = new Tag(vehicleDTO.getTagDTO().getUniqueId());
+
+                UUID uuid = UUID.fromString(vehicleDTO.getTagDTO().getUUID());
+
+                Tag tag = new Tag(vehicleDTO.getTagDTO().getUniqueId(), uuid);
 
                 vehicle = new ForeignVehicle(vehicleDTO.getId(), tag, listTollPass);
             }
@@ -119,7 +121,7 @@ public class ClientControllerImpl implements ClientController {
 
     }
 
-    @Override //tic
+    @Override
     public void unLinkVehicle(Long id, VehicleDTO vehicleDTO) throws IllegalArgumentException, InvalidVehicleException {
         if (vehicleDTO != null){
 
@@ -143,16 +145,18 @@ public class ClientControllerImpl implements ClientController {
                 }
             }
 
+            UUID uuid = UUID.fromString(vehicleDTO.getTagDTO().getUUID());
+
             if(vehicleDTO instanceof NationalVehicleDTO){
 
-                Tag tag = new Tag(vehicleDTO.getTagDTO().getUniqueId());
+                Tag tag = new Tag(vehicleDTO.getTagDTO().getUniqueId(), uuid);
                 LicensePlate plate = new LicensePlate(((NationalVehicleDTO) vehicleDTO).getLicensePlateDTO().getLicensePlateNumber());
 
                 vehicle = new NationalVehicle(vehicleDTO.getId(), tag,
                         listTollPass, plate);
 
             }else if (vehicleDTO instanceof ForeignVehicleDTO){
-                Tag tag = new Tag(vehicleDTO.getTagDTO().getUniqueId());
+                Tag tag = new Tag(vehicleDTO.getTagDTO().getUniqueId(), uuid);
 
                 vehicle = new ForeignVehicle(vehicleDTO.getId(), tag, listTollPass);
             }
@@ -166,7 +170,7 @@ public class ClientControllerImpl implements ClientController {
     }
 
 
-    @Override //tic
+    @Override
     public Optional<List<VehicleDTO>> showLinkedVehicles(Long id) throws IllegalArgumentException {
 
         Optional<List<Vehicle>> vehicleOptionalList =  vehicleService.getLinkedVehicles(id);
@@ -200,14 +204,14 @@ public class ClientControllerImpl implements ClientController {
 
                 if(vehicle instanceof NationalVehicle){
 
-                    TagDTO tag = new TagDTO(vehicle.getTag().getTagId());
+                    TagDTO tag = new TagDTO(vehicle.getTag().getId(), vehicle.getTag().getUniqueId().toString());
 
                     LicensePlateDTO plate = new LicensePlateDTO(((NationalVehicle) vehicle).getPlate().getId() ,((NationalVehicle) vehicle).getPlate().getLicensePlateNumber());
 
                     vehicleObjectDTO = new NationalVehicleDTO(vehicle.getId(), tollPassDTOList, tag, plate);
                 } else if (vehicle instanceof ForeignVehicle) {
 
-                    TagDTO tag = new TagDTO(vehicle.getTag().getTagId());
+                    TagDTO tag = new TagDTO(vehicle.getTag().getId(), vehicle.getTag().getUniqueId().toString());
 
                     vehicleObjectDTO = new ForeignVehicleDTO(vehicle.getId(), tollPassDTOList, tag);
                 }
@@ -222,21 +226,20 @@ public class ClientControllerImpl implements ClientController {
         return Optional.empty();
     }
 
-    @Override //tic
-    public void loadBalance(Long id, Double balance) throws IllegalArgumentException, NoCustomerException {
+    @Override
+    public void loadBalance(Long id, Double balance) throws Exception {
 
         accountService.loadBalance(id, balance);
 
-
     }
 
-    @Override //tic
+    @Override
     public Optional<Double> showBalance(Long id) throws IllegalArgumentException {
 
         return accountService.showBalance(id);
     }
 
-    @Override //tic
+    @Override
     public void linkCreditCard(Long id, CreditCardDTO creditCard) throws IllegalArgumentException {
 
         if(creditCard == null){
@@ -251,7 +254,7 @@ public class ClientControllerImpl implements ClientController {
 
     }
 
-    @Override //tic
+    @Override
     public Optional<List<TollPassDTO>> showPastPassages(Long id, LocalDate from, LocalDate to) throws IllegalArgumentException, IllegalRangeException{
 
         long difference = ChronoUnit.DAYS.between(from, to);
@@ -271,7 +274,7 @@ public class ClientControllerImpl implements ClientController {
         return Optional.empty();
     }
 
-    @Override //tic
+    @Override
     public Optional<List<TollPassDTO>> showPastPassagesVehicle(TagDTO tag, LocalDate from, LocalDate to) throws IllegalArgumentException, IllegalRangeException{
 
         long difference = ChronoUnit.DAYS.between(from, to);
@@ -284,7 +287,9 @@ public class ClientControllerImpl implements ClientController {
             throw new IllegalArgumentException("El tag esta vacío o es invalido");
         }
 
-        Tag tagObject = new Tag(tag.getUniqueId());
+        UUID uuid = UUID.fromString(tag.getUUID());
+
+        Tag tagObject = new Tag(tag.getUniqueId(), uuid);
 
         try{
             Optional<List<TollPass>> tollPassList = vehicleService.getTollPassByVehicle(tagObject, from , to);
@@ -304,7 +309,9 @@ public class ClientControllerImpl implements ClientController {
             throw new IllegalArgumentException("Tipo de tag invalido");
         }
 
-        Tag tag = new Tag(tagDTO.getUniqueId());
+        UUID uuid = UUID.fromString(tagDTO.getUUID());
+
+        Tag tag = new Tag(tagDTO.getUniqueId(), uuid);
 
         Optional<List<Account>> accounts = accountService.getAccountByTag(tag);
 
@@ -353,13 +360,15 @@ public class ClientControllerImpl implements ClientController {
             throw new IllegalArgumentException("No se encontró el tag");
         }
 
-        Tag tag = new Tag(tagDTO.getUniqueId());
+        UUID uuid = UUID.fromString(tagDTO.getUUID());
+
+        Tag tag = new Tag(tagDTO.getUniqueId(), uuid);
 
         try{
 
             accountService.prePay(tag, balance);
 
-        }catch (NoAccountException | IllegalArgumentException | NoCustomerException e){
+        }catch (Exception e){
             System.out.println("Ocurrio un error: " + e.getMessage());
         }
 
@@ -369,15 +378,12 @@ public class ClientControllerImpl implements ClientController {
     @Override
     public void postPay(Double balance, TagDTO tagDTO) throws IllegalArgumentException{
 
-        //TODO revisar.
-        Tag tag = new Tag(tagDTO.getUniqueId());
+        UUID uuid = UUID.fromString(tagDTO.getUUID());
+        Tag tag = new Tag(tagDTO.getUniqueId(), uuid);
 
         try{
-
             accountService.postPay(tag, balance);
-
-        }catch(IllegalArgumentException | NoCustomerException | NoAccountException | ExternalApiException |
-               InvalidVehicleException e){
+        }catch(Exception e){
             System.out.println("Ocurrio un error: " + e.getMessage());
         }
 

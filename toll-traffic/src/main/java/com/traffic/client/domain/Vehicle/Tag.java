@@ -11,19 +11,20 @@ public class Tag {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long tagId;
+    private Long id;
 
-    private UUID UID = UUID.randomUUID();
+    private UUID uniqueId = UUID.randomUUID();
 
     public Tag(){
     }
 
-    public Tag(Long tag){
-        this.tagId = tag;
+    public Tag(Long tag, UUID uniqueId){
+        this.id = tag;
+        this.uniqueId = uniqueId;
     }
 
     @Override
     public String toString() {
-        return "Tag [" + tagId + "]";
+        return "Tag [" + id + "]";
     }
 }

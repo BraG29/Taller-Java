@@ -13,13 +13,13 @@ import java.util.Optional;
 
 public interface AccountService {
 
-    void prePay(Tag tag, Double cost) throws NoAccountException,  NoCustomerException;
+    void prePay(Tag tag, Double cost) throws Exception;
 
-    void postPay(Tag tag, Double cost) throws NoAccountException, NoCustomerException, ExternalApiException, InvalidVehicleException;
+    void postPay(Tag tag, Double cost) throws Exception;
 
     Optional<List<Account>> getAccountByTag(Tag tag);
 
-    void loadBalance(Long id, Double balance) throws NoCustomerException;
+    void loadBalance(Long id, Double balance) throws Exception;
 
     Optional<Double> showBalance(Long id);
 
