@@ -1,6 +1,6 @@
 package com.traffic.sucive.domain.entities;
 
-import com.traffic.sucive.domain.user.User;
+import com.traffic.sucive.domain.entities.User;
 import jakarta.persistence.*;
 import lombok.Data;
 

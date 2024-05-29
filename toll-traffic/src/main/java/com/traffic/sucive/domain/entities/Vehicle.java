@@ -25,10 +25,17 @@ public abstract class Vehicle {
     public Vehicle(){
     }
 
+
+
     public Vehicle(Long id, Tag tag, List<TollPass> tollPass) {
         this.id = id;
         this.tag = tag;
         this.tollPass = tollPass;
+    }
+
+    public Vehicle(Long id, Tag tag) {
+        this.id = id;
+        this.tag = tag;
     }
 
     @Override
