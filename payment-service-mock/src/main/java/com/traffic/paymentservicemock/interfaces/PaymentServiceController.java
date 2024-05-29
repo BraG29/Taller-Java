@@ -8,6 +8,8 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import java.util.Random;
+
 // http://localhost:8080/payment-service/api/
 @ApplicationScoped
 @Path("/controller")
@@ -19,25 +21,24 @@ public class PaymentServiceController {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response checkCreditCard(CreditCardDTO creditCard){
-        Boolean output = true;
 
         if(creditCard.getCardNumber().equals("6666-6666-6666-6666")){
-            output = false;
-            return Response.ok(output).build();
+            return Response.status(400,"Default Error").build();
         }
 
         if(creditCard.getCardNumber().equals("1111-1111-1111-1111")){
-            output = true;
-            return Response.ok(output).build();
+
+            return Response.ok("Forced Success").build();
         }
 
-        int r = (int) Math.random();
-        if(r == 5){
-            output = false;
-            return Response.ok(output).build();
-        }
+        Random r = new Random();
+        int rand = r.nextInt(5);
 
-        return Response.ok(output).build();
+        if(rand == 4){
+            return Response.status(400, "ERROR (1 of 5 failed)").build();
+        }
+        return Response.ok("SUCCESS (DEFAULT RESPONSE)").build();
+
     }
 
 }
