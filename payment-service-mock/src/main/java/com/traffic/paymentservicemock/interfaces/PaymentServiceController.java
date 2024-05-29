@@ -10,9 +10,10 @@ import jakarta.ws.rs.core.Response;
 
 // http://localhost:8080/payment-service/api/
 @ApplicationScoped
+@Path("/controller")
 public class PaymentServiceController {
 
-    // http://localhost:8080/payment-service/api/paymentCheck/
+    // http://localhost:8080/payment-service/api/controller/paymentCheck/
     @POST
     @Path("/paymentCheck")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -20,7 +21,22 @@ public class PaymentServiceController {
     public Response checkCreditCard(CreditCardDTO creditCard){
         Boolean output = true;
 
-        //TODO: logica aleatoria para los pagos
+        if(creditCard.getCardNumber().equals("6666-6666-6666-6666")){
+            output = false;
+            return Response.ok(output).build();
+        }
+
+        if(creditCard.getCardNumber().equals("1111-1111-1111-1111")){
+            output = true;
+            return Response.ok(output).build();
+        }
+
+        int r = (int) Math.random();
+        if(r == 5){
+            output = false;
+            return Response.ok(output).build();
+        }
+
         return Response.ok(output).build();
     }
 
