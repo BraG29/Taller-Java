@@ -99,13 +99,13 @@ class TollControllerTest {
                 }
             }
 
-            @Override
-            public void prePay(Double balance, TagDTO tagDTO) throws NoAccountException, IllegalArgumentException, NoCustomerException {
-            }
-
-            @Override
-            public void postPay(Double balance, TagDTO tagDTO) throws IllegalArgumentException, NoCustomerException {
-            }
+//            @Override
+//            public Boolean prePay(Double balance, TagDTO tagDTO) throws NoAccountException, IllegalArgumentException, NoCustomerException {
+//            }
+//
+//            @Override
+//            public Boolean postPay(Double balance, TagDTO tagDTO) throws IllegalArgumentException, NoCustomerException {
+//            }
         };
     }
 
