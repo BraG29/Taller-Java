@@ -1,21 +1,30 @@
 package com.traffic.client.domain.Vehicle;
 
+import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.UUID;
+
 @Data
+@Entity(name = "ClientModule_Tag")
 public class Tag {
 
-    private Long tagId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private UUID uniqueId = UUID.randomUUID();
 
     public Tag(){
     }
 
-    public Tag(Long tag){
-        this.tagId = tag;
+    public Tag(Long tag, UUID uniqueId){
+        this.id = tag;
+        this.uniqueId = uniqueId;
     }
 
     @Override
     public String toString() {
-        return "Tag [" + tagId + "]";
+        return "Tag [" + id + "]";
     }
 }

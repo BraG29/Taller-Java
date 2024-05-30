@@ -13,15 +13,15 @@ import java.util.Optional;
 
 public interface AccountService {
 
-    public Boolean prePay(Tag tag, Double cost) throws NoAccountException,  NoCustomerException;
+    void prePay(Tag tag, Double cost) throws Exception;
 
-    public Boolean postPay(Tag tag, Double cost) throws NoAccountException, NoCustomerException, ExternalApiException, InvalidVehicleException;
+    void postPay(Tag tag, Double cost) throws Exception;
 
-    public Optional<List<Account>> getAccountByTag(Tag tag);
+    Optional<List<Account>> getAccountByTag(Tag tag);
 
-    public void loadBalance(Long id, Double balance) throws NoCustomerException;
+    void loadBalance(Long id, Double balance) throws Exception;
 
-    public Optional<Double> showBalance(Long id);
+    Optional<Double> showBalance(Long id);
 
-    public void linkCreditCard(Long id, CreditCard creditCard) ;
+    void linkCreditCard(Long id, CreditCard creditCard) ;
 }

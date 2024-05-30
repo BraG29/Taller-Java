@@ -1,7 +1,8 @@
 package com.traffic.toll.application.impl;
 
-import com.traffic.client.Interface.ClientController;
-import com.traffic.client.Interface.impl.ClientControllerImpl;
+
+import com.traffic.client.Interface.local.ClientController;
+import com.traffic.client.Interface.local.impl.ClientControllerImpl;
 import com.traffic.dtos.PaymentTypeData;
 import com.traffic.dtos.account.AccountDTO;
 import com.traffic.dtos.account.CreditCardDTO;
@@ -10,6 +11,9 @@ import com.traffic.dtos.account.PrePayDTO;
 import com.traffic.dtos.vehicle.IdentifierDTO;
 import com.traffic.dtos.vehicle.LicensePlateDTO;
 import com.traffic.dtos.vehicle.TagDTO;
+import com.traffic.dtos.vehicle.TollPassDTO;
+import com.traffic.events.CustomEvent;
+import com.traffic.events.VehiclePassEvent;
 import com.traffic.exceptions.*;
 import com.traffic.sucive.Interface.SuciveController;
 import com.traffic.sucive.Interface.impl.SuciveControllerImpl;
@@ -22,7 +26,6 @@ import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.PersistenceException;
-import org.jboss.jdeparser.FormatPreferences;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -32,9 +35,9 @@ import java.util.Optional;
 @ApplicationScoped
 public class TollServiceImpl implements TollService {
 
-//    @Inject
+    @Inject
     private ClientController clientController;
-//    @Inject
+    @Inject
     private SuciveController suciveController;
     @Inject
     private VehicleRepository vehicleRepository;
@@ -42,66 +45,13 @@ public class TollServiceImpl implements TollService {
     private IdentifierRepository identifierRepository;
     @Inject
     private TariffRepository tariffRepository;
+    /**
+     * Cuando corran los tests, singleEvent no se inyectara y quedara en null
+     * ya que no sera hasta la fase de integracion que se probaran los eventos.
+     */
 //    @Inject
 //    private Event<CustomEvent> singleEvent;
-
-    @PostConstruct
-    public void setUp(){
-        //Creacion de Stubs que seran usado hasta que se haga la integracion con otros modulos
-        clientController = new ClientControllerImpl(){
-            @Override
-            public Optional<List<AccountDTO>> getAccountByTag(TagDTO tag) throws IllegalArgumentException {
-
-                if (tag.getId().equals(1L)) {
-                    return Optional.of(
-                            List.of(
-                                    new PrePayDTO(
-                                            1L,
-                                            1234567890,
-                                            LocalDate.of(2024, 2, 12),
-                                            500D)));
-
-                } else if( tag.getId().equals(101L) ){
-                    return Optional.of(
-                            List.of(
-                                    new PostPayDTO(
-                                            2L,
-                                            98765432,
-                                            LocalDate.of(2024, 1, 5),
-                                            new CreditCardDTO())));
-
-                } else if( tag.getId().equals(103L) ){
-                    return Optional.of(
-                            List.of(
-                                    new PrePayDTO(
-                                            1L,
-                                            1234567890,
-                                            LocalDate.of(2024, 2, 12),
-                                            10D)));
-
-                } else{
-                    return Optional.empty();
-                }
-            }
-
-            @Override
-            public Boolean postPay(Double balance, TagDTO tagDTO) throws IllegalArgumentException, NoCustomerException {
-                return true;
-            }
-
-            @Override
-            public Boolean prePay(Double balance, TagDTO tagDTO) throws NoAccountException, IllegalArgumentException, NoCustomerException {
-                return true;
-            }
-        };
-
-        suciveController = new SuciveControllerImpl(){
-            @Override
-            public void notifyPayment(LicensePlateDTO licensePlate, Double amount) {
-            }
-        };
-    }
-
+    
     @Override
     public Optional<Boolean> isEnabled(IdentifierDTO identifier) throws IllegalArgumentException, InvalidVehicleException{
 
@@ -162,11 +112,6 @@ public class TollServiceImpl implements TollService {
                 } catch (NoSuchElementException e) {
                     System.out.println("El cliente no tiene cuentas");
 
-                } catch (NoCustomerException e) {
-                    System.err.println(e.getMessage());
-
-                } catch (NoAccountException e) {
-                    throw new RuntimeException(e);
                 }
 
                 if (vehicleOPT.get() instanceof NationalVehicle) {

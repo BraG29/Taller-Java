@@ -1,12 +1,18 @@
 package com.traffic.client.domain.Account;
 
+import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.Random;
 
 @Data
+@Entity(name = "ClientModule_Account")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public abstract class Account {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Integer accountNumber;
     private LocalDate creationDate;
@@ -26,4 +32,14 @@ public abstract class Account {
                 " Nº cuenta: " + accountNumber +
                 " Fecha de creacion: " + creationDate.toString();
     }
+
+    public static Integer generateRandomAccountNumber(){
+        Random random = new Random();
+
+        int minNumber = 100000;
+        int maxNumber = 999999;
+
+        return random.nextInt(maxNumber - minNumber + 1) + minNumber;
+    }
+
 }

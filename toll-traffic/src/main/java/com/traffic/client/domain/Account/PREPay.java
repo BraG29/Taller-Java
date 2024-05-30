@@ -1,13 +1,16 @@
 package com.traffic.client.domain.Account;
 
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-
 import java.time.LocalDate;
-import java.util.Random;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
+@Entity
+@DiscriminatorValue("PREPay")
 public class PREPay extends Account{
 
     private Double balance;
@@ -29,12 +32,7 @@ public class PREPay extends Account{
     }
 
     public static Integer generateRandomAccountNumber(){
-        Random random = new Random();
-
-        int minNumber = 100000;
-        int maxNumber = 999999;
-
-        return random.nextInt(maxNumber - minNumber + 1) + minNumber;
+        return Account.generateRandomAccountNumber();
     }
 
     @Override
