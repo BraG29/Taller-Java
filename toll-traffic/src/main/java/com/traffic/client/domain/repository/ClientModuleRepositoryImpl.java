@@ -125,40 +125,88 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
     }
 
 
-    @Transactional
+//    @Transactional
     public Optional<List<Account>> getAccountsByTag(Long id) {
 
         CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
-        CriteriaQuery<Account> query = criteriaBuilder.createQuery(Account.class);
 
-        //raiz de la consulta:
-        Root<User> userRoot = query.from(User.class);
+        Tag tag = em.find(Tag.class, id);
 
-        //imagina esto como una combinacion de todas las tablas.
-        //cadena de joins para encontrar el usuario cuyo vehiculo coincida con el tag.
-        //usuario -> vinculo, vinculo -> vehiculo, vehiculo -> tag.
-        Join<User, Link> userLinkJoin = userRoot.join("linkedCars");
-        Join<Link, Vehicle> linkVehicleJoin = userLinkJoin.join("vehicle");
-        Join<Vehicle, Tag> vehicleTagJoin = linkVehicleJoin.join("tag");
-        //seleccion de cuentas, hago join entre usuario y cliente peaje.
-        Join<User, TollCustomer> userTollCustomerJoin = userRoot.join("tollCustomer");
+        CriteriaQuery<Vehicle> vehicleCB = criteriaBuilder.createQuery(Vehicle.class);
+        Root<Vehicle> vehicleRoot = vehicleCB.from(Vehicle.class);
 
-        //Lista de predicados
-        List<Predicate> predicates = new ArrayList<>();
-        predicates.add(criteriaBuilder.equal(vehicleTagJoin.get("tagId"), id));
+        CriteriaQuery<Link> linkCB = criteriaBuilder.createQuery(Link.class);
+        Root<Link> linkRoot = vehicleCB.from(Link.class);
 
-        Join<TollCustomer, PREPay> tollCustomerPREPayJoin = userTollCustomerJoin.join("PREPay", JoinType.LEFT);
-        predicates.add(criteriaBuilder.isNotNull(tollCustomerPREPayJoin.get("id")));
+        vehicleCB.select(vehicleRoot)
+                .where(criteriaBuilder.equal(vehicleRoot.get("tag"), tag));
 
-        Join<TollCustomer, POSTPay> tollCustomerPOSTPayJoin = userTollCustomerJoin.join("POSTPay", JoinType.LEFT);
-        predicates.add(criteriaBuilder.isNotNull(tollCustomerPOSTPayJoin.get("id")));
+        Vehicle vehicle = em.createQuery(vehicleCB).getSingleResult();
 
-        //filtro por tag.
-        query.where(criteriaBuilder.and(predicates.toArray(new Predicate[0])));
+        em.clear();
 
-        List<Account> accounts = em.createQuery(query).getResultList();
+        linkCB.select(linkRoot)
+                .where(criteriaBuilder.equal(linkRoot.get("vehicle"), vehicle));
 
-        return accounts.isEmpty() ? Optional.empty() : Optional.of(accounts);
+
+        Link link = null;
+
+        try {
+            link = em.createQuery(linkCB).getSingleResult();
+
+        } catch (Exception e){
+            System.err.println(e.getMessage());
+        }
+
+        List<Account> accounts = new ArrayList<Account>();
+
+        if(link.getUser().getTollCustomer().getPrePay() != null) {
+            accounts.add(link.getUser().getTollCustomer().getPrePay());
+        }
+
+        if(link.getUser().getTollCustomer().getPostPay() != null){
+            accounts.add(link.getUser().getTollCustomer().getPostPay());
+        }
+
+        return Optional.of(accounts);
+
+
+        //Sacar Tag -> entidad
+        //Con Tag sacas Vehiculo
+        //Con el Vehiculo sacas Link
+
+        //Link-> User -> TollCustomer -> Accounts
+
+//        CriteriaQuery<Account> query = criteriaBuilder.createQuery(Account.class);
+//
+//        //raiz de la consulta:
+//        Root<User> userRoot = query.from(User.class);
+//
+//        //imagina esto como una combinacion de todas las tablas.
+//        //cadena de joins para encontrar el usuario cuyo vehiculo coincida con el tag.
+//        //usuario -> vinculo, vinculo -> vehiculo, vehiculo -> tag.
+//        Join<User, Link> userLinkJoin = userRoot.join("linkedCars");
+//        Join<Link, Vehicle> linkVehicleJoin = userLinkJoin.join("vehicle");
+//        Join<Vehicle, Tag> vehicleTagJoin = linkVehicleJoin.join("tag");
+//        //seleccion de cuentas, hago join entre usuario y cliente peaje.
+//        Join<User, TollCustomer> userTollCustomerJoin = userRoot.join("tollCustomer");
+//
+//        //Lista de predicados
+//        List<Predicate> predicates = new ArrayList<>();
+//        predicates.add(criteriaBuilder.equal(vehicleTagJoin.get("tagId"), id));
+//
+//        Join<TollCustomer, PREPay> tollCustomerPREPayJoin = userTollCustomerJoin.join("PREPay", JoinType.LEFT);
+//        predicates.add(criteriaBuilder.isNotNull(tollCustomerPREPayJoin.get("id")));
+//
+//        Join<TollCustomer, POSTPay> tollCustomerPOSTPayJoin = userTollCustomerJoin.join("POSTPay", JoinType.LEFT);
+//        predicates.add(criteriaBuilder.isNotNull(tollCustomerPOSTPayJoin.get("id")));
+//
+//        //filtro por tag.
+//        query.where(criteriaBuilder.and(predicates.toArray(new Predicate[0])));
+//
+//        List<Account> accounts = em.createQuery(query).getResultList();
+
+//        return accounts.isEmpty() ? Optional.empty() : Optional.of(accounts);
     }
 
     @Transactional

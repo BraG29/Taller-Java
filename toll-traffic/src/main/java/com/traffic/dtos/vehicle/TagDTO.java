@@ -12,7 +12,7 @@ import java.util.UUID;
 @Setter
 public class TagDTO extends IdentifierDTO {
 
-    private Long id;
+//    private Long id;
     private String uniqueId;
 
     public TagDTO(Long id,
