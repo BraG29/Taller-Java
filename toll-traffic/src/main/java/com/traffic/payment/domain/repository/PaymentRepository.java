@@ -7,6 +7,7 @@ import com.traffic.dtos.vehicle.VehicleDTO;
 import com.traffic.payment.domain.entities.User;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public interface PaymentRepository{
 
@@ -14,7 +15,7 @@ public interface PaymentRepository{
 
     public void addUser(User userToAdd);
 
-    public ArrayList<User> getAllUsers();
+    public List<User> getAllUsers();
 
     public User getUserById(Long id);
 

@@ -12,14 +12,16 @@ import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
 
 @ApplicationScoped
 public class PaymentRepositoryImplementation implements PaymentRepository {
-
-    ArrayList<User> users;
 
     @PersistenceContext
     EntityManager session;
@@ -27,18 +29,31 @@ public class PaymentRepositoryImplementation implements PaymentRepository {
 
     @PostConstruct
     public void initialize(){
-        users = new ArrayList<>();
-        //users.add(new User());
         em = session.getEntityManagerFactory().createEntityManager();
     }
 
     public void addUser(User userToAdd){
-        users.add(userToAdd);
+        //users.add(userToAdd);
         System.out.println(userToAdd.getName());
+        em.persist(userToAdd);
     }
 
-    public ArrayList<User> getAllUsers() {
-        return users;
+    public List<User> getAllUsers() {
+        //I call the criteria builder, which is the responsible for managing the queries
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+
+        //I tell Criteria builder to start a query for User
+        CriteriaQuery<User> cq = cb.createQuery(User.class);
+
+        //I tell which user class I am asking for
+        Root<User> root = cq.from(User.class);
+
+        //perform a SELECT * FROM with the class I told you (user)
+        cq.select(root);
+
+        //I finally, tell the Entity Manager to return me the result from the query
+        //that the criteria builder, built
+        return em.createQuery(cq).getResultList();
     }
 
     public User getUserById(Long id){
@@ -47,9 +62,10 @@ public class PaymentRepositoryImplementation implements PaymentRepository {
 
     public void addTollPassToUserVehicle(UserDTO userDTO, VehicleDTO vehicleDTO, Double amount, CreditCardDTO creditCardDTO){
 
-        User userToAdd = getUserById(userDTO.getId());
+        //kinda useless thing to do, I don't know why I implemented this
+        //User userToAdd = getUserById(userDTO.getId());
 
-        if (userToAdd != null){
+        try {
             Vehicle vehicleToUpdate = em.find(Vehicle.class, vehicleDTO.getId());
             TollPass tollPassToAdd = new TollPass(null, LocalDate.now(),amount, PaymentTypeData.POST_PAYMENT);
 
@@ -57,8 +73,9 @@ public class PaymentRepositoryImplementation implements PaymentRepository {
                     .getTollPass() //we get the toll passes from the vehicle
                     .add(em.merge(tollPassToAdd)));//we add and persist the toll pass we created
             em.flush(); //we flush
-        }else {
-            throw new IllegalArgumentException("No existe el usuario");
+
+        }catch (Exception e){
+            throw new IllegalArgumentException("No se pudo actualizar las pasadas del usuario " + userDTO.getName());
         }
     }
 }
