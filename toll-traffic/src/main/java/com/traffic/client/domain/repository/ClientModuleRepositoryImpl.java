@@ -135,7 +135,7 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
         Root<Vehicle> vehicleRoot = vehicleCB.from(Vehicle.class);
 
         CriteriaQuery<Link> linkCB = criteriaBuilder.createQuery(Link.class);
-        Root<Link> linkRoot = vehicleCB.from(Link.class);
+        Root<Link> linkRoot = linkCB.from(Link.class);
 
         vehicleCB.select(vehicleRoot)
                 .where(criteriaBuilder.equal(vehicleRoot.get("tag"), tag));
@@ -234,7 +234,7 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
             Root<Vehicle> vehicleRoot = vehicleCB.from(Vehicle.class);
 
             CriteriaQuery<Link> linkCB = criteriaBuilder.createQuery(Link.class);
-            Root<Link> linkRoot = vehicleCB.from(Link.class);
+            Root<Link> linkRoot = linkCB.from(Link.class);
 
             vehicleCB.select(vehicleRoot)
                     .where(criteriaBuilder.equal(vehicleRoot.get("tag"), tag));
@@ -275,14 +275,12 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
 
             //nueva pasada.
             TollPass newPass = new TollPass(null, LocalDate.now(), balance, PaymentTypeData.PRE_PAYMENT);
-            for(Link link : user.getLinkedCars()){
-                Vehicle vehicle = link.getVehicle();
-                if(vehicle.getTag().getId().equals(tagId)){
-                    vehicle.addPass(newPass);
-                    em.merge(vehicle);
-                }
+
+            if(vehicleDB.getTollPass() != null){
+                vehicleDB.addPass(em.merge(newPass)); //agrego pasada y actualizo en la bd
             }
 
+            em.merge(vehicleDB);
             em.merge(customer);
             em.flush();
 
@@ -303,7 +301,7 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
             Root<Vehicle> vehicleRoot = vehicleCB.from(Vehicle.class);
 
             CriteriaQuery<Link> linkCB = criteriaBuilder.createQuery(Link.class);
-            Root<Link> linkRoot = vehicleCB.from(Link.class);
+            Root<Link> linkRoot =  linkCB.from(Link.class);
 
             vehicleCB.select(vehicleRoot)
                     .where(criteriaBuilder.equal(vehicleRoot.get("tag"), tag));
@@ -338,6 +336,14 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
                 throw new IllegalArgumentException("Cuenta postpaga no encontrada para el tag dado.");
             }
 
+            //agrego nueva pasada al vehiculo, asi le mando datos actualizados al otro modulo.
+            TollPass newPass = new TollPass(null,LocalDate.now(), cost, PaymentTypeData.POST_PAYMENT);
+            if(vehicleDB.getTollPass() != null){
+                vehicleDB.addPass(em.merge(newPass)); //agrego pasada y actualizo en la bd
+            }
+            em.merge(vehicleDB);
+
+            //Armado userDTO
             UserDTO userDTO = null;
 
             //Armo el customerDTO utilizando una funcion auxiliar.
@@ -364,17 +370,6 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
                     vehicle = link.getVehicle();
 
                     List<TollPass> listTollPass = vehicle.getTollPass();
-
-                    //agrego nueva pasada al vehiculo, asi le mando datos actualizados al otro modulo.
-                    TollPass newPass = new TollPass(null,LocalDate.now(), cost, PaymentTypeData.POST_PAYMENT);
-
-                    if(listTollPass != null){
-                        vehicle.addPass(em.merge(newPass)); //agrego pasada y actualizo en la bd
-                    }else{
-                        listTollPass = new ArrayList<>();
-                    }
-
-                    em.merge(vehicle);
 
                     //en este bloque  se arma la lista de pasadas de un vehiculo
                     for (TollPass tollPass : listTollPass){
@@ -410,7 +405,6 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
             }
 
             paymentController.notifyPayment(userDTO, vehicleDTO, cost, customerDTO.getPostPayDTO().getCreditCardDTO());
-
             em.flush();
 
         }catch (Exception e){
