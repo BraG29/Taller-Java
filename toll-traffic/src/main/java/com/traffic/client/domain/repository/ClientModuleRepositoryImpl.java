@@ -125,7 +125,6 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
     }
 
 
-
     public Optional<List<Account>> getAccountsByTag(Long id) {
 
         CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
@@ -176,6 +175,7 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
     public void loadBalance(Long tagId, Double balance) throws Exception {
         try{
             CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
+
             CriteriaQuery<User> query = criteriaBuilder.createQuery(User.class);
 
             //raiz de la consulta:
@@ -225,27 +225,37 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
     @Transactional
     public void prePay(Long tagId, Double balance) throws Exception {
         try{
+
             CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
-            CriteriaQuery<User> query = criteriaBuilder.createQuery(User.class);
 
-            //raiz de la consulta:
-            Root<User> userRoot = query.from(User.class);
+            Tag tag = em.find(Tag.class, tagId);
 
-            System.out.println("Busco usuario por tag");
+            CriteriaQuery<Vehicle> vehicleCB = criteriaBuilder.createQuery(Vehicle.class);
+            Root<Vehicle> vehicleRoot = vehicleCB.from(Vehicle.class);
 
-            Join<User, Link> userLinkJoin = userRoot.join("linkedCars");
-            Join<Link, Vehicle> linkVehicleJoin = userLinkJoin.join("vehicle");
-            Join<Vehicle, Tag> vehicleTagJoin = linkVehicleJoin.join("tag");
+            CriteriaQuery<Link> linkCB = criteriaBuilder.createQuery(Link.class);
+            Root<Link> linkRoot = vehicleCB.from(Link.class);
 
-            query.select(userRoot).where(criteriaBuilder.equal(vehicleTagJoin.get("tagId"), tagId));
+            vehicleCB.select(vehicleRoot)
+                    .where(criteriaBuilder.equal(vehicleRoot.get("tag"), tag));
 
-            List<User> users = em.createQuery(query).getResultList();
+            Vehicle vehicleDB = em.createQuery(vehicleCB).getSingleResult();
 
-            if(users.isEmpty()){
-                throw new IllegalArgumentException("Usuario no encontrado para el tag dado");
+            em.clear();
+
+            linkCB.select(linkRoot)
+                    .where(criteriaBuilder.equal(linkRoot.get("vehicle"), vehicleDB));
+
+            Link linkDB = null;
+
+            try {
+                linkDB = em.createQuery(linkCB).getSingleResult();
+
+            } catch (Exception e){
+                System.err.println(e.getMessage());
             }
 
-            User user = users.get(0);
+            User user = linkDB.getUser();
 
             TollCustomer customer = user.getTollCustomer();
 
@@ -257,27 +267,6 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
 
             if(prePay == null){
                 throw new IllegalArgumentException("Cuenta prepaga no encontrada para el tag dado.");
-            }
-            UserDTO userDTO = null;
-
-            //si no tiene saldo
-            if(prePay.getBalance() < balance){
-                //lanzo notificacion armo UserDTO con cosas basicas.
-                /*
-                if(user instanceof NationalUser){
-                    userDTO = new NationalUserDTO(user.getId(), user.getEmail(), user.getPassword(),
-                            user.getName(), user.getCi(), null, null, null,
-                            null);
-
-                }else if (user instanceof ForeignUser){
-                    userDTO = new ForeignUserDTO(user.getId(), user.getEmail(), user.getPassword(),
-                            user.getName(), user.getCi(), null, null, null);
-                }*/
-
-                //TODO evento pago rechzadao
-                // communicationController.notifyNotEnoughBalance(userDTO);
-
-                throw new IllegalArgumentException("Saldo insuficiente.");
             }
 
             //se procede al pago
@@ -307,26 +296,35 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
     public void postPay(Long tagId, Double cost) throws Exception{
         try{
             CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
-            CriteriaQuery<User> query = criteriaBuilder.createQuery(User.class);
 
-            //raiz de la consulta:
-            Root<User> userRoot = query.from(User.class);
+            Tag tag = em.find(Tag.class, tagId);
 
-            System.out.println("Busco usuario por tag");
+            CriteriaQuery<Vehicle> vehicleCB = criteriaBuilder.createQuery(Vehicle.class);
+            Root<Vehicle> vehicleRoot = vehicleCB.from(Vehicle.class);
 
-            Join<User, Link> userLinkJoin = userRoot.join("linkedCars");
-            Join<Link, Vehicle> linkVehicleJoin = userLinkJoin.join("vehicle");
-            Join<Vehicle, Tag> vehicleTagJoin = linkVehicleJoin.join("tag");
+            CriteriaQuery<Link> linkCB = criteriaBuilder.createQuery(Link.class);
+            Root<Link> linkRoot = vehicleCB.from(Link.class);
 
-            query.select(userRoot).where(criteriaBuilder.equal(vehicleTagJoin.get("tagId"), tagId));
+            vehicleCB.select(vehicleRoot)
+                    .where(criteriaBuilder.equal(vehicleRoot.get("tag"), tag));
 
-            List<User> users = em.createQuery(query).getResultList();
+            Vehicle vehicleDB = em.createQuery(vehicleCB).getSingleResult();
 
-            if(users.isEmpty()){
-                throw new IllegalArgumentException("Usuario no encontrado para el tag dado");
+            em.clear();
+
+            linkCB.select(linkRoot)
+                    .where(criteriaBuilder.equal(linkRoot.get("vehicle"), vehicleDB));
+
+            Link linkDB = null;
+
+            try {
+                linkDB = em.createQuery(linkCB).getSingleResult();
+
+            } catch (Exception e){
+                System.err.println(e.getMessage());
             }
 
-            User user = users.get(0);
+            User user = linkDB.getUser();
 
             TollCustomer customer = user.getTollCustomer();
 
@@ -350,10 +348,11 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
             List<LinkDTO> linkListDTO = new ArrayList<>();
             LinkDTO linkObject;
 
-            List<TollPass> listTollPass;
+            //pasadas
             List<TollPassDTO> listTollPassDTO = new ArrayList<>();
             TollPassDTO tollPassObject;
 
+            //vehiculo
             Vehicle vehicle;
             VehicleDTO vehicleDTO = null;
             LicensePlateDTO licencePlate;
@@ -362,16 +361,20 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
             //en  este bloque se arma la lista de vinculos.
             for (Link link : vehicles) {
                 if (link.getVehicle().getTag().getId().equals(tagId)) {
-
                     vehicle = link.getVehicle();
+
+                    List<TollPass> listTollPass = vehicle.getTollPass();
 
                     //agrego nueva pasada al vehiculo, asi le mando datos actualizados al otro modulo.
                     TollPass newPass = new TollPass(null,LocalDate.now(), cost, PaymentTypeData.POST_PAYMENT);
-                    vehicle.addPass(newPass);
-                    em.merge(vehicle);
-                    listTollPass = vehicle.getTollPass();
 
-                    //TODO puede explotar al hacer getId y que sea null.
+                    if(listTollPass != null){
+                        vehicle.addPass(em.merge(newPass)); //agrego pasada y actualizo en la bd
+                    }else{
+                        listTollPass = new ArrayList<>();
+                    }
+
+                    em.merge(vehicle);
 
                     //en este bloque  se arma la lista de pasadas de un vehiculo
                     for (TollPass tollPass : listTollPass){
@@ -381,7 +384,6 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
 
                     //en este bloque se arman los vehiculos
                     if(vehicle instanceof NationalVehicle){
-
 
                         tagDTO = new TagDTO(vehicle.getTag().getId(), vehicle.getTag().getUniqueId().toString());
                         licencePlate = new LicensePlateDTO(((NationalVehicle) vehicle).getPlate().getId() ,((NationalVehicle) vehicle).getPlate().getLicensePlateNumber());
@@ -451,5 +453,6 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
 
         return new TollCustomerDTO(usr.getTollCustomer().getId(), postPayDTO, prePayDTO);
     }
+
 
 }
