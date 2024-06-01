@@ -3,6 +3,8 @@ package com.traffic.toll.Interface.api;
 import com.traffic.dtos.vehicle.IdentifierDTO;
 import com.traffic.exceptions.InvalidVehicleException;
 import com.traffic.toll.Interface.local.TollService;
+import com.traffic.toll.domain.repositories.VehicleRepository;
+import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.json.Json;
@@ -16,11 +18,21 @@ import java.util.NoSuchElementException;
 
 @Path("/toll")
 @ApplicationScoped
-@Transactional
+//@Transactional
 public class TollController {
 
+//    @Inject
+//    private VehicleRepository vehicleRepository;
     @Inject
     private TollService tollService;
+
+    @GET
+    @Path("/initdb")
+    public Response initializeDatabase() {
+        tollService.initVehicles();
+
+        return Response.ok().build();
+    }
 
     @POST
     @Path("/isEnable")

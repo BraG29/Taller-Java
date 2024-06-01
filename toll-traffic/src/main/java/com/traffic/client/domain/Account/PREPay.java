@@ -9,7 +9,7 @@ import java.time.LocalDate;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-@Entity
+@Entity(name = "ClientModule_PrePay")
 @DiscriminatorValue("PREPay")
 public class PREPay extends Account{
 

@@ -125,7 +125,7 @@
     </dependencies>
 
     <build>
-        <finalName>TollPass</finalName>
+        <finalName>toll-traffic</finalName>
 
         <plugins>
             <plugin>

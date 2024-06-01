@@ -31,10 +31,10 @@ public abstract class Vehicle {
         this.tollPass = tollPass;
     }
 
-    @Override
-    public String toString(){
-        return " [Id: " + id + tag.toString() + tollPass.toString();
-    }
+//    @Override
+//    public String toString(){
+//        return " [Id: " + id + tag.toString() + tollPass.toString();
+//    }
 
 
     public void addPass(TollPass pass){

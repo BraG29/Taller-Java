@@ -16,6 +16,8 @@ import com.traffic.exceptions.InvalidVehicleException;
  */
 public interface TollService {
 
+    public void initVehicles();
+
     /** Verifica si un vehiculo esta habilitado para pasar por peaje
      * @param identifier identificador del vehiculo puede ser de tipo {@link com.traffic.dtos.vehicle.TagDTO}
      *                   o {@link com.traffic.dtos.vehicle.LicensePlateDTO}

@@ -99,7 +99,7 @@ public class ClientControllerImpl implements ClientController {
             //armo objeto vehiculo.
             if(vehicleDTO instanceof NationalVehicleDTO){
 
-                UUID uuid = UUID.fromString(vehicleDTO.getTagDTO().getUUID());
+                UUID uuid = UUID.fromString(vehicleDTO.getTagDTO().getUniqueId());
 
                 Tag tag = new Tag(vehicleDTO.getTagDTO().getId(), uuid);
 
@@ -110,7 +110,7 @@ public class ClientControllerImpl implements ClientController {
             }else if (vehicleDTO instanceof ForeignVehicleDTO){
 
 
-                UUID uuid = UUID.fromString(vehicleDTO.getTagDTO().getUUID());
+                UUID uuid = UUID.fromString(vehicleDTO.getTagDTO().getUniqueId());
 
                 Tag tag = new Tag(vehicleDTO.getTagDTO().getId(), uuid);
 
@@ -149,7 +149,7 @@ public class ClientControllerImpl implements ClientController {
             }
 
 
-            UUID uuid = UUID.fromString(vehicleDTO.getTagDTO().getUUID());
+            UUID uuid = UUID.fromString(vehicleDTO.getTagDTO().getUniqueId());
 
             if(vehicleDTO instanceof NationalVehicleDTO){
 
@@ -292,7 +292,7 @@ public class ClientControllerImpl implements ClientController {
             throw new IllegalArgumentException("El tag esta vacío o es invalido");
         }
 
-        UUID uuid = UUID.fromString(tag.getUUID());
+        UUID uuid = UUID.fromString(tag.getUniqueId());
 
         Tag tagObject = new Tag(tag.getId(), uuid);
 
@@ -315,7 +315,7 @@ public class ClientControllerImpl implements ClientController {
             throw new IllegalArgumentException("Tipo de tag invalido");
         }
 
-        UUID uuid = UUID.fromString(tagDTO.getUUID());
+        UUID uuid = UUID.fromString(tagDTO.getUniqueId());
 
         Tag tag = new Tag(tagDTO.getId(), uuid);
 
@@ -367,7 +367,7 @@ public class ClientControllerImpl implements ClientController {
             throw new IllegalArgumentException("No se encontró el tag");
         }
 
-        UUID uuid = UUID.fromString(tagDTO.getUUID());
+        UUID uuid = UUID.fromString(tagDTO.getUniqueId());
 
         Tag tag = new Tag(tagDTO.getId(), uuid);
 
@@ -386,7 +386,7 @@ public class ClientControllerImpl implements ClientController {
     public void postPay(Double balance, TagDTO tagDTO) throws IllegalArgumentException{
 
 
-        UUID uuid = UUID.fromString(tagDTO.getUUID());
+        UUID uuid = UUID.fromString(tagDTO.getUniqueId());
         Tag tag = new Tag(tagDTO.getId(), uuid);
 
         try{

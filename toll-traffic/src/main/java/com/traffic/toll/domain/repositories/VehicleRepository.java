@@ -11,6 +11,7 @@ import java.util.Optional;
 public interface VehicleRepository{
 
     //TODO: documentar operaciones
+    public void save(Vehicle vehicle);
     public Optional<Vehicle> findByTag(Tag tag);
     public Optional<Vehicle> findByLicensePlate(LicensePlate licensePlate);
 

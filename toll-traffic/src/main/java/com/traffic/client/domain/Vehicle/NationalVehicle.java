@@ -26,8 +26,8 @@ public class NationalVehicle extends Vehicle {
         this.plate = plate;
     }
 
-    @Override
-    public String toString(){
-        return super.toString() + plate.toString();
-    }
+//    @Override
+//    public String toString(){
+//        return super.toString() + plate.toString();
+//    }
 }

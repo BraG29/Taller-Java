@@ -172,7 +172,7 @@ public class PaymentControllerImpl implements PaymentController {
         RequestBody body = RequestBody.create(json.toString(), MediaType.get("application/json"));
 
         Request request = new Request.Builder()
-                .url("http://localhost:8080/payment-service/api/controller/paymentCheck/")
+                .url("http://localhost:8081/payment-service/api/controller/paymentCheck/")
                 .post(body)
                 .build();
 

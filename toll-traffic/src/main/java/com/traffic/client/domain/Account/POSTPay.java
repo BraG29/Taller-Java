@@ -8,7 +8,7 @@ import java.time.LocalDate;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-@Entity
+@Entity(name = "ClientModule_PostPay")
 @DiscriminatorValue("POSTPay")
 public class POSTPay extends Account{
 

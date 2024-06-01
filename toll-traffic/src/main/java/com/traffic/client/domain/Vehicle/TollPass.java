@@ -23,11 +23,12 @@ public class TollPass {
     private Vehicle vehicle;
 
 
-    public TollPass(Long id, LocalDate passDate, Double cost, PaymentTypeData paymentType){
+    public TollPass(Long id, LocalDate passDate, Double cost, PaymentTypeData paymentType, Vehicle vehicle){
         this.id = id;
         this.passDate = passDate;
         this.cost = cost;
         this.paymentType = paymentType;
+        this.vehicle = vehicle;
     }
 
     @Override

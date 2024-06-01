@@ -38,8 +38,11 @@ INSERT INTO toll_db.ClientModule_User (DTYPE, ci, email, name, password, tollCus
 INSERT INTO `toll_db`.`ClientModule_Tag` (`uniqueId`) VALUES (UNHEX(REPLACE('550e8400-e29b-41d4-a716-446655440000', '-', '')));
 INSERT INTO `toll_db`.`ClientModule_Tag` (`uniqueId`) VALUES (UNHEX(REPLACE('cb523e8c-4008-4f8f-ab0f-824c7e76865b', '-', '')));
 
+-- Inicializacion de Matricula
+INSERT INTO `toll_db`.`ClientModule_LicensePlate` (`licensePlateNumber`) VALUES ('ABC-123');
+
 -- Inicializacion de Vehiculos
-INSERT INTO `toll_db`.`ClientModule_Vehicle` (`Tag_id`, `DTYPE`) VALUES ('1', 'national');
+INSERT INTO `toll_db`.`ClientModule_Vehicle` (`LicencePlate_id`, `Tag_id`, `DTYPE`) VALUES ('1', '1', 'national');
 INSERT INTO `toll_db`.`ClientModule_Vehicle` (`Tag_id`, `DTYPE`) VALUES ('2', 'foreign');
 
 -- Inicializacion de Link

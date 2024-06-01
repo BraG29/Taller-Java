@@ -35,42 +35,18 @@ public class VehicleRepositoryImpl implements VehicleRepository {
     private CriteriaQuery<Vehicle> criteriaQuery;
     private Root<Vehicle> root;
 
-    private List<Vehicle> vehicles;
-
     @PostConstruct
     public void setUp(){
-
-        vehicles = List.of(
-                new NationalVehicle(null,
-                        identifierRepository.findTagById(1L).orElseThrow(),
-                        identifierRepository.findLicensePlateById(1L).orElseThrow()),
-                new ForeignVehicle(null,
-                        identifierRepository.findTagById(2L).orElseThrow())
-//                ,
-//                new NationalVehicle(null,
-//                        identifierRepository.findTagById(3L).orElseThrow(),
-//                        identifierRepository.findLicensePlateById(2L).orElseThrow()),
-//                new ForeignVehicle(null,
-//                        identifierRepository.findTagById(4L).orElseThrow()),
-//                new NationalVehicle(null,
-//                        identifierRepository.findTagById(5L).orElseThrow(),
-//                        identifierRepository.findLicensePlateById(3L).orElseThrow()),
-//                new ForeignVehicle(null,
-//                        identifierRepository.findTagById(6L).orElseThrow())
-        );
 
         criteriaBuilder = em.getCriteriaBuilder();
         criteriaQuery = criteriaBuilder.createQuery(Vehicle.class);
         root = criteriaQuery.from(Vehicle.class);
 
-        for(Vehicle v : vehicles){
-            this.save(v);
-        }
-
     }
 
+    @Override
     public void save(Vehicle vehicle){
-        em.merge(vehicle);
+        em.persist(vehicle);
         em.flush();
     }
 

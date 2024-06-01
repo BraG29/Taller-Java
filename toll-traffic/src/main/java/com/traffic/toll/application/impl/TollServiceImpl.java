@@ -20,6 +20,8 @@ import com.traffic.toll.domain.repositories.VehicleRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.PersistenceException;
+import jakarta.transaction.Transactional;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -44,7 +46,34 @@ public class TollServiceImpl implements TollService {
      */
 //    @Inject
 //    private Event<CustomEvent> singleEvent;
-    
+
+    @Override
+    @Transactional
+    public void initVehicles(){
+        List<Vehicle> vehicles = List.of(
+                new NationalVehicle(null,
+                        identifierRepository.findTagById(1L).orElseThrow(),
+                        identifierRepository.findLicensePlateById(1L).orElseThrow()),
+                new ForeignVehicle(null,
+                        identifierRepository.findTagById(2L).orElseThrow())
+//                ,
+//                new NationalVehicle(null,
+//                        identifierRepository.findTagById(3L).orElseThrow(),
+//                        identifierRepository.findLicensePlateById(2L).orElseThrow()),
+//                new ForeignVehicle(null,
+//                        identifierRepository.findTagById(4L).orElseThrow()),
+//                new NationalVehicle(null,
+//                        identifierRepository.findTagById(5L).orElseThrow(),
+//                        identifierRepository.findLicensePlateById(3L).orElseThrow()),
+//                new ForeignVehicle(null,
+//                        identifierRepository.findTagById(6L).orElseThrow())
+        );
+
+        for(Vehicle v : vehicles){
+            vehicleRepository.save(v);
+        }
+    }
+
     @Override
     public Optional<Boolean> isEnabled(IdentifierDTO identifier) throws IllegalArgumentException, InvalidVehicleException{
 
@@ -56,13 +85,13 @@ public class TollServiceImpl implements TollService {
 
         if(identifier instanceof LicensePlateDTO){
             Optional<LicensePlate> licensePlateOPT = identifierRepository.findLicensePlateById(
-                    ((LicensePlateDTO) identifier).getId());
+                    identifier.getId());
 
             vehicleOPT = licensePlateOPT.flatMap(licensePlate ->
                     vehicleRepository.findByLicensePlate(licensePlate));
         } else{
             Optional<Tag> tagOPT = identifierRepository.findTagById(
-                    ((TagDTO) identifier).getId());
+                    identifier.getId());
 
             vehicleOPT = tagOPT.flatMap(tag ->
                 vehicleRepository.findByTag(tag));
