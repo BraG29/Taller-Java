@@ -27,8 +27,6 @@ public class SuciveControllerImpl implements SuciveController {
     @Override
     public void notifyPayment(LicensePlateDTO licensePlate, Double amount)  throws ExternalApiException, IllegalArgumentException, InvalidVehicleException {
 
-        //TODO call the mock API for Sucive 👁👄👁
-
         OkHttpClient client = new OkHttpClient();
 
         String json = "{\"id\":0,\"licensePlateNumber\":\""+licensePlate.getLicensePlateNumber()+"\"}";
@@ -49,7 +47,7 @@ public class SuciveControllerImpl implements SuciveController {
                 throw new ExternalApiException("No se pudo validar la compra sucive");
             }
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            throw new ExternalApiException(e.getMessage());
         }
     }
 
