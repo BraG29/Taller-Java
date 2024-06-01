@@ -186,7 +186,7 @@ public class PaymentControllerImpl implements PaymentController {
                 throw new ExternalApiException("No se pudo validar la compra Post Paga");
             }
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            throw new ExternalApiException(e.getMessage());
         }
 
     }

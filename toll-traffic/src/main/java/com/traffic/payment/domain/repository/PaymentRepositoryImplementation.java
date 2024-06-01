@@ -62,9 +62,10 @@ public class PaymentRepositoryImplementation implements PaymentRepository {
 
     public void addTollPassToUserVehicle(UserDTO userDTO, VehicleDTO vehicleDTO, Double amount, CreditCardDTO creditCardDTO){
 
-        User userToAdd = getUserById(userDTO.getId());
+        //kinda useless thing to do, I don't know why I implemented this
+        //User userToAdd = getUserById(userDTO.getId());
 
-        if (userToAdd != null){
+        try {
             Vehicle vehicleToUpdate = em.find(Vehicle.class, vehicleDTO.getId());
             TollPass tollPassToAdd = new TollPass(null, LocalDate.now(),amount, PaymentTypeData.POST_PAYMENT);
 
@@ -72,7 +73,8 @@ public class PaymentRepositoryImplementation implements PaymentRepository {
                     .getTollPass() //we get the toll passes from the vehicle
                     .add(em.merge(tollPassToAdd)));//we add and persist the toll pass we created
             em.flush(); //we flush
-        }else {
+
+        }catch (Exception e){
             throw new IllegalArgumentException("No se pudo actualizar las pasadas del usuario " + userDTO.getName());
         }
     }
