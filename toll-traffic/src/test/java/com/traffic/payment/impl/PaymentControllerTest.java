@@ -15,7 +15,6 @@ import com.traffic.exceptions.InvalidVehicleException;
 import com.traffic.exceptions.NoCustomerException;
 import com.traffic.payment.Interface.PaymentController;
 import com.traffic.payment.domain.repository.PaymentRepository;
-import com.traffic.payment.domain.user.User;
 import jakarta.inject.Inject;
 import org.jboss.weld.junit5.auto.AddPackages;
 import org.jboss.weld.junit5.auto.EnableAutoWeld;
