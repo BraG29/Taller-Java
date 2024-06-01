@@ -76,25 +76,8 @@ public class ClientControllerImpl implements ClientController {
 
         if(vehicleDTO != null){ //si no es vacio.
 
-            List<TollPass> listTollPass = new ArrayList<>(); //armo una lista de pasadas.
-
-            List<TollPassDTO> listTollPassDTO = vehicleDTO.getTollPassDTO(); //obtengo lista de pasadas
-
-            TollPass tollPassObject;
 
             Vehicle vehicle = null;
-            if(listTollPassDTO != null){
-                for (TollPassDTO tollPassDTO : listTollPassDTO){
-
-                    tollPassObject = new TollPass(tollPassDTO.getId(),
-                            tollPassDTO.getDate(), tollPassDTO.getCost(),
-                            tollPassDTO.getPaymentType());
-                    listTollPass.add(tollPassObject);//armo la lista de pasadas con el DTO de pasadas.
-
-
-                }
-            }
-
 
             //armo objeto vehiculo.
             if(vehicleDTO instanceof NationalVehicleDTO){
@@ -106,16 +89,15 @@ public class ClientControllerImpl implements ClientController {
                 LicensePlate plate = new LicensePlate(((NationalVehicleDTO) vehicleDTO).getLicensePlateDTO().getLicensePlateNumber());
 
                 vehicle = new NationalVehicle(vehicleDTO.getId(), tag,
-                        listTollPass, plate);
+                        null, plate);
             }else if (vehicleDTO instanceof ForeignVehicleDTO){
-
 
                 UUID uuid = UUID.fromString(vehicleDTO.getTagDTO().getUniqueId());
 
                 Tag tag = new Tag(vehicleDTO.getTagDTO().getId(), uuid);
 
 
-                vehicle = new ForeignVehicle(vehicleDTO.getId(), tag, listTollPass);
+                vehicle = new ForeignVehicle(vehicleDTO.getId(), tag, null);
             }
 
             vehicleService.linkVehicle(id, vehicle);
@@ -125,48 +107,10 @@ public class ClientControllerImpl implements ClientController {
     }
 
     @Override
-    public void unLinkVehicle(Long id, VehicleDTO vehicleDTO) throws IllegalArgumentException, InvalidVehicleException {
-        if (vehicleDTO != null){
+    public void unLinkVehicle(Long id, Long vehicleId) throws IllegalArgumentException, InvalidVehicleException {
+        if (vehicleId != null){
 
-            List<TollPass> listTollPass = new ArrayList<>();
-
-            List<TollPassDTO> listTollPassDTO = vehicleDTO.getTollPassDTO();
-
-            TollPass tollPassObject;
-
-            Vehicle vehicle = null;
-
-
-            if(listTollPassDTO != null){
-
-            for (TollPassDTO tollPassDTO : listTollPassDTO){
-
-                tollPassObject = new TollPass(tollPassDTO.getId(),tollPassDTO.getDate(), tollPassDTO.getCost(),
-                        tollPassDTO.getPaymentType());
-                listTollPass.add(tollPassObject);
-
-                }
-            }
-
-
-            UUID uuid = UUID.fromString(vehicleDTO.getTagDTO().getUniqueId());
-
-            if(vehicleDTO instanceof NationalVehicleDTO){
-
-                Tag tag = new Tag(vehicleDTO.getTagDTO().getId(), uuid);
-
-                LicensePlate plate = new LicensePlate(((NationalVehicleDTO) vehicleDTO).getLicensePlateDTO().getLicensePlateNumber());
-
-                vehicle = new NationalVehicle(vehicleDTO.getId(), tag,
-                        listTollPass, plate);
-
-            }else if (vehicleDTO instanceof ForeignVehicleDTO){
-
-                Tag tag = new Tag(vehicleDTO.getTagDTO().getId(), uuid);
-                vehicle = new ForeignVehicle(vehicleDTO.getId(), tag, listTollPass);
-            }
-
-            vehicleService.unLinkVehicle(id, vehicle);
+            vehicleService.unLinkVehicle(id, vehicleId);
 
             //TODO disparo evento vehiculo eliminado.
         }

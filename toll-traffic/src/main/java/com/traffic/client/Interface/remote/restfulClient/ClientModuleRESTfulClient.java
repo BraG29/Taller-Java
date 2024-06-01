@@ -75,9 +75,9 @@ public class ClientModuleRESTfulClient {
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/vehicle/{userId}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response removeVehicle(@PathParam("userId") Long id, VehicleDTO vehicle) throws NoCustomerException, InvalidVehicleException {
+    public Response removeVehicle(@PathParam("userId") Long id, Long vehicleId) throws NoCustomerException, InvalidVehicleException {
         //TODO controles
-        controller.unLinkVehicle(id, vehicle);
+        controller.unLinkVehicle(id, vehicleId);
         return  Response.status(Response.Status.CREATED).entity("El vehiculo fue eliminado con exito " +
                 "del usuario con id: " + id).build();
     }

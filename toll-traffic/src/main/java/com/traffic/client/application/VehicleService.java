@@ -13,7 +13,7 @@ public interface VehicleService {
 
     public void linkVehicle(Long id, Vehicle vehicle);
 
-    public void unLinkVehicle (Long id, Vehicle vehicle);
+    public void unLinkVehicle (Long id, Long vehicleId);
 
     public Optional<List<Vehicle>> getLinkedVehicles(Long id);
 

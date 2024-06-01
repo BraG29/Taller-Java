@@ -134,15 +134,8 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
         CriteriaQuery<Vehicle> vehicleCB = criteriaBuilder.createQuery(Vehicle.class);
         Root<Vehicle> vehicleRoot = vehicleCB.from(Vehicle.class);
 
-<<<<<<< HEAD
-        CriteriaQuery<Link> linkCB = criteriaBuilder.createQuery(Link.class);
-        Root<Link> linkRoot = linkCB.from(Link.class);
-
-=======
->>>>>>> eb576aa (cleaning merging conflitcs)
         vehicleCB.select(vehicleRoot)
                 .where(criteriaBuilder.equal(vehicleRoot.get("tag"), tag));
-
 
         Vehicle vehicle = em.createQuery(vehicleCB).getSingleResult();
 
@@ -272,23 +265,8 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
             em.merge(prePay);
 
             //nueva pasada.
-<<<<<<< HEAD
-            TollPass newPass = new TollPass(null, LocalDate.now(), balance, PaymentTypeData.PRE_PAYMENT);
-
-            if(vehicleDB.getTollPass() != null){
-                vehicleDB.addPass(em.merge(newPass)); //agrego pasada y actualizo en la bd
-            }
-=======
             TollPass newPass = new TollPass(null, LocalDate.now(), balance, PaymentTypeData.PRE_PAYMENT, vehicleDB);
             em.merge(newPass);
-//            for(Link link : user.getLinkedCars()){
-//                Vehicle vehicle = link.getVehicle();
-//                if(vehicle.getTag().getId().equals(tagId)){
-//                    vehicle.addPass(newPass);
-//                    em.merge(vehicle);
-//                }
-//            }
->>>>>>> eb576aa (cleaning merging conflitcs)
 
             em.merge(vehicleDB);
             em.merge(customer);
@@ -311,11 +289,8 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
             Root<Vehicle> vehicleRoot = vehicleCB.from(Vehicle.class);
 
             CriteriaQuery<Link> linkCB = criteriaBuilder.createQuery(Link.class);
-<<<<<<< HEAD
+
             Root<Link> linkRoot =  linkCB.from(Link.class);
-=======
-            Root<Link> linkRoot = linkCB.from(Link.class);
->>>>>>> eb576aa (cleaning merging conflitcs)
 
             vehicleCB.select(vehicleRoot)
                     .where(criteriaBuilder.equal(vehicleRoot.get("tag"), tag));
@@ -350,13 +325,6 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
                 throw new IllegalArgumentException("Cuenta postpaga no encontrada para el tag dado.");
             }
 
-            //agrego nueva pasada al vehiculo, asi le mando datos actualizados al otro modulo.
-            TollPass newPass = new TollPass(null,LocalDate.now(), cost, PaymentTypeData.POST_PAYMENT);
-            if(vehicleDB.getTollPass() != null){
-                vehicleDB.addPass(em.merge(newPass)); //agrego pasada y actualizo en la bd
-            }
-            em.merge(vehicleDB);
-
             //Armado userDTO
             UserDTO userDTO = null;
 
@@ -390,12 +358,6 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
 
                     //agrego nueva pasada al vehiculo, asi le mando datos actualizados al otro modulo.
                     TollPass newPass = new TollPass(null,LocalDate.now(), cost, PaymentTypeData.POST_PAYMENT, vehicleDB);
-
-//                    if(listTollPass != null){
-//                        vehicle.addPass(em.merge(newPass)); //agrego pasada y actualizo en la bd
-//                    }else{
-//                        listTollPass = new ArrayList<>();
-//                    }
 
                     em.merge(newPass);
 

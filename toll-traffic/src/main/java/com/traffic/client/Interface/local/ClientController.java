@@ -47,13 +47,13 @@ public interface ClientController {
     /**
      * Desvincula un vehículo de un usuario
      * @param id -> Recibe un id del usuario a desvincular vehiculo
-     * @param vehicle -> Recibe un objeto vehiculo a desvincular del usuario
+     * @param vehicleId -> Recibe le id del vehiculo a desvincular.
      * @throws IllegalArgumentException -> Si un objeto usuario tiene información incorrecta.
      * @throws InvalidVehicleException -> Si el vehiculo no esta vinculado al usuario.
      * @throws NoCustomerException -> Si el usuario no es un cliente Telepeaje.
      */
     public void unLinkVehicle(Long id,
-                              VehicleDTO vehicle) throws  IllegalArgumentException, InvalidVehicleException, NoCustomerException;
+                              Long vehicleId) throws  IllegalArgumentException, InvalidVehicleException, NoCustomerException;
 
     /**
      * Devuelve los vehículos vinculados a un usuario

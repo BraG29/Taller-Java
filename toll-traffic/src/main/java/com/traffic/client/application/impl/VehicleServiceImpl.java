@@ -35,16 +35,8 @@ public class VehicleServiceImpl implements VehicleService {
     }
 
     @Override
-    public void unLinkVehicle(Long id, Vehicle vehicle) {
-
-        Optional<User> userOPT  = Optional.of(repo.getUserById(id).orElseThrow(() ->
-                new NoSuchElementException("No se encontró usuario con id: " + id)));
-
-        User user = userOPT.get();
-
-        user.removeVehicle(vehicle);
-        repo.update(user);
-
+    public void unLinkVehicle(Long id, Long vehicleId) {
+        //TODO implementar
     }
 
     @Override
