@@ -1,16 +1,25 @@
 package com.traffic.toll.domain.entities;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.util.UUID;
 
 @Getter
 @Setter
-@AllArgsConstructor
+@NoArgsConstructor
+@Entity(name = "Toll_Tag")
 public class Tag {
 
-    private Long uniqueId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long id;
+    @Column(name = "unique_id")
+    private UUID uniqueId = UUID.randomUUID();
 
-    public Tag() {
+    public Tag(Long id){
+        this.id = id;
     }
+
 }

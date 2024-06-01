@@ -171,7 +171,7 @@ public class ClientModuleRESTfulClient {
     @PUT
     @Path("/addBalance")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response loadBalance(@QueryParam("balance") Double balance, @QueryParam("userId") Long id) throws NoCustomerException {
+    public Response loadBalance(@QueryParam("balance") Double balance, @QueryParam("userId") Long id) throws Exception {
         //TODO controles
         controller.loadBalance(id, balance);
         return  Response.status(Response.Status.CREATED).entity("Recarga acreditada con éxito.").build();

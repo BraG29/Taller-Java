@@ -6,4 +6,7 @@ package com.traffic.exceptions;
  * </p>
  */
 public class ExternalApiException extends Exception{
+    public ExternalApiException(String message) {
+        super(message);
+    }
 }

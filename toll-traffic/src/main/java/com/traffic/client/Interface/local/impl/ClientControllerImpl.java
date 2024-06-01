@@ -101,16 +101,19 @@ public class ClientControllerImpl implements ClientController {
 
                 UUID uuid = UUID.fromString(vehicleDTO.getTagDTO().getUUID());
 
-                Tag tag = new Tag(vehicleDTO.getTagDTO().getUniqueId(), uuid);
+                Tag tag = new Tag(vehicleDTO.getTagDTO().getId(), uuid);
+
                 LicensePlate plate = new LicensePlate(((NationalVehicleDTO) vehicleDTO).getLicensePlateDTO().getLicensePlateNumber());
 
                 vehicle = new NationalVehicle(vehicleDTO.getId(), tag,
                         listTollPass, plate);
             }else if (vehicleDTO instanceof ForeignVehicleDTO){
 
+
                 UUID uuid = UUID.fromString(vehicleDTO.getTagDTO().getUUID());
 
-                Tag tag = new Tag(vehicleDTO.getTagDTO().getUniqueId(), uuid);
+                Tag tag = new Tag(vehicleDTO.getTagDTO().getId(), uuid);
+
 
                 vehicle = new ForeignVehicle(vehicleDTO.getId(), tag, listTollPass);
             }
@@ -145,19 +148,21 @@ public class ClientControllerImpl implements ClientController {
                 }
             }
 
+
             UUID uuid = UUID.fromString(vehicleDTO.getTagDTO().getUUID());
 
             if(vehicleDTO instanceof NationalVehicleDTO){
 
-                Tag tag = new Tag(vehicleDTO.getTagDTO().getUniqueId(), uuid);
+                Tag tag = new Tag(vehicleDTO.getTagDTO().getId(), uuid);
+
                 LicensePlate plate = new LicensePlate(((NationalVehicleDTO) vehicleDTO).getLicensePlateDTO().getLicensePlateNumber());
 
                 vehicle = new NationalVehicle(vehicleDTO.getId(), tag,
                         listTollPass, plate);
 
             }else if (vehicleDTO instanceof ForeignVehicleDTO){
-                Tag tag = new Tag(vehicleDTO.getTagDTO().getUniqueId(), uuid);
 
+                Tag tag = new Tag(vehicleDTO.getTagDTO().getId(), uuid);
                 vehicle = new ForeignVehicle(vehicleDTO.getId(), tag, listTollPass);
             }
 
@@ -289,7 +294,8 @@ public class ClientControllerImpl implements ClientController {
 
         UUID uuid = UUID.fromString(tag.getUUID());
 
-        Tag tagObject = new Tag(tag.getUniqueId(), uuid);
+        Tag tagObject = new Tag(tag.getId(), uuid);
+
 
         try{
             Optional<List<TollPass>> tollPassList = vehicleService.getTollPassByVehicle(tagObject, from , to);
@@ -311,7 +317,8 @@ public class ClientControllerImpl implements ClientController {
 
         UUID uuid = UUID.fromString(tagDTO.getUUID());
 
-        Tag tag = new Tag(tagDTO.getUniqueId(), uuid);
+        Tag tag = new Tag(tagDTO.getId(), uuid);
+
 
         Optional<List<Account>> accounts = accountService.getAccountByTag(tag);
 
@@ -362,7 +369,7 @@ public class ClientControllerImpl implements ClientController {
 
         UUID uuid = UUID.fromString(tagDTO.getUUID());
 
-        Tag tag = new Tag(tagDTO.getUniqueId(), uuid);
+        Tag tag = new Tag(tagDTO.getId(), uuid);
 
         try{
 
@@ -378,8 +385,9 @@ public class ClientControllerImpl implements ClientController {
     @Override
     public void postPay(Double balance, TagDTO tagDTO) throws IllegalArgumentException{
 
+
         UUID uuid = UUID.fromString(tagDTO.getUUID());
-        Tag tag = new Tag(tagDTO.getUniqueId(), uuid);
+        Tag tag = new Tag(tagDTO.getId(), uuid);
 
         try{
             accountService.postPay(tag, balance);

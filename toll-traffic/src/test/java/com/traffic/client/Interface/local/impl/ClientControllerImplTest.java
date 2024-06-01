@@ -1,6 +1,13 @@
+
 /*
 package com.traffic.client.Interface.local.impl;
 
+=======
+
+/*
+package com.traffic.client.Interface.local.impl;
+
+>>>>>>> develop
 import com.traffic.client.Interface.local.ClientController;
 import com.traffic.client.application.impl.AccountServiceImpl;
 import com.traffic.client.application.impl.UserServiceImpl;
@@ -275,4 +282,5 @@ class ClientControllerImplTest {
     }
 
 }
+<<<<<<< HEAD
 */
