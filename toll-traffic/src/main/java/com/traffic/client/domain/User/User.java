@@ -48,36 +48,21 @@ public abstract class User {
         this.id = id;
     }
 
-    public void addCreditCard(CreditCard card){
-        tollCustomer.getPostPay().setCreditCard(card);
-    }
 
     public void addVehicle(Vehicle vehicle){
+        Link link = new Link(null, true, vehicle, LocalDate.now());
+
         if(linkedCars == null){
             linkedCars = new ArrayList<>();
-            Link link = new Link(this.getId(), true, vehicle, LocalDate.now());
             linkedCars.add(link);
-
         } else {
-
-            Long id = linkedCars.size() + 1L; //el id se lo doy utilizando el tamaño de  la lista +1
-            //esto en el futuro se ignora ya que la bd deberia brindarles ids incrementales para que no se repitan.
-
-            Link link = new Link(id, true, vehicle, LocalDate.now());
             linkedCars.add(link);
-            }
+        }
     }
 
-    public void removeVehicle(Vehicle vehicle){
+    public void removeVehicle(Long vehicleId){
         if(linkedCars != null){
-            for (Link link : linkedCars){
-
-                Long id = vehicle.getTag().getId();
-
-                if(link.getVehicle().getTag().getId().equals(id)){
-                    linkedCars.remove(link);
-                }
-            }
+            linkedCars.removeIf(link -> link.getVehicle().getId().equals(vehicleId));
         }
     }
 

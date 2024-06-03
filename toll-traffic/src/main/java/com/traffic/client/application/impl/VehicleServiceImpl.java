@@ -1,5 +1,4 @@
 package com.traffic.client.application.impl;
-
 import com.traffic.client.application.VehicleService;
 import com.traffic.client.domain.User.User;
 import com.traffic.client.domain.Vehicle.Link;
@@ -9,7 +8,6 @@ import com.traffic.client.domain.Vehicle.Vehicle;
 import com.traffic.client.domain.repository.ClientModuleRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,19 +21,21 @@ public class VehicleServiceImpl implements VehicleService {
     ClientModuleRepository repo;
 
     @Override
-    public void linkVehicle(Long id, Vehicle vehicle) {
+    public void linkVehicle(Long userId, Vehicle vehicle) {
 
-        Optional<User> userOPT = Optional.of(repo.getUserById(id).orElseThrow(() ->
-                new NoSuchElementException("No se encontró usuario con id: " + id)));
+        try{
 
-        User user = userOPT.get();
+            repo.linkVehicle(userId, vehicle);
 
-        user.addVehicle(vehicle); //agrego vehiculo
-        repo.update(user); //actualizo lista
+        }catch (Exception e){
+            System.err.println(e.getMessage());
+        }
+
+
     }
 
     @Override
-    public void unLinkVehicle(Long id, Long vehicleId) {
+    public void unLinkVehicle(Long userId, Long vehicleId) {
         //TODO implementar
     }
 
@@ -108,7 +108,7 @@ public class VehicleServiceImpl implements VehicleService {
     @Override
     public Optional<List<TollPass>> getTollPassByVehicle(Tag tag, LocalDate from, LocalDate to) {
 
-            Optional<Vehicle> vehicle = Optional.ofNullable(repo.getVehicleByTag(tag).orElseThrow(() ->
+            Optional<Vehicle> vehicle = Optional.ofNullable(repo.getVehicleByTag(tag.getId()).orElseThrow(() ->
                     new NoSuchElementException("No se encontró el vehículo con tag: " + tag.getId())));
 
             if(vehicle.isPresent()){

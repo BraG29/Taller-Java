@@ -47,12 +47,14 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public void prePay(Tag tag, Double cost) throws Exception {
+        try{
+            repo.prePay(tag.getId(), cost);
 
-        if(cost <= 0){
-            throw new IllegalArgumentException("El costo no puede ser menor o igual a 0");
+            //TODO evento prepago.
+        }catch(Exception e){
+            System.err.println(e.getMessage());
         }
 
-        repo.prePay(tag.getId(), cost);
     }
 
     @Override
@@ -62,19 +64,35 @@ public class AccountServiceImpl implements AccountService {
             throw new NoCustomerException("El tag es vacio.");
         }
 
-        repo.postPay(tag.getId(), cost);
+        try{
+            repo.postPay(tag.getId(), cost);
+        }catch (Exception e){
+            System.err.println(e.getMessage());
+        }
 
     }
 
     @Override
     public Optional<List<Account>> getAccountByTag(Tag tag) {
-        return repo.getAccountsByTag(tag.getId());
+
+        try{
+            return repo.getAccountsByTag(tag.getId());
+        }catch (Exception e){
+            System.err.println(e.getMessage());
+        }
+
+        return Optional.empty();
     }
 
     @Override
     public void loadBalance(Long id, Double balance) throws Exception {
 
-       repo.loadBalance(id, balance);
+        try{
+            repo.loadBalance(id, balance);
+        } catch(Exception e){
+            System.err.println(e.getMessage());
+        }
+
     }
 
     @Override
@@ -83,12 +101,15 @@ public class AccountServiceImpl implements AccountService {
         Optional<User> usrOPT = repo.getUserById(id);
 
         if(usrOPT.isPresent()){
-
-            User usr = usrOPT.get();
-            if (usr.getTollCustomer() != null && usr.getTollCustomer().getPrePay() != null){
-
-                return Optional.of(usr.getTollCustomer().getPrePay().getBalance());
+            try{
+                User usr = usrOPT.get();
+                if (usr.getTollCustomer() != null && usr.getTollCustomer().getPrePay() != null){
+                    return Optional.of(usr.getTollCustomer().getPrePay().getBalance());
+                }
+            }catch (Exception e){
+                System.err.println(e.getMessage());
             }
+
         }
 
         return Optional.empty();
@@ -97,70 +118,12 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public void linkCreditCard(Long id, CreditCard creditCard) {
 
-        Optional<User> usrOPT = repo.getUserById(id);
-
-        if(usrOPT.isPresent()){
-
-            User usr = usrOPT.get();
-
-            POSTPay postPay;
-
-            LocalDate creationDate = LocalDate.now();
-
-            //nunca deberia cumplirse que no es cliente ya que solo la llamaran clientes a esta oper.
-            if (usr.getTollCustomer().getPostPay() == null){ //si no tiene cuenta postPaga le creo una y le agrego la tarjeta.
-
-                Integer accountNumber = POSTPay.generateRandomAccountNumber();
-
-                postPay = new POSTPay(id,accountNumber, creationDate, creditCard);
-
-                usr.getTollCustomer().setPostPay(postPay);
-
-            }else{ //si ya tiene cuenta postpaga, cambio la tarjeta, por ahora maneja una tarjeta sola.
-                //usr.addCreditCard(creditCard);
-                usr.getTollCustomer().getPostPay().setCreditCard(creditCard);
-            }
-            repo.update(usr);
+        try{
+            repo.linkCreditCard(id, creditCard);
+        }catch (Exception e){
+            System.err.println(e.getMessage());
         }
     }
 
-
-    //auxiliar:
-
-    /**
-     * Función auxiliar encargada de realizar un pasaje de objeto  TollCustomer a TollCustomerDTO.
-     *
-     * @param usr -> recibe un usr, concramente utilizará el objeto TollCustomer de este.
-     * @return -> retorna como resultado el armado del objeto TollCustomerDTO
-     */
-    private static TollCustomerDTO getTollCustomerDTO(User usr) {
-        PREPay prePay;
-        PrePayDTO prePayDTO = null;
-
-        POSTPay postPay;
-        PostPayDTO postPayDTO = null;
-
-        CreditCard card;
-        CreditCardDTO cardDTO;
-
-        //armo cuenta postpay si tiene
-        if(usr.getTollCustomer().getPostPay() != null){
-
-            card = usr.getTollCustomer().getPostPay().getCreditCard();
-            cardDTO = new CreditCardDTO(card.getId(), card.getCardNumber(), card.getName(), card.getExpireDate());
-
-            postPay = usr.getTollCustomer().getPostPay();
-            postPayDTO = new PostPayDTO(postPay.getId(), postPay.getAccountNumber(), postPay.getCreationDate(), cardDTO);
-
-        }
-
-        //armo cuenta prepay si tiene
-        if(usr.getTollCustomer().getPrePay() != null){
-            prePay = usr.getTollCustomer().getPrePay();
-            prePayDTO = new PrePayDTO(prePay.getId(), prePay.getAccountNumber(), prePay.getCreationDate(), prePay.getBalance());
-        }
-
-        return new TollCustomerDTO(usr.getTollCustomer().getId(), postPayDTO, prePayDTO);
-    }
     
 }

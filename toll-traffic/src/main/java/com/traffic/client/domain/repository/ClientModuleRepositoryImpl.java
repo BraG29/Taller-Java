@@ -18,22 +18,17 @@ import com.traffic.dtos.user.NationalUserDTO;
 import com.traffic.dtos.user.TollCustomerDTO;
 import com.traffic.dtos.user.UserDTO;
 import com.traffic.dtos.vehicle.*;
-import com.traffic.exceptions.NoAccountException;
 import com.traffic.payment.Interface.PaymentController;
-import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.*;
 import jakarta.transaction.Transactional;
-
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 
@@ -46,84 +41,174 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
     @PersistenceContext
     private EntityManager em;
 
-    List<User> usersList;
-
-    public void update(User  usr){
-        //comprobar actualizar lista de usersList
-        for(int i = 0; i < this.usersList.size(); i++){
-            if(usr.getId().equals(this.usersList.get(i).getId())){
-                this.usersList.set(i, usr);
-            }
-        }
-    }
-
-
-
     @Override
-    public Optional<User> findByTag(Tag tag) {
+    public Optional<User> findByTag(Long tagId) {
 
-        for (User user : this.usersList){
-            if (user.getLinkedCars() != null){
-                for(Link link : user.getLinkedCars()){
-                    if(link.getVehicle().getTag().equals(tag)){
-                        return Optional.of(user);
-                    }
-                }
-            }
+        CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
+
+        Tag tag = em.find(Tag.class, tagId);
+
+        CriteriaQuery<Vehicle> vehicleCB = criteriaBuilder.createQuery(Vehicle.class);
+        Root<Vehicle> vehicleRoot = vehicleCB.from(Vehicle.class);
+
+        CriteriaQuery<Link> linkCB = criteriaBuilder.createQuery(Link.class);
+        Root<Link> linkRoot = linkCB.from(Link.class);
+
+        vehicleCB.select(vehicleRoot)
+                .where(criteriaBuilder.equal(vehicleRoot.get("tag"), tag));
+
+        Vehicle vehicleDB = em.createQuery(vehicleCB).getSingleResult();
+
+        em.clear();
+
+        linkCB.select(linkRoot)
+                .where(criteriaBuilder.equal(linkRoot.get("vehicle"), vehicleDB));
+
+        Link linkDB = null;
+
+        try {
+            linkDB = em.createQuery(linkCB).getSingleResult();
+
+        } catch (Exception e){
+            System.err.println(e.getMessage());
         }
 
-        return Optional.empty();
+        User user = null;
+        if(linkDB != null){
+           user = linkDB.getUser();
+        }
+
+
+        return user != null ? Optional.of(user) : Optional.empty();
     }
 
     @Override
     public Optional<List<User>> listUsers() {
 
-        if(this.usersList != null){
+        CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
+        CriteriaQuery<User> userCriteriaQuery = criteriaBuilder.createQuery(User.class);
+        Root<User> userRoot = userCriteriaQuery.from(User.class);
 
-            return Optional.of(new ArrayList<>(this.usersList));
-        }
+        CriteriaQuery<User> selectAll = userCriteriaQuery.select(userRoot);
+        TypedQuery<User> allUsers = em.createQuery(selectAll);
+        List<User> users = allUsers.getResultList();
 
-        return Optional.empty();
+        return users.isEmpty() ? Optional.empty() : Optional.of(users);
     }
 
     @Transactional
     public void createUser(User user){
-        em.persist(user);
-        em.flush();
+        try{
+            em.persist(user);
+            em.flush();
+        }catch (Exception e){
+            System.err.println(e.getMessage());
+        }
     }
 
     @Override
     public Optional<User> getUserById(Long id) {
 
-        for (User user : this.usersList){
-            if(Objects.equals(user.getId(), id)){//vamo a probar solucion intellij
-                return Optional.of(user);
-            }
-        }
+       User user = em.find(User.class, id);
 
-        return Optional.empty();
+        return  user != null ? Optional.of(user) : Optional.empty();
     }
 
     @Override
-    public Optional<Vehicle> getVehicleByTag(Tag tag) {
-        List<Link> links = new ArrayList<>();
+    public Optional<Vehicle> getVehicleByTag(Long tagId) {
 
-        for(User users : this.usersList){
+        CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
 
-            links = users.getLinkedCars();
+        Tag tag = em.find(Tag.class, tagId);
 
-            for (Link link : links){
-                if(link.getVehicle().getTag().equals(tag)){
-                    Vehicle vehicle = link.getVehicle();
-                    return Optional.of(vehicle);
-                }
-            }
+        CriteriaQuery<Vehicle> vehicleCB = criteriaBuilder.createQuery(Vehicle.class);
+        Root<Vehicle> vehicleRoot = vehicleCB.from(Vehicle.class);
 
-        }
+        vehicleCB.select(vehicleRoot)
+                .where(criteriaBuilder.equal(vehicleRoot.get("tag"), tag));
 
-        return Optional.empty();
+        Vehicle vehicleDB = em.createQuery(vehicleCB).getSingleResult();
+
+        return vehicleDB != null ? Optional.of(vehicleDB): Optional.empty();
     }
 
+    //Vehiculos.
+    //sin testear
+    @Transactional
+    public void linkVehicle (Long userId, Vehicle vehicle){
+        try{
+            Optional<User> usrOPT = getUserById(userId);
+            if(usrOPT.isPresent()){
+                User user = usrOPT.get();
+
+                if(vehicle.getId() == null){
+                    em.persist(vehicle);
+                }else{
+                    em.merge(vehicle);
+                }
+                user.addVehicle(vehicle);
+                em.merge(user);
+                em.flush();
+            }
+
+        }catch(Exception e){
+            System.err.println(e.getMessage());
+        }
+    }
+
+    //sin testear
+    public void unLinkVehicle (Long userId, Long vehicleId){
+
+        try{
+            Optional<User> usrOPT = getUserById(userId);
+            if(usrOPT.isPresent()){
+
+                User user = usrOPT.get();
+
+                for(Link link : user.getLinkedCars()){
+                    if(link.getVehicle().getId().equals(vehicleId)){
+                        user.removeVehicle(vehicleId);
+                        break;
+                    }
+                }
+                em.merge(user);
+            }
+        }catch (Exception e){
+            System.err.println(e.getMessage());
+        }
+    }
+
+
+    //Cuentas.
+    //sin testear
+    @Transactional
+    public void linkCreditCard (Long id , CreditCard creditCard){
+        Optional<User> usrOPT = getUserById(id);
+
+        try{
+            if(usrOPT.isPresent()){
+
+                User usr = usrOPT.get();
+
+                POSTPay postPay = usr.getTollCustomer().getPostPay();
+                LocalDate creationDate = LocalDate.now();
+
+                if (postPay == null){ //si no tiene cuenta postPaga le creo una y le agrego la tarjeta.
+                    Integer accountNumber = POSTPay.generateRandomAccountNumber();
+                    postPay = new POSTPay(id,accountNumber, creationDate, creditCard);
+                    em.persist(postPay);
+
+                }else{ //si ya tiene cuenta postpaga, cambio la tarjeta, por ahora maneja una tarjeta sola.
+                    postPay.setCreditCard(creditCard);
+                    em.merge(postPay);
+                }
+                em.flush();
+            }
+        } catch (Exception e){
+            System.err.println(e.getMessage());
+        }
+
+    }
 
     public Optional<List<Account>> getAccountsByTag(Long id) {
 
@@ -162,31 +247,17 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
 
     }
 
+    //sin testear
     @Transactional
     public void loadBalance(Long tagId, Double balance) throws Exception {
         try{
-            CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
+            Optional<User> user = findByTag(tagId);
 
-            CriteriaQuery<User> query = criteriaBuilder.createQuery(User.class);
-
-            //raiz de la consulta:
-            Root<User> userRoot = query.from(User.class);
-
-            System.out.println("Carga de saldo.");
-
-            Join<User, Link> userLinkJoin = userRoot.join("linkedCars");
-            Join<Link, Vehicle> linkVehicleJoin = userLinkJoin.join("vehicle");
-            Join<Vehicle, Tag> vehicleTagJoin = linkVehicleJoin.join("tag");
-
-            query.select(userRoot).where(criteriaBuilder.equal(vehicleTagJoin.get("tagId"), tagId));
-
-            List<User> users = em.createQuery(query).getResultList();
-
-            if(users.isEmpty()){
+            if(user.isEmpty()){
                 throw new IllegalArgumentException("Usuario no encontrado para el tag dado");
             }
 
-            TollCustomer customer = users.get(0).getTollCustomer();
+            TollCustomer customer = user.get().getTollCustomer();
 
             if(customer == null){
                 throw new IllegalArgumentException("TollCustomer no encontrado para el tag dado");
@@ -208,8 +279,7 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
             em.flush();
 
         } catch (Exception e){
-
-            throw new Exception("Algo salio mal " + e.getMessage());
+            System.err.println("Algo salio mal " +  e.getMessage());
         }
     }
 
@@ -217,70 +287,6 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
     public void prePay(Long tagId, Double balance) throws Exception {
         try{
 
-            CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
-
-            Tag tag = em.find(Tag.class, tagId);
-
-            CriteriaQuery<Vehicle> vehicleCB = criteriaBuilder.createQuery(Vehicle.class);
-            Root<Vehicle> vehicleRoot = vehicleCB.from(Vehicle.class);
-
-            CriteriaQuery<Link> linkCB = criteriaBuilder.createQuery(Link.class);
-            Root<Link> linkRoot = linkCB.from(Link.class);
-
-            vehicleCB.select(vehicleRoot)
-                    .where(criteriaBuilder.equal(vehicleRoot.get("tag"), tag));
-
-            Vehicle vehicleDB = em.createQuery(vehicleCB).getSingleResult();
-
-            em.clear();
-
-            linkCB.select(linkRoot)
-                    .where(criteriaBuilder.equal(linkRoot.get("vehicle"), vehicleDB));
-
-            Link linkDB = null;
-
-            try {
-                linkDB = em.createQuery(linkCB).getSingleResult();
-
-            } catch (Exception e){
-                System.err.println(e.getMessage());
-            }
-
-            User user = linkDB.getUser();
-
-            TollCustomer customer = user.getTollCustomer();
-
-            if(customer == null){
-                throw new IllegalArgumentException("TollCustomer no encontrado para el tag dado");
-            }
-
-            PREPay prePay = customer.getPrePay();
-
-            if(prePay == null){
-                throw new IllegalArgumentException("Cuenta prepaga no encontrada para el tag dado.");
-            }
-
-            //se procede al pago
-            prePay.pay(balance);
-            em.merge(prePay);
-
-            //nueva pasada.
-            TollPass newPass = new TollPass(null, LocalDate.now(), balance, PaymentTypeData.PRE_PAYMENT, vehicleDB);
-            em.merge(newPass);
-
-            em.merge(vehicleDB);
-            em.merge(customer);
-            em.flush();
-
-        }catch (Exception e) {
-            throw new Exception("Algo salió mal: " + e.getMessage(), e);
-        }
-
-    }
-
-    @Transactional
-    public void postPay(Long tagId, Double cost) throws Exception{
-        try{
             CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
 
             Tag tag = em.find(Tag.class, tagId);
@@ -312,6 +318,73 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
             }
 
             User user = linkDB.getUser();
+
+            TollCustomer customer = user.getTollCustomer();
+
+            if(customer == null){
+                throw new IllegalArgumentException("Cliente telepeaje no encontrado para el tag dado");
+            }
+
+            PREPay prePay = customer.getPrePay();
+
+            if(prePay == null){
+                throw new IllegalArgumentException("Cuenta prepaga no encontrada para el tag dado.");
+            }
+
+            //se procede al pago
+            prePay.pay(balance);
+            em.merge(prePay);
+
+            //nueva pasada.
+            TollPass newPass = new TollPass(null, LocalDate.now(), balance, PaymentTypeData.PRE_PAYMENT, vehicleDB);
+            em.merge(newPass);
+
+            em.merge(vehicleDB);
+            em.merge(customer);
+            em.flush();
+
+        }catch (Exception e) {
+            System.err.println("Algo salio mal " +  e.getMessage());
+        }
+
+    }
+
+    @Transactional
+    public void postPay(Long tagId, Double cost) throws Exception{
+        try{
+
+            CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
+
+            Tag tag = em.find(Tag.class, tagId);
+
+            CriteriaQuery<Vehicle> vehicleCB = criteriaBuilder.createQuery(Vehicle.class);
+            Root<Vehicle> vehicleRoot = vehicleCB.from(Vehicle.class);
+
+            CriteriaQuery<Link> linkCB = criteriaBuilder.createQuery(Link.class);
+
+            Root<Link> linkRoot =  linkCB.from(Link.class);
+
+            vehicleCB.select(vehicleRoot)
+                    .where(criteriaBuilder.equal(vehicleRoot.get("tag"), tag));
+
+            Vehicle vehicleDB = em.createQuery(vehicleCB).getSingleResult();
+
+            em.clear();
+
+            linkCB.select(linkRoot)
+                    .where(criteriaBuilder.equal(linkRoot.get("vehicle"), vehicleDB));
+
+            Link linkDB = null;
+
+            try {
+                linkDB = em.createQuery(linkCB).getSingleResult();
+
+            } catch (Exception e){
+                System.err.println(e.getMessage());
+            }
+
+
+            User  user = linkDB.getUser();
 
             TollCustomer customer = user.getTollCustomer();
 
@@ -353,9 +426,6 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
 
                     List<TollPass> listTollPass = vehicle.getTollPass();
 
-                    //TODO: Explicarle a Lucas que el TollPass agrega al vehiculo porque la relacion se mapea de su lado.
-                    //      No hace falta hacer merge del vehiculo, solo del TollPass (teoricamente)
-
                     //agrego nueva pasada al vehiculo, asi le mando datos actualizados al otro modulo.
                     TollPass newPass = new TollPass(null,LocalDate.now(), cost, PaymentTypeData.POST_PAYMENT, vehicleDB);
 
@@ -375,6 +445,7 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
                         vehicleDTO = new NationalVehicleDTO(vehicle.getId(), listTollPassDTO, tagDTO, licencePlate);
 
                     } else if (vehicle instanceof  ForeignVehicle){
+
                         tagDTO = new TagDTO(vehicle.getTag().getId(),vehicle.getTag().getUniqueId().toString());
                         vehicleDTO = new ForeignVehicleDTO(vehicle.getId(), listTollPassDTO, tagDTO);
                     }
@@ -398,7 +469,7 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
             em.flush();
 
         }catch (Exception e){
-            throw new Exception("Algo salió mal: " + e.getMessage(), e);
+            System.err.println("Algo salio mal " +  e.getMessage());
         }
     }
 
