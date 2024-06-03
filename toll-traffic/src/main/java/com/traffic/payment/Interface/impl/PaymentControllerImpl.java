@@ -186,7 +186,7 @@ public class PaymentControllerImpl implements PaymentController {
                 throw new ExternalApiException("No se pudo validar la compra Post Paga");
             }
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            throw new ExternalApiException(e.getMessage());
         }
 
     }
@@ -194,7 +194,7 @@ public class PaymentControllerImpl implements PaymentController {
     @Override
     public Optional<List<Double>> paymentInquiry(LocalDate from, LocalDate to) {
         //we get all the users from the repository
-        ArrayList<User> users = repository.getAllUsers();
+        ArrayList<User> users = (ArrayList<User>) repository.getAllUsers();
 
         //the final Array List with all the costs for the given user
         ArrayList<Double> allPayments = new ArrayList<>();
