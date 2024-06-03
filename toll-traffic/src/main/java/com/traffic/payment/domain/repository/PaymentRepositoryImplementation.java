@@ -1,6 +1,5 @@
 package com.traffic.payment.domain.repository;
 
-
 import com.traffic.dtos.PaymentTypeData;
 import com.traffic.dtos.account.CreditCardDTO;
 import com.traffic.dtos.user.UserDTO;
@@ -11,8 +10,6 @@ import com.traffic.payment.domain.entities.Tag;
 import com.traffic.payment.domain.entities.TollPass;
 import com.traffic.payment.domain.entities.User;
 import com.traffic.payment.domain.entities.Vehicle;
-import com.traffic.sucive.domain.entities.LicensePlate;
-import com.traffic.sucive.domain.entities.NationalVehicle;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
@@ -22,7 +19,6 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -39,7 +35,6 @@ public class PaymentRepositoryImplementation implements PaymentRepository {
     }
 
     public void addUser(User userToAdd){
-        //users.add(userToAdd);
         System.out.println(userToAdd.getName());
         em.persist(userToAdd);
     }

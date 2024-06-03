@@ -54,7 +54,7 @@ public class SuciveControllerImpl implements SuciveController {
     }
 
     @Override
-    public Optional<List<Double>> paymentInquiry(LocalDate from, LocalDate to) {
+    public Optional<List<Double>> paymentInquiry(LocalDate from, LocalDate to) { //TODO change so I iterate only through TollPasses
 
         //I get all the sucive clients
         ArrayList<User> users = (ArrayList<User>) repository.getAllUsers();

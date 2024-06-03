@@ -45,7 +45,8 @@ public class SuciveRepositoryImplementation  implements SuciveRepository {
     }
 
     @Override
-    public List<User> getAllUsers() {
+    public List<User> getAllUsers() { //TODO change to getAllTollPasses
+
         //I call the criteria builder, which is the responsible for managing the queries
         CriteriaBuilder cb = em.getCriteriaBuilder();
 
@@ -62,6 +63,7 @@ public class SuciveRepositoryImplementation  implements SuciveRepository {
         //that the criteria builder, built
         return em.createQuery(cq).getResultList();
     }
+
 
     public NationalVehicle findVehicleByLicensePlate(LicensePlateDTO licensePlateDTO) throws InternalErrorException {
 
@@ -89,6 +91,8 @@ public class SuciveRepositoryImplementation  implements SuciveRepository {
 
     }
 
+
+    //TODO add event to inform about the added TollPass, use TollPassDTO
     @Override
     public void updateVehicleTollPass(LicensePlateDTO licensePlateDTO, Double amount) throws InvalidVehicleException, InternalErrorException {
         //I find the national vehicle I will be updating
