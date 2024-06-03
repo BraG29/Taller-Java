@@ -138,7 +138,7 @@ public interface ClientController {
      * @param tagDTO  -> Tag del usuario a cobrar.
      * @throws IllegalArgumentException -> Si el tipo de dato es invalido.
      */
-    public void prePay(Double balance, TagDTO tagDTO) throws IllegalArgumentException;
+    public void prePay(Double balance, TagDTO tagDTO) throws Exception;
 
     /**
      * Realiza un pago utilizando tarjeta de crédito.
@@ -147,7 +147,7 @@ public interface ClientController {
      * @param tagDTO  -> Tag del usuario a cobrar.
      * @throws IllegalArgumentException -> Si el tipo de dato es invalido.
      */
-    public void postPay(Double balance, TagDTO tagDTO) throws IllegalArgumentException;
+    public void postPay(Double balance, TagDTO tagDTO) throws Exception;
 
     public Optional<List<User>> listUsers();
 }

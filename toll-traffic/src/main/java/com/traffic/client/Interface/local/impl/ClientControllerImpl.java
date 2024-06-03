@@ -263,7 +263,6 @@ public class ClientControllerImpl implements ClientController {
 
         Tag tag = new Tag(tagDTO.getId(), uuid);
 
-
         Optional<List<Account>> accounts = accountService.getAccountByTag(tag);
 
         List<AccountDTO> accountsDTO = new ArrayList<>();
@@ -305,14 +304,13 @@ public class ClientControllerImpl implements ClientController {
     }
 
     @Override
-    public void prePay(Double balance, TagDTO tagDTO) throws IllegalArgumentException {
+    public void prePay(Double balance, TagDTO tagDTO) throws Exception {
 
         if(tagDTO == null){
             throw new IllegalArgumentException("No se encontró el tag");
         }
 
         UUID uuid = UUID.fromString(tagDTO.getUniqueId());
-
         Tag tag = new Tag(tagDTO.getId(), uuid);
 
         try{
@@ -320,15 +318,14 @@ public class ClientControllerImpl implements ClientController {
             accountService.prePay(tag, balance);
 
         }catch (Exception e){
-            System.out.println("Ocurrio un error: " + e.getMessage());
+            System.err.println(e.getMessage());
         }
 
     }
 
 
     @Override
-    public void postPay(Double balance, TagDTO tagDTO) throws IllegalArgumentException{
-
+    public void postPay(Double balance, TagDTO tagDTO) throws Exception{
 
         UUID uuid = UUID.fromString(tagDTO.getUniqueId());
         Tag tag = new Tag(tagDTO.getId(), uuid);
@@ -336,7 +333,7 @@ public class ClientControllerImpl implements ClientController {
         try{
             accountService.postPay(tag, balance);
         }catch(Exception e){
-            System.out.println("Ocurrio un error: " + e.getMessage());
+            System.err.println(e.getMessage());
         }
 
     }
