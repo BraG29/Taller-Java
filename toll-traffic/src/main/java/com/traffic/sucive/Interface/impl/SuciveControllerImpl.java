@@ -10,6 +10,7 @@ import com.traffic.sucive.domain.repository.SuciveRepository;
 //import com.traffic.sucive.domain.vehicle.*;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import okhttp3.*;
 
 import java.io.IOException;
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 @ApplicationScoped
+@Transactional
 public class SuciveControllerImpl implements SuciveController {
 
     @Inject

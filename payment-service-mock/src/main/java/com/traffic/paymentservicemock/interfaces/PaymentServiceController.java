@@ -37,7 +37,7 @@ public class PaymentServiceController {
         if(rand == 4){
             return Response.status(400, "ERROR (1 of 5 failed)").build();
         }
-        return Response.ok("SUCCESS (DEFAULT RESPONSE)").build();
+        return Response.ok("SUCCESS (DEFAULT RESPONSE) -> rand = " + rand).build();
 
     }
 

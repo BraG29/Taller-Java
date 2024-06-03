@@ -22,7 +22,10 @@ public interface PaymentRepository{
 
     public User getUserById(Long id);
 
-    public void addTollPassToUserVehicle(UserDTO userDTO, VehicleDTO vehicleDTO, Double amount, CreditCardDTO creditCardDTO) throws InternalErrorException;
+    public void addTollPassToUserVehicle(UserDTO userDTO,
+                                         VehicleDTO vehicleDTO,
+                                         Double amount,
+                                         CreditCardDTO creditCardDTO) throws InternalErrorException;
 
     public Vehicle findVehicleByTag(TagDTO tagDTO) throws InternalErrorException;
 }

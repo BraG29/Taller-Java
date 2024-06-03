@@ -67,7 +67,7 @@ public class SuciveRepositoryImplementation  implements SuciveRepository {
 
         try {
             //I get the license plate domain object from the vehicle I want to find
-            LicensePlate license = em.find(LicensePlate.class, licensePlateDTO.getLicensePlateNumber());
+            LicensePlate license = em.find(LicensePlate.class, licensePlateDTO.getId());
 
             //I get Criteria Builder
             CriteriaBuilder cBuilder = em.getCriteriaBuilder();
@@ -96,11 +96,12 @@ public class SuciveRepositoryImplementation  implements SuciveRepository {
 
         if (vehicleToUpdate != null) {
             //I create the toll pass that I am going to add
-            TollPass tollPassToAdd = new TollPass(null,LocalDate.now(),amount, PaymentTypeData.SUCIVE );
-
-            em.persist(vehicleToUpdate //we persist the vehicle
-                    .getTollPass() //we get the toll passes from the vehicle
-                    .add(em.merge(tollPassToAdd)));//we add and persist the toll pass we created
+            TollPass tollPassToAdd = new TollPass(null,LocalDate.now(),amount, PaymentTypeData.SUCIVE);
+            tollPassToAdd.setVehicle(vehicleToUpdate);
+            em.persist(tollPassToAdd);
+//            em.persist(vehicleToUpdate //we persist the vehicle
+//                    .getTollPass() //we get the toll passes from the vehicle
+//                    .add(em.merge(tollPassToAdd)));//we add and persist the toll pass we created
             em.flush(); //we flush
         }
       else{

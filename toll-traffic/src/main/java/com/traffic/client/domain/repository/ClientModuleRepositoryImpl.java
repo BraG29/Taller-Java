@@ -18,6 +18,7 @@ import com.traffic.dtos.user.NationalUserDTO;
 import com.traffic.dtos.user.TollCustomerDTO;
 import com.traffic.dtos.user.UserDTO;
 import com.traffic.dtos.vehicle.*;
+import com.traffic.exceptions.ExternalApiException;
 import com.traffic.payment.Interface.PaymentController;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -351,7 +352,7 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
 
     @Transactional
     public void postPay(Long tagId, Double cost) throws Exception{
-        try{
+        try {
 
             CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
 
@@ -362,7 +363,7 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
 
             CriteriaQuery<Link> linkCB = criteriaBuilder.createQuery(Link.class);
 
-            Root<Link> linkRoot =  linkCB.from(Link.class);
+            Root<Link> linkRoot = linkCB.from(Link.class);
 
             vehicleCB.select(vehicleRoot)
                     .where(criteriaBuilder.equal(vehicleRoot.get("tag"), tag));
@@ -379,22 +380,22 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
             try {
                 linkDB = em.createQuery(linkCB).getSingleResult();
 
-            } catch (Exception e){
+            } catch (Exception e) {
                 System.err.println(e.getMessage());
             }
 
 
-            User  user = linkDB.getUser();
+            User user = linkDB.getUser();
 
             TollCustomer customer = user.getTollCustomer();
 
-            if(customer == null){
+            if (customer == null) {
                 throw new IllegalArgumentException("TollCustomer no encontrado para el tag dado");
             }
 
             POSTPay postPay = customer.getPostPay();
 
-            if(postPay == null){
+            if (postPay == null) {
                 throw new IllegalArgumentException("Cuenta postpaga no encontrada para el tag dado.");
             }
 
@@ -427,26 +428,26 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
                     List<TollPass> listTollPass = vehicle.getTollPass();
 
                     //agrego nueva pasada al vehiculo, asi le mando datos actualizados al otro modulo.
-                    TollPass newPass = new TollPass(null,LocalDate.now(), cost, PaymentTypeData.POST_PAYMENT, vehicleDB);
+                    TollPass newPass = new TollPass(null, LocalDate.now(), cost, PaymentTypeData.POST_PAYMENT, vehicleDB);
 
                     em.merge(newPass);
 
                     //en este bloque  se arma la lista de pasadas de un vehiculo
-                    for (TollPass tollPass : listTollPass){
-                        tollPassObject = new TollPassDTO(tollPass.getId(),tollPass.getPassDate(), tollPass.getCost(), tollPass.getPaymentType());
+                    for (TollPass tollPass : listTollPass) {
+                        tollPassObject = new TollPassDTO(tollPass.getId(), tollPass.getPassDate(), tollPass.getCost(), tollPass.getPaymentType());
                         listTollPassDTO.add(tollPassObject);
                     }
 
                     //en este bloque se arman los vehiculos
-                    if(vehicle instanceof NationalVehicle){
+                    if (vehicle instanceof NationalVehicle) {
 
                         tagDTO = new TagDTO(vehicle.getTag().getId(), vehicle.getTag().getUniqueId().toString());
-                        licencePlate = new LicensePlateDTO(((NationalVehicle) vehicle).getPlate().getId() ,((NationalVehicle) vehicle).getPlate().getLicensePlateNumber());
+                        licencePlate = new LicensePlateDTO(((NationalVehicle) vehicle).getPlate().getId(), ((NationalVehicle) vehicle).getPlate().getLicensePlateNumber());
                         vehicleDTO = new NationalVehicleDTO(vehicle.getId(), listTollPassDTO, tagDTO, licencePlate);
 
-                    } else if (vehicle instanceof  ForeignVehicle){
+                    } else if (vehicle instanceof ForeignVehicle) {
 
-                        tagDTO = new TagDTO(vehicle.getTag().getId(),vehicle.getTag().getUniqueId().toString());
+                        tagDTO = new TagDTO(vehicle.getTag().getId(), vehicle.getTag().getUniqueId().toString());
                         vehicleDTO = new ForeignVehicleDTO(vehicle.getId(), listTollPassDTO, tagDTO);
                     }
 
@@ -457,19 +458,23 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
             }
 
             //en este bloque se arman los usuarios.
-            if(user instanceof NationalUser){
+            if (user instanceof NationalUser) {
                 userDTO = new NationalUserDTO(user.getId(), user.getEmail(), user.getPassword(), user.getName(),
                         user.getCi(), customerDTO, linkListDTO, null, null);//Es necesario pasar en el usuario sucive y notificaciones?
-            } else if(user instanceof  ForeignUser){
+            } else if (user instanceof ForeignUser) {
                 userDTO = new ForeignUserDTO(user.getId(), user.getEmail(), user.getPassword(), user.getName(),
                         user.getCi(), customerDTO, linkListDTO, null);
             }
 
+            //TODO: si esto lanza excepcion, dicha excepcion le debe llegar al modulo de peaje NO HACER CATCH AQUI
             paymentController.notifyPayment(userDTO, vehicleDTO, cost, customerDTO.getPostPayDTO().getCreditCardDTO());
             em.flush();
 
-        }catch (Exception e){
-            System.err.println("Algo salio mal " +  e.getMessage());
+        } catch (ExternalApiException e) {
+            throw e;
+
+        } catch (Exception e){
+            throw new Exception("Algo salió mal: " + e.getMessage(), e);
         }
     }
 

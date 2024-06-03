@@ -93,7 +93,7 @@ public interface ClientController {
     public void linkCreditCard(Long id, CreditCardDTO creditCard) throws IllegalArgumentException, NoCustomerException;
 
     /**
-     * Devuelve las pasadas realizadas por todos los vehículos registrados por un usuario,en un rango de fechas.
+     * Devuelve las pasadas realizadas por todos los vehículos registrados por un usuario, en un rango de fechas.
      * @param id -> Recibe un id del usuario a devolver pasadas.
      * @param from -> Recibe una fecha de comienzo, para el rango de fechas.
      * @param to -> Recibe una fecha de fin, para el rango de pruebas.
@@ -138,7 +138,7 @@ public interface ClientController {
      * @param tagDTO  -> Tag del usuario a cobrar.
      * @throws IllegalArgumentException -> Si el tipo de dato es invalido.
      */
-    public void prePay(Double balance, TagDTO tagDTO) throws Exception;
+    public void prePay(Double balance, TagDTO tagDTO) throws IllegalArgumentException;
 
     /**
      * Realiza un pago utilizando tarjeta de crédito.
@@ -147,7 +147,7 @@ public interface ClientController {
      * @param tagDTO  -> Tag del usuario a cobrar.
      * @throws IllegalArgumentException -> Si el tipo de dato es invalido.
      */
-    public void postPay(Double balance, TagDTO tagDTO) throws Exception;
+    public void postPay(Double balance, TagDTO tagDTO) throws ExternalApiException;
 
     public Optional<List<User>> listUsers();
 }

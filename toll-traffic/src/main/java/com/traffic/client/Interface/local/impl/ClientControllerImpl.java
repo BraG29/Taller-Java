@@ -304,7 +304,7 @@ public class ClientControllerImpl implements ClientController {
     }
 
     @Override
-    public void prePay(Double balance, TagDTO tagDTO) throws Exception {
+    public void prePay(Double balance, TagDTO tagDTO) throws IllegalArgumentException {
 
         if(tagDTO == null){
             throw new IllegalArgumentException("No se encontró el tag");
@@ -325,13 +325,17 @@ public class ClientControllerImpl implements ClientController {
 
 
     @Override
-    public void postPay(Double balance, TagDTO tagDTO) throws Exception{
+    public void postPay(Double balance, TagDTO tagDTO) throws ExternalApiException{
 
         UUID uuid = UUID.fromString(tagDTO.getUniqueId());
         Tag tag = new Tag(tagDTO.getId(), uuid);
 
         try{
             accountService.postPay(tag, balance);
+
+        }catch(ExternalApiException e){
+            throw e;
+
         }catch(Exception e){
             System.err.println(e.getMessage());
         }

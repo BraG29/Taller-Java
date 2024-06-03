@@ -20,6 +20,7 @@ import com.traffic.dtos.user.NationalUserDTO;
 import com.traffic.dtos.user.TollCustomerDTO;
 import com.traffic.dtos.user.UserDTO;
 import com.traffic.dtos.vehicle.*;
+import com.traffic.exceptions.ExternalApiException;
 import com.traffic.exceptions.NoAccountException;
 import com.traffic.exceptions.NoCustomerException;
 import com.traffic.payment.Interface.PaymentController;
@@ -66,6 +67,10 @@ public class AccountServiceImpl implements AccountService {
 
         try{
             repo.postPay(tag.getId(), cost);
+
+        }catch (ExternalApiException e){
+            throw e;
+
         }catch (Exception e){
             System.err.println(e.getMessage());
         }

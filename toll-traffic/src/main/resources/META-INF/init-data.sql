@@ -24,10 +24,11 @@ INSERT INTO `toll_db`.`ClientModule_CreditCard` (`expireDate`, `cardNumber`) VAL
 
 -- Inicializacion de Cuentas
 INSERT INTO `toll_db`.`ClientModule_Account` (`accountNumber`, `creationDate`, `creditCard_id`, `DTYPE`) VALUES ('1234567890', '2024-05-29', '1', 'POSTPay');
-INSERT INTO `toll_db`.`ClientModule_Account` (`accountNumber`, `balance`, `creationDate`, `DTYPE`) VALUES ('876543210', '200', '2024-05-27', 'PREPay');
+INSERT INTO `toll_db`.`ClientModule_Account` (`accountNumber`, `balance`, `creationDate`, `DTYPE`) VALUES ('876543210', '40', '2024-05-27', 'PREPay');
+INSERT INTO `toll_db`.`ClientModule_Account` (`accountNumber`, `balance`, `creationDate`, `DTYPE`) VALUES ('376347310', '20', '2024-03-27', 'PREPay');
 
 -- Inicializacion de Toll Customer
-INSERT INTO `toll_db`.`ClientModule_TollCustomer` (`POSTPay_id`) VALUES ('1');
+INSERT INTO `toll_db`.`ClientModule_TollCustomer` (`PREPay_id`) VALUES ('3');
 INSERT INTO `toll_db`.`ClientModule_TollCustomer` (`PREPay_id`) VALUES ('2');
 
 -- Inicializacion de Usuarios
