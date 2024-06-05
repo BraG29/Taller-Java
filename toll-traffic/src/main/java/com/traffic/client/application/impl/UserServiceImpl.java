@@ -3,7 +3,6 @@ package com.traffic.client.application.impl;
 import com.traffic.client.application.UserService;
 import com.traffic.client.domain.User.User;
 import com.traffic.client.domain.repository.ClientModuleRepository;
-import com.traffic.client.domain.repository.ClientModuleRepositoryImpl;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 

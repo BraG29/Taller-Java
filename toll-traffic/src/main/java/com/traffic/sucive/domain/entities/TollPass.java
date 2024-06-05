@@ -1,6 +1,7 @@
 package com.traffic.sucive.domain.entities;
 
 import com.traffic.dtos.PaymentTypeData;
+import com.traffic.dtos.vehicle.TollPassDTO;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -10,7 +11,7 @@ import java.time.LocalDate;
 @Setter
 @NoArgsConstructor
 
-@Entity(name = "Sucive_TollPass")
+@Entity(name = "Sucive_Toll_Pass")
 public class TollPass {
 
     //    private Long id;
@@ -34,5 +35,9 @@ public class TollPass {
     @Override
     public String toString(){
         return "[Id: " + id + " Fecha: " + passDate+ " Costo: " + cost + " Tipo de pago: " + paymentType + "]";
+    }
+
+    public TollPassDTO toDTO(){
+        return new TollPassDTO(id, passDate, cost, paymentType);
     }
 }

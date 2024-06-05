@@ -9,7 +9,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@Entity(name ="Sucive_CommonTariff")
+@Entity(name = "Sucive_Common_Tariff")
 @DiscriminatorValue("common")
 public class CommonTariff extends Tariff{
 

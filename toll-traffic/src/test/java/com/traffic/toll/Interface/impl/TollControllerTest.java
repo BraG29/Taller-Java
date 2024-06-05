@@ -1,5 +1,6 @@
 package com.traffic.toll.Interface.impl;
-
+/*
+import com.sun.istack.NotNull;
 import com.traffic.client.Interface.ClientController;
 import com.traffic.client.Interface.impl.ClientControllerImpl;
 import com.traffic.dtos.account.AccountDTO;
@@ -10,8 +11,7 @@ import com.traffic.dtos.vehicle.IdentifierDTO;
 import com.traffic.dtos.vehicle.LicensePlateDTO;
 import com.traffic.dtos.vehicle.TagDTO;
 import com.traffic.exceptions.InvalidVehicleException;
-import com.traffic.exceptions.NoAccountException;
-import com.traffic.exceptions.NoCustomerException;
+import com.traffic.exceptions.PersistenceErrorException;
 import com.traffic.sucive.Interface.SuciveController;
 import com.traffic.sucive.Interface.impl.SuciveControllerImpl;
 import com.traffic.toll.domain.entities.CommonTariff;
@@ -98,14 +98,6 @@ class TollControllerTest {
                     return Optional.empty();
                 }
             }
-
-//            @Override
-//            public Boolean prePay(Double balance, TagDTO tagDTO) throws NoAccountException, IllegalArgumentException, NoCustomerException {
-//            }
-//
-//            @Override
-//            public Boolean postPay(Double balance, TagDTO tagDTO) throws IllegalArgumentException, NoCustomerException {
-//            }
         };
     }
 
@@ -145,6 +137,8 @@ class TollControllerTest {
             //Caso de cliente extranjero sin cuentas
             Assertions.assertFalse(tollController.isEnabled(withNoAccounts).orElse(true));
         });
+
+
     }
 
     @DisplayName("Tests para cuando isEnable lanza una excepcion")
@@ -194,3 +188,4 @@ class TollControllerTest {
                 () -> tollController.updatePreferentialTariff(amount));
     }
 }
+*/

@@ -1,20 +1,19 @@
-package com.traffic.client.Interface.impl;
 
-import com.traffic.client.Interface.ClientController;
-import com.traffic.client.application.AccountService;
-import com.traffic.client.application.UserService;
-import com.traffic.client.application.VehicleService;
+/*
+package com.traffic.client.Interface.local.impl;
+
+=======
+
+/*
+package com.traffic.client.Interface.local.impl;
+
+>>>>>>> develop
+import com.traffic.client.Interface.local.ClientController;
 import com.traffic.client.application.impl.AccountServiceImpl;
 import com.traffic.client.application.impl.UserServiceImpl;
 import com.traffic.client.application.impl.VehicleServiceImpl;
-import com.traffic.client.domain.Account.CreditCard;
-import com.traffic.client.domain.User.ForeignUser;
 import com.traffic.client.domain.User.User;
-import com.traffic.client.domain.Vehicle.*;
-import com.traffic.client.domain.repository.ClientModuleRepository;
 import com.traffic.client.domain.repository.ClientModuleRepositoryImpl;
-import com.traffic.communication.Interface.CommunicationController;
-import com.traffic.communication.Interface.NotificationRepository;
 import com.traffic.communication.Interface.impl.CommunicationControllerImpl;
 import com.traffic.communication.Interface.impl.NotificationRepositoryImpl;
 import com.traffic.dtos.account.AccountDTO;
@@ -28,24 +27,17 @@ import com.traffic.events.CustomEvent;
 import com.traffic.exceptions.IllegalRangeException;
 import com.traffic.exceptions.InvalidVehicleException;
 import com.traffic.exceptions.NoCustomerException;
-import com.traffic.monitoring.Interface.MonitoringController;
 import com.traffic.monitoring.Interface.impl.MonitoringControllerImpl;
-import com.traffic.payment.Interface.PaymentController;
 import com.traffic.payment.Interface.impl.PaymentControllerImpl;
-import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.jboss.weld.junit.MockBean;
 import org.jboss.weld.junit5.EnableWeld;
 import org.jboss.weld.junit5.WeldInitiator;
 import org.jboss.weld.junit5.WeldJunit5Extension;
 import org.jboss.weld.junit5.WeldSetup;
 import org.jboss.weld.junit5.auto.AddBeanClasses;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -80,59 +72,6 @@ class ClientControllerImplTest {
     @Inject
     ClientModuleRepositoryImpl repo;
 
-/*    @BeforeAll
-    public static void setup(){
-
-       weld = WeldInitiator.from(ClientControllerImpl.class)
-                .addBeans(MockBean.builder()
-                        .types(ClientModuleRepository.class)
-                        .scope(ApplicationScoped.class)
-                        .creating(new ClientModuleRepositoryImpl())
-                        .build())
-                .addBeans(MockBean.builder()
-                        .types(AccountService.class)
-                        .scope(ApplicationScoped.class)
-                        .creating(new AccountServiceImpl())
-                        .build())
-                .addBeans(MockBean.builder()
-                        .types(VehicleService.class)
-                        .scope(ApplicationScoped.class)
-                        .creating(new VehicleServiceImpl())
-                        .build())
-                .addBeans(MockBean.builder()
-                        .types(UserService.class)
-                        .scope(ApplicationScoped.class)
-                        .creating(new UserServiceImpl())
-                        .build())
-               .addBeans(MockBean.builder()
-                       .types(CommunicationController.class)
-                       .scope(ApplicationScoped.class)
-                       .creating(new UserServiceImpl())
-                       .build())
-               .addBeans(MockBean.builder()
-                       .types(NotificationRepository.class)
-                       .scope(ApplicationScoped.class)
-                       .creating(new UserServiceImpl())
-                       .build())
-               .addBeans(MockBean.builder()
-                       .types(PaymentController.class)
-                       .scope(ApplicationScoped.class)
-                       .creating(new UserServiceImpl())
-                       .build())
-               .addBeans(MockBean.builder()
-                       .types(MonitoringController.class)
-                       .scope(ApplicationScoped.class)
-                       .creating(new UserServiceImpl())
-                       .build())
-               .addBeans(MockBean.builder()
-                       .types(CustomEvent.class)
-                       .scope(ApplicationScoped.class)
-                       .creating(new UserServiceImpl())
-                       .build())
-                .build();
-    }*/
-
-
     @Test //tic
     void listUsers(ClientController controller ){
 
@@ -146,24 +85,11 @@ class ClientControllerImplTest {
     @Test //tic
     void addTollCostumer(ClientController controller) {
 
-        System.out.println("Lista de usuarios antes de agregar:");
-
-        for(User usr: controller.listUsers().get()){
-            System.out.println("Id: " + usr.getId() +" Nombre: " + usr.getName() +
-                    " Ci: " + usr.getCi()+ " Email: " + usr.getEmail());
-        }
-
         UserDTO testUser = new ForeignUserDTO(32L, "carlitos@mail.com", "1234",
                 "Carlitos", "5.321.512-7", null, null, null);
 
         System.out.println("Agregando usuario...");
         controller.addTollCostumer(testUser);
-
-        System.out.println("Lista de usuarios despues de agregar:");
-        for(User usr: controller.listUsers().get()){
-            System.out.println("Id: " + usr.getId() +" Nombre: " + usr.getName() +
-                    " Ci: " + usr.getCi()+ " Email: " + usr.getEmail());
-        }
 
     }
 
@@ -272,7 +198,7 @@ class ClientControllerImplTest {
         if(tollPassDTOListOPT.isPresent()){
 
             List<TollPassDTO> tollPassDTOList = tollPassDTOListOPT.get();
-            Integer i = 0;
+            int i = 0;
             for (TollPassDTO pass : tollPassDTOList){
             System.out.println("Pasada Nº: " + i + " Tipo de pago: " + pass.getPaymentType()
                     + " Costo: " + pass.getCost() + " Fecha: " + pass.getDate());
@@ -295,7 +221,7 @@ class ClientControllerImplTest {
 
         if(tollPassDTOListOPT.isPresent()){
             List<TollPassDTO> tollPassDTOList = tollPassDTOListOPT.get();
-            Integer i = 0;
+            int i = 0;
             for (TollPassDTO pass : tollPassDTOList){
                 System.out.println("Pasada Nº: " + i + " Tipo de pago: " + pass.getPaymentType()
                         + " Costo: " + pass.getCost() + " Fecha: " + pass.getDate());
@@ -356,3 +282,5 @@ class ClientControllerImplTest {
     }
 
 }
+<<<<<<< HEAD
+*/

@@ -2,30 +2,37 @@ package com.traffic.sucive.domain.repository;
 
 import com.traffic.dtos.PaymentTypeData;
 import com.traffic.dtos.vehicle.LicensePlateDTO;
+import com.traffic.dtos.vehicle.TollPassDTO;
+import com.traffic.events.SucivePaymentEvent;
 import com.traffic.exceptions.InternalErrorException;
 import com.traffic.exceptions.InvalidVehicleException;
 import com.traffic.sucive.domain.entities.LicensePlate;
 import com.traffic.sucive.domain.entities.NationalVehicle;
-//import com.traffic.sucive.domain.user.User;
 import com.traffic.sucive.domain.entities.TollPass;
 import com.traffic.sucive.domain.entities.User;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Event;
+import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
-import org.jboss.weld.interceptor.proxy.InterceptorException;
+import jakarta.transaction.Transactional;
+
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+@Transactional
 @ApplicationScoped
 public class SuciveRepositoryImplementation  implements SuciveRepository {
 
-    //private ArrayList<User> users;
+    //I inject the event I will eventually publish
+    @Inject
+    private Event<SucivePaymentEvent> tollPaymentPublisher;
 
     @PersistenceContext
     EntityManager session;
@@ -42,6 +49,7 @@ public class SuciveRepositoryImplementation  implements SuciveRepository {
     @Override
     public void addUser(User user){
             em.persist(user);
+            em.flush();
     }
 
     @Override
@@ -64,11 +72,12 @@ public class SuciveRepositoryImplementation  implements SuciveRepository {
         return em.createQuery(cq).getResultList();
     }
 
+
     public NationalVehicle findVehicleByLicensePlate(LicensePlateDTO licensePlateDTO) throws InternalErrorException {
 
         try {
             //I get the license plate domain object from the vehicle I want to find
-            LicensePlate license = em.find(LicensePlate.class, licensePlateDTO.getLicensePlateNumber());
+            LicensePlate license = em.find(LicensePlate.class, licensePlateDTO.getId());
 
             //I get Criteria Builder
             CriteriaBuilder cBuilder = em.getCriteriaBuilder();
@@ -93,6 +102,8 @@ public class SuciveRepositoryImplementation  implements SuciveRepository {
 
     }
 
+
+    //TODO add event to inform about the added TollPass, use TollPassDTO
     @Override
     public void updateVehicleTollPass(LicensePlateDTO licensePlateDTO, Double amount) throws InvalidVehicleException, InternalErrorException {
         //I find the national vehicle I will be updating
@@ -110,9 +121,25 @@ public class SuciveRepositoryImplementation  implements SuciveRepository {
 
             //we flush
           em.flush();
+
+          //publish event of the Toll Pass I just added
+          publishPayment(tollPassToAdd);
       }
       catch (Exception e){
           throw new InternalErrorException(e.getMessage());
       }
+    }
+
+    @Override
+    public void publishPayment(TollPass tollPass ){
+
+        //I transform the domain object to DTO
+        TollPassDTO tollPassDTO = tollPass.toDTO();
+
+        //I create  the event which I will be firing, and I pass it the tollPass
+        SucivePaymentEvent paymentEvent = new SucivePaymentEvent(tollPassDTO);
+
+        //I fire the event
+        tollPaymentPublisher.fire(paymentEvent);
     }
 }

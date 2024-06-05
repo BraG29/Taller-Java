@@ -7,7 +7,10 @@ import lombok.Setter;
 import java.util.List;
 
 @Getter
+
 public class ForeignUserDTO extends UserDTO{
+
+    public ForeignUserDTO(){}
 
     public ForeignUserDTO(Long id,
                           String email,

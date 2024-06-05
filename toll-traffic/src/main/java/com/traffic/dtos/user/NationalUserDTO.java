@@ -10,6 +10,8 @@ public class NationalUserDTO extends UserDTO{
 
     private SuciveCustomerDTO suciveCustomer;
 
+    public NationalUserDTO(){}
+
     public NationalUserDTO(Long id,
                            String email,
                            String password,

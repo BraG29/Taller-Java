@@ -7,7 +7,7 @@ import java.time.LocalDate;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-@Entity
+@Entity(name = "Payment_PrePay")
 public class PREPay extends Account{
 
     private Double balance;

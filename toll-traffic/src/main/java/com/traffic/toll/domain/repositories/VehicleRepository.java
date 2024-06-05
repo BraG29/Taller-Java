@@ -2,16 +2,17 @@ package com.traffic.toll.domain.repositories;
 
 import com.traffic.dtos.vehicle.LicensePlateDTO;
 import com.traffic.dtos.vehicle.TagDTO;
+import com.traffic.toll.domain.entities.LicensePlate;
+import com.traffic.toll.domain.entities.Tag;
 import com.traffic.toll.domain.entities.Vehicle;
 
 import java.util.Optional;
 
-public interface VehicleRepository {
+public interface VehicleRepository{
 
     //TODO: documentar operaciones
-
-    public Optional<Vehicle> findByTag(TagDTO tagDTO);
-    public Optional<Vehicle> findByLicensePlate(LicensePlateDTO licensePlateDTO);
-    public Optional<Vehicle> update(Vehicle vehicle);
+    public void save(Vehicle vehicle);
+    public Optional<Vehicle> findByTag(Tag tag);
+    public Optional<Vehicle> findByLicensePlate(LicensePlate licensePlate);
 
 }
