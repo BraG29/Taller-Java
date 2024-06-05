@@ -2,9 +2,6 @@ package com.traffic.payment.Interface.impl;
 
 import com.traffic.dtos.PaymentTypeData;
 import com.traffic.dtos.account.CreditCardDTO;
-import com.traffic.dtos.account.PostPayDTO;
-import com.traffic.dtos.account.PrePayDTO;
-import com.traffic.dtos.user.TollCustomerDTO;
 import com.traffic.dtos.user.UserDTO;
 import com.traffic.dtos.vehicle.*;
 import com.traffic.exceptions.ExternalApiException;
@@ -193,29 +190,23 @@ public class PaymentControllerImpl implements PaymentController {
 
     @Override
     public Optional<List<Double>> paymentInquiry(LocalDate from, LocalDate to) {
-        //we get all the users from the repository
-        ArrayList<User> users = (ArrayList<User>) repository.getAllUsers();
+
+        //we get all the Toll passes from the repository
+        ArrayList<TollPass> tollPasses = (ArrayList<TollPass>) repository.getAllTollPasses();
 
         //the final Array List with all the costs for the given user
         ArrayList<Double> allPayments = new ArrayList<>();
 
-        for (User user : users){
-            //I get all the links from the user
-            ArrayList<Link> userLinks = (ArrayList<Link>) user.getLinkedCars();
+        for (TollPass toll : tollPasses){
 
-            for (Link link : userLinks){
-                Vehicle vehicle = link.getVehicle(); //I get the vehicle from the link
-                ArrayList<TollPass> tollPasses = (ArrayList<TollPass>) vehicle.getTollPass(); //I get all the Toll passes from the vehicle
+            //if the toll pass is between the 2 dates AND is not sucive
+            if ( toll.getPassDate().isAfter(from)
+                    && toll.getPassDate().isBefore(to)
+                    && toll.getPaymentType() != PaymentTypeData.SUCIVE){
 
-                for (TollPass toll : tollPasses){
-
-                    if ( toll.getPassDate().isAfter(from) && toll.getPassDate().isBefore(to) && toll.getPaymentType() != PaymentTypeData.SUCIVE){ //if the toll pass is between the 2 dates AND is not sucive
-                            allPayments.add(toll.getCost());
-                    }
-                }
+                    allPayments.add(toll.getCost());
             }
-        }//everyday that passes, we stray further from God. . .
-
+        }
 
         if (allPayments.isEmpty()){
             return Optional.empty();
@@ -224,73 +215,119 @@ public class PaymentControllerImpl implements PaymentController {
         }
     }
 
+    //This functions means that I CARE about what users are registering to other modules
+    //This functions means that I CARE about what users are registering to other modules
+    //This functions means that I CARE about what users are registering to other modules
+    //This functions means that I CARE about what users are registering to other modules
+    //This functions means that I CARE about what users are registering to other modules
+    //This functions means that I CARE about what users are registering to other modules
     @Override
-    public Optional<List<Double>> paymentInquiry(UserDTO user) throws NoCustomerException {
+    public Optional<List<Double>> paymentInquiry(UserDTO userDTO) throws NoCustomerException {
 
         //check for the customer to be properly initialized
-        if (user.getTollCustomer() == null){
-            throw new NoCustomerException("El cliente no está registrado a Telepeaje");
+        if (userDTO.getTollCustomer() == null){
+            throw new NoCustomerException("El cliente "+ userDTO.getName() +" no está registrado a Telepeaje");
         }
 
+        //I get my user from the DB
+        User user = repository.getUserById(userDTO.getId());
+
         //I get all the links from the user
-        ArrayList<LinkDTO> userLinks = (ArrayList<LinkDTO>) user.getLinkedVehicles();
+        ArrayList<Link> userLinks = (ArrayList<Link>) user.getLinkedCars();
 
         //the final Array List with all of the costs for the given user
         ArrayList<Double> allPayments = new ArrayList<>();
 
-        for (LinkDTO link : userLinks){ //for each link in user, I get the vehicle, and from the vehicle I get the TollPasses
+        //for each link in user, I get the vehicle, and from the vehicle I get the TollPasses
+        for (Link link : userLinks) {
 
-            VehicleDTO userVehicleDTO  = link.getVehicle();
-            ArrayList<TollPassDTO> tollPassDTOArrayList = (ArrayList<TollPassDTO>) userVehicleDTO.getTollPassDTO();
+            //I get the vehicle
+            Vehicle userVehicle = link.getVehicle();
 
-            for(TollPassDTO toll : tollPassDTOArrayList) {
+            //I get the toll passes from the vehicle
+            ArrayList<TollPass> tollPassArrayList = (ArrayList<TollPass>) userVehicle.getTollPass();
 
-                if (toll.getPaymentType() != PaymentTypeData.SUCIVE) //I only get the payments from post and pre pay payments
+            //for each toll pass, I add it's cost to the payment array
+            for (TollPass toll : tollPassArrayList) {
+                allPayments.add(toll.getCost());
+            }
+        }
+
+        if (allPayments.isEmpty()){
+            return Optional.empty();
+        }else{
+            return Optional.of(allPayments);
+        }
+    }
+
+
+    @Override
+    public Optional<List<Double>> paymentInquiry(UserDTO userDTO,
+                                                 VehicleDTO vehicleDTO) throws NoCustomerException, InvalidVehicleException {
+
+//        //I get all the links from the user
+//        ArrayList<LinkDTO> userLinks = (ArrayList<LinkDTO>) user.getLinkedVehicles();
+//
+//        //the final Array List with all of the costs for the given user
+//        ArrayList<Double> allPayments = new ArrayList<>();
+//
+//        for (LinkDTO link : userLinks){
+//            VehicleDTO userVehicleDTO  = link.getVehicle();
+//
+//            if (userVehicleDTO.equals(vehicle)){
+//                ArrayList<TollPassDTO> tollPassDTOArrayList = (ArrayList<TollPassDTO>) userVehicleDTO.getTollPassDTO();
+//
+//                for(TollPassDTO toll : tollPassDTOArrayList) {
+//
+//                    if (toll.getPaymentType() != PaymentTypeData.SUCIVE){//again, I only get toll payments from pre & post pagos
+//
+//                        allPayments.add(toll.getCost());
+//                    }
+//                }
+//                return Optional.of(allPayments);
+//            }
+//        }
+//        return Optional.empty();
+//    }//this code it's so nested, it makes me wish for WW3. . .
+
+        //check for the customer to be properly initialized
+        if (userDTO.getTollCustomer() == null) {
+            throw new NoCustomerException("El cliente " + userDTO.getName() + " no está registrado a Telepeaje");
+        }
+
+        //I get my user from the DB
+        User user = repository.getUserById(userDTO.getId());
+
+        //I get all the links from the user
+        ArrayList<Link> userLinks = (ArrayList<Link>) user.getLinkedCars();
+
+        //the final Array List with all of the costs for the given user
+        ArrayList<Double> allPayments = new ArrayList<>();
+
+        //for each link in user, I get the vehicle, and from the vehicle I get the TollPasses
+        for (Link link : userLinks) {
+
+            //I get the vehicle
+            Vehicle userVehicle = link.getVehicle();
+
+            //this looks scary. . .
+            if(userVehicle.getId() == vehicleDTO.getId()){
+                
+                //I get the toll passes from the vehicle
+                ArrayList<TollPass> tollPassArrayList = (ArrayList<TollPass>) userVehicle.getTollPass();
+
+                //for each toll pass, I add it's cost to the payment array
+                for (TollPass toll : tollPassArrayList) {
                     allPayments.add(toll.getCost());
                 }
             }
+        }
 
-        if (allPayments.isEmpty()){
+        if (allPayments.isEmpty()) {
             return Optional.empty();
-        }else{
+        } else {
             return Optional.of(allPayments);
         }
+
     }
-
-    @Override
-    public Optional<List<Double>> paymentInquiry(UserDTO user,
-                                                 VehicleDTO vehicle) throws NoCustomerException, InvalidVehicleException {
-
-        //check for the customer to be properly initialized
-        if (user.getTollCustomer() == null){
-            throw new NoCustomerException("El cliente no está registrado a Telepeaje");
-        }
-        if (vehicle == null){
-            throw new InvalidVehicleException("El vehiculo no está registrado");
-        }
-
-        //I get all the links from the user
-        ArrayList<LinkDTO> userLinks = (ArrayList<LinkDTO>) user.getLinkedVehicles();
-
-        //the final Array List with all of the costs for the given user
-        ArrayList<Double> allPayments = new ArrayList<>();
-
-        for (LinkDTO link : userLinks){
-            VehicleDTO userVehicleDTO  = link.getVehicle();
-
-            if (userVehicleDTO.equals(vehicle)){
-                ArrayList<TollPassDTO> tollPassDTOArrayList = (ArrayList<TollPassDTO>) userVehicleDTO.getTollPassDTO();
-
-                for(TollPassDTO toll : tollPassDTOArrayList) {
-
-                    if (toll.getPaymentType() != PaymentTypeData.SUCIVE){//again, I only get toll payments from pre & post pagos
-
-                        allPayments.add(toll.getCost());
-                    }
-                }
-                return Optional.of(allPayments);
-            }
-        }
-        return Optional.empty();
-    }//this code it's so nested, it makes me wish for WW3. . .
 }

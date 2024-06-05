@@ -17,7 +17,6 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 @ApplicationScoped
@@ -78,4 +77,26 @@ public class PaymentRepositoryImplementation implements PaymentRepository {
             throw new IllegalArgumentException("No se pudo actualizar las pasadas del usuario " + userDTO.getName());
         }
     }
+
+    @Override
+    public List<TollPass> getAllTollPasses() {
+
+        //I call the criteria builder, which is the responsible for managing the queries
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+
+        //I tell Criteria builder to start a query for Toll Pass
+        CriteriaQuery<TollPass> cq = cb.createQuery(TollPass.class);
+
+        //I tell which user class I am asking for
+        Root<TollPass> root = cq.from(TollPass.class);
+
+        //perform a SELECT * FROM with the class I told you (TollPass)
+        cq.select(root);
+
+        //I finally, tell the Entity Manager to return me the result from the query
+        //that the criteria builder, built
+        return em.createQuery(cq).getResultList();
+    }
+
+
 }
