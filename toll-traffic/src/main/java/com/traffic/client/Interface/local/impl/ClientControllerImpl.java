@@ -21,8 +21,10 @@ import com.traffic.dtos.user.ForeignUserDTO;
 import com.traffic.dtos.user.NationalUserDTO;
 import com.traffic.dtos.user.UserDTO;
 import com.traffic.dtos.vehicle.*;
+import com.traffic.events.NewUserEvent;
 import com.traffic.exceptions.*;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -39,6 +41,15 @@ public class ClientControllerImpl implements ClientController {
 
     @Inject
     private VehicleService vehicleService; //operaciones del vehiculo.
+
+    @Inject
+    private Event<NewUserEvent> usrEvent;
+
+    private void fireNewUserEvent(UserDTO user){
+        usrEvent.fire(new NewUserEvent("Se ha registrado un nuevo cliente " +
+                "en el modulo de gestion. Nombre: " + user.getName()
+                ,user));
+    }
 
     @Override
     public void addTollCostumer(UserDTO userDTO) throws IllegalArgumentException {
@@ -69,7 +80,7 @@ public class ClientControllerImpl implements ClientController {
 
         try{
             userService.registerUser(user);
-            //TODO TIRAR evento de registro usr
+            fireNewUserEvent(userDTO);
         }catch(Exception e){
             System.err.println(e.getMessage());
         }
