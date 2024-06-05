@@ -2,12 +2,12 @@ package com.traffic.events;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @AllArgsConstructor
-public class VehiclePassEvent extends CustomEvent {
-
-    private String message;
+@NoArgsConstructor
+public class PREPayTollPassEvent extends CustomEvent {
 
 
 

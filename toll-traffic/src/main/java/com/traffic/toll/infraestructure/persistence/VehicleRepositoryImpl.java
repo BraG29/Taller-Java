@@ -1,7 +1,5 @@
 package com.traffic.toll.infraestructure.persistence;
 
-import com.traffic.dtos.vehicle.LicensePlateDTO;
-import com.traffic.dtos.vehicle.TagDTO;
 import com.traffic.toll.domain.entities.*;
 import com.traffic.toll.domain.repositories.IdentifierRepository;
 import com.traffic.toll.domain.repositories.VehicleRepository;
@@ -14,9 +12,7 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
-import jakarta.transaction.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 @ApplicationScoped
@@ -46,6 +42,14 @@ public class VehicleRepositoryImpl implements VehicleRepository {
 
     @Override
     public void save(Vehicle vehicle){
+        vehicle.setTag(em.merge(vehicle.getTag()));
+
+        if(vehicle instanceof NationalVehicle){
+            ((NationalVehicle) vehicle)
+                    .setLicensePlate(em
+                            .merge(((NationalVehicle) vehicle)
+                                    .getLicensePlate()));
+        }
         em.persist(vehicle);
         em.flush();
     }
