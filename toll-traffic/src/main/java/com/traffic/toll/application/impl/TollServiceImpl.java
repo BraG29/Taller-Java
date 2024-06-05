@@ -1,28 +1,27 @@
 package com.traffic.toll.application.impl;
 
 import com.traffic.client.Interface.local.ClientController;
-import com.traffic.dtos.PaymentTypeData;
 import com.traffic.dtos.account.AccountDTO;
-import com.traffic.dtos.account.CreditCardDTO;
 import com.traffic.dtos.account.PostPayDTO;
 import com.traffic.dtos.account.PrePayDTO;
 import com.traffic.dtos.vehicle.IdentifierDTO;
 import com.traffic.dtos.vehicle.LicensePlateDTO;
 import com.traffic.dtos.vehicle.TagDTO;
+import com.traffic.events.CustomEvent;
+import com.traffic.events.VehiclePassEvent;
 import com.traffic.exceptions.*;
 import com.traffic.sucive.Interface.SuciveController;
-import com.traffic.sucive.Interface.impl.SuciveControllerImpl;
 import com.traffic.toll.Interface.local.TollService;
 import com.traffic.toll.domain.entities.*;
 import com.traffic.toll.domain.repositories.IdentifierRepository;
 import com.traffic.toll.domain.repositories.TariffRepository;
 import com.traffic.toll.domain.repositories.VehicleRepository;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
 import jakarta.persistence.PersistenceException;
 import jakarta.transaction.Transactional;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -40,13 +39,13 @@ public class TollServiceImpl implements TollService {
     private IdentifierRepository identifierRepository;
     @Inject
     private TariffRepository tariffRepository;
-    /**
-     * Cuando corran los tests, singleEvent no se inyectara y quedara en null
-     * ya que no sera hasta la fase de integracion que se probaran los eventos.
-     */
-//    @Inject
-//    private Event<CustomEvent> singleEvent;
+    @Inject
+    private Event<CustomEvent> event;
 
+    /**
+     * Operacion para icializar vehiculos de pruebas
+     * TODO: Eliminar para produccion
+     */
     @Override
     @Transactional
     public void initVehicles(){
@@ -74,8 +73,13 @@ public class TollServiceImpl implements TollService {
         }
     }
 
+    private void fireTollPass(String message){
+        event.fire(new VehiclePassEvent(message));
+    }
+
     @Override
-    public Optional<Boolean> isEnabled(IdentifierDTO identifier) throws IllegalArgumentException, InvalidVehicleException{
+    public Optional<Boolean> isEnabled(IdentifierDTO identifier) throws IllegalArgumentException,
+            InvalidVehicleException{
 
         if (identifier == null) {
             throw new IllegalArgumentException("identifier is null");
@@ -98,11 +102,13 @@ public class TollServiceImpl implements TollService {
         }
 
         if (vehicleOPT.isPresent()) {
-            TagDTO tagDTO = new TagDTO(vehicleOPT.get().getTag().getId(),
+            Vehicle vehicle = vehicleOPT.get();
+            TagDTO tagDTO = new TagDTO(vehicle.getTag().getId(),
                     vehicleOPT.get().getTag().getUniqueId().toString());
 
             try {
 
+                final String TOLL_PASS_MESSAGE = "Se habilito la pasada para el vehiculo de tag: %s";
                 try {
                     Optional<Tariff> tariffOPT = tariffRepository.findTariff(PreferentialTariff.class);
                     PreferentialTariff preferentialTariff = (PreferentialTariff) tariffOPT.orElseThrow(() ->
@@ -122,12 +128,14 @@ public class TollServiceImpl implements TollService {
 
                         if (prePayAccount.getBalance() >= preferentialTariff.getAmount()) {
                             clientController.prePay(preferentialTariff.getAmount(), tagDTO);
+                            this.fireTollPass(TOLL_PASS_MESSAGE.formatted(vehicle.getTag().getUniqueId()));
                             return Optional.of(true);
                         }
                     }
 
                     if (accountDTOS.stream().anyMatch(a -> a instanceof PostPayDTO)) {
                         clientController.postPay(preferentialTariff.getAmount(), tagDTO);
+                        this.fireTollPass(TOLL_PASS_MESSAGE.formatted(vehicle.getTag().getUniqueId()));
                         return Optional.of(true);
                     }
 
@@ -146,11 +154,13 @@ public class TollServiceImpl implements TollService {
                     LicensePlate licensePlate = ((NationalVehicle) vehicleOPT.get())
                             .getLicensePlate();
 
-                    LicensePlateDTO licensePlateDTO = new LicensePlateDTO(licensePlate.getId(), licensePlate.getLicensePlateNumber());
+                    LicensePlateDTO licensePlateDTO = new LicensePlateDTO(licensePlate.getId(),
+                            licensePlate.getLicensePlateNumber());
 
                     suciveController.notifyPayment(licensePlateDTO,
                             commonTariff.getAmount());
 
+                    this.fireTollPass(TOLL_PASS_MESSAGE.formatted(vehicle.getTag().getUniqueId()));
                     return Optional.of(true);
 
                 }
@@ -195,5 +205,4 @@ public class TollServiceImpl implements TollService {
         tariffRepository.save(tariff)
                 .orElseThrow(() -> new PersistenceException(""));
     }
-
 }

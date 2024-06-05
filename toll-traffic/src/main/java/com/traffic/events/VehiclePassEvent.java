@@ -1,20 +1,14 @@
 package com.traffic.events;
 
-import com.traffic.dtos.vehicle.TollPassDTO;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
+@Getter
+@AllArgsConstructor
 public class VehiclePassEvent extends CustomEvent {
 
-    Long vehicleId;
-    TollPassDTO tollPass;
+    private String message;
 
 
-    public VehiclePassEvent(String description, Long vehicleId, TollPassDTO tollPass) {
-        super(description);
-        this.vehicleId = vehicleId;
-        this.tollPass = tollPass;
-    }
 
-    public VehiclePassEvent(String description) {
-        super(description);
-    }
 }
