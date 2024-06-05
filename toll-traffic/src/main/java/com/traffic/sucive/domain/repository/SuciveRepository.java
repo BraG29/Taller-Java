@@ -4,6 +4,7 @@ import com.traffic.dtos.vehicle.LicensePlateDTO;
 import com.traffic.exceptions.InternalErrorException;
 import com.traffic.exceptions.InvalidVehicleException;
 import com.traffic.sucive.domain.entities.NationalVehicle;
+import com.traffic.sucive.domain.entities.TollPass;
 import com.traffic.sucive.domain.entities.User;
 
 import java.util.List;
@@ -12,7 +13,7 @@ public interface SuciveRepository {
 
     public void addUser(User user);
 
-    public List<User> getAllUsers();
+    public List<TollPass> getAllTollPasses();
 
     public NationalVehicle findVehicleByLicensePlate(LicensePlateDTO licensePlateDTO) throws InternalErrorException;
 

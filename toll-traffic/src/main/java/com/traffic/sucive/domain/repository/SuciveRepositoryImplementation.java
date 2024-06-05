@@ -45,17 +45,18 @@ public class SuciveRepositoryImplementation  implements SuciveRepository {
     }
 
     @Override
-    public List<User> getAllUsers() {
+    public List<TollPass> getAllTollPasses() { //TODO change to getAllTollPasses DONETE! 👍
+
         //I call the criteria builder, which is the responsible for managing the queries
         CriteriaBuilder cb = em.getCriteriaBuilder();
 
-        //I tell Criteria builder to start a query for User
-        CriteriaQuery<User> cq = cb.createQuery(User.class);
+        //I tell Criteria builder to start a query for Toll Pass
+        CriteriaQuery<TollPass> cq = cb.createQuery(TollPass.class);
 
         //I tell which user class I am asking for
-        Root<User> root = cq.from(User.class);
+        Root<TollPass> root = cq.from(TollPass.class);
 
-        //perform a SELECT * FROM with the class I told you (user)
+        //perform a SELECT * FROM with the class I told you (TollPass)
         cq.select(root);
 
         //I finally, tell the Entity Manager to return me the result from the query
@@ -84,7 +85,10 @@ public class SuciveRepositoryImplementation  implements SuciveRepository {
             return em.createQuery(cQuery).getSingleResult();
         }
         catch (Exception e){
-            throw new InternalErrorException("no se pudo encontrar el vehiculo nacional para cobrar Sucive");
+
+            throw new InternalErrorException("no se pudo encontrar el vehiculo nacional con placa: "
+                    + licensePlateDTO.getLicensePlateNumber()
+                    + " para cobrar Sucive");
         }
 
     }
@@ -94,17 +98,21 @@ public class SuciveRepositoryImplementation  implements SuciveRepository {
         //I find the national vehicle I will be updating
         NationalVehicle vehicleToUpdate = findVehicleByLicensePlate(licensePlateDTO);
 
-        if (vehicleToUpdate != null) {
-            //I create the toll pass that I am going to add
-            TollPass tollPassToAdd = new TollPass(null,LocalDate.now(),amount, PaymentTypeData.SUCIVE );
+        try {
+          //I create the toll pass that I am going to add
+          TollPass tollPassToAdd = new TollPass(null,LocalDate.now(),amount, PaymentTypeData.SUCIVE);
 
-            em.persist(vehicleToUpdate //we persist the vehicle
-                    .getTollPass() //we get the toll passes from the vehicle
-                    .add(em.merge(tollPassToAdd)));//we add and persist the toll pass we created
-            em.flush(); //we flush
-        }
-      else{
-          throw new InvalidVehicleException("No se pudo actualizar el vehiculo");
-        }
+          //we set the vehicle of the toll pass we created with the one we found
+          tollPassToAdd.setVehicle(vehicleToUpdate);
+
+          //we persist the data
+          em.persist(tollPassToAdd);
+
+            //we flush
+          em.flush();
+      }
+      catch (Exception e){
+          throw new InternalErrorException(e.getMessage());
+      }
     }
 }
