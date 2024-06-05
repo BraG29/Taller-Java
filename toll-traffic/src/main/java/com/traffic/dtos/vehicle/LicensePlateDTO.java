@@ -2,12 +2,20 @@ package com.traffic.dtos.vehicle;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
-@AllArgsConstructor
+@Setter
 public class LicensePlateDTO extends IdentifierDTO {
 
-    private Long id;
     private String licensePlateNumber;
 
+    public LicensePlateDTO() {
+        super();
+    }
+
+    public LicensePlateDTO(Long id, String licensePlateNumber) {
+        super(id);
+        this.licensePlateNumber = licensePlateNumber;
+    }
 }

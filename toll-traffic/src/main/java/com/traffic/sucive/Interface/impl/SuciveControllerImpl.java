@@ -11,6 +11,7 @@ import com.traffic.sucive.domain.repository.SuciveRepository;
 //import com.traffic.sucive.domain.vehicle.*;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import okhttp3.*;
 
 import java.io.IOException;
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 
 @ApplicationScoped
+@Transactional
 public class SuciveControllerImpl implements SuciveController {
 
     @Inject
@@ -34,7 +36,7 @@ public class SuciveControllerImpl implements SuciveController {
         RequestBody body = RequestBody.create(json, MediaType.get("application/json"));
 
         Request request = new Request.Builder()
-                .url("http://localhost:8080/sucive-service/api/controller/checkSucive/")
+                .url("http://localhost:8081/sucive-service/api/controller/checkSucive/")
                 .post(body)
                 .build();
 
@@ -53,7 +55,7 @@ public class SuciveControllerImpl implements SuciveController {
     }
 
     @Override
-    public Optional<List<Double>> paymentInquiry(LocalDate from, LocalDate to) {
+    public Optional<List<Double>> paymentInquiry(LocalDate from, LocalDate to) { //TODO change so I iterate only through TollPasses
 
         //I get all the sucive client's toll passes
         ArrayList<TollPass> tollPasses = (ArrayList<TollPass>) repository.getAllTollPasses();

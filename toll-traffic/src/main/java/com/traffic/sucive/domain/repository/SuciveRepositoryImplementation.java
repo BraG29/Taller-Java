@@ -42,6 +42,7 @@ public class SuciveRepositoryImplementation  implements SuciveRepository {
     @Override
     public void addUser(User user){
             em.persist(user);
+            em.flush();
     }
 
     @Override
@@ -64,11 +65,12 @@ public class SuciveRepositoryImplementation  implements SuciveRepository {
         return em.createQuery(cq).getResultList();
     }
 
+
     public NationalVehicle findVehicleByLicensePlate(LicensePlateDTO licensePlateDTO) throws InternalErrorException {
 
         try {
             //I get the license plate domain object from the vehicle I want to find
-            LicensePlate license = em.find(LicensePlate.class, licensePlateDTO.getLicensePlateNumber());
+            LicensePlate license = em.find(LicensePlate.class, licensePlateDTO.getId());
 
             //I get Criteria Builder
             CriteriaBuilder cBuilder = em.getCriteriaBuilder();
@@ -93,6 +95,8 @@ public class SuciveRepositoryImplementation  implements SuciveRepository {
 
     }
 
+
+    //TODO add event to inform about the added TollPass, use TollPassDTO
     @Override
     public void updateVehicleTollPass(LicensePlateDTO licensePlateDTO, Double amount) throws InvalidVehicleException, InternalErrorException {
         //I find the national vehicle I will be updating

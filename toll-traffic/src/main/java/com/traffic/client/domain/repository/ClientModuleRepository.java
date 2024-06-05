@@ -1,6 +1,7 @@
 package com.traffic.client.domain.repository;
 
 
+import com.traffic.client.domain.Account.Account;
 import com.traffic.client.domain.Account.CreditCard;
 import com.traffic.client.domain.User.User;
 import com.traffic.client.domain.Vehicle.Tag;
@@ -22,10 +23,10 @@ public interface ClientModuleRepository {
 
     /**
      * Encuentra un usuario utilizando el tag del vehiculo, en un futuro realizará consultas a una bd.
-     * @param tag -> tag del vehiculo del usuario.
+     * @param tagId -> Identificador del tag del vehiculo del usuario.
      * @return -> un objeto Usuario.
      */
-    public Optional<User> findByTag(Tag tag);
+    public Optional<User> findByTag(Long tagId);
 
     /**
      * Lista de usersList del sistema.
@@ -48,20 +49,27 @@ public interface ClientModuleRepository {
 
     /**
      * Busca y devuelve un vehiculo en particular.
-     * @param tag -> Recibe el tag del vehiculo a buscar.
+     * @param tagId -> Recibe el identificador de un tag del vehiculo a buscar.
      * @return -> devuelve un vehiculo.
      */
-    public Optional<Vehicle> getVehicleByTag(Tag tag);
+    public Optional<Vehicle> getVehicleByTag(Long tagId);
 
-    /**
-     * Inicia lista con datos de prueba.
-     */
-    public void usersInit();
+    //vehiculos.
 
-    /**
-     * Actualiza cambios de un usuario en una lista.
-     * @param usr -> recibe el usuario a actualizar en la lista.
-     */
-    public void update(User usr);
+    public void linkVehicle (Long id, Vehicle vehicle);
 
+
+    public void unLinkVehicle (Long id, Long vehicleId);
+
+    //Cuentas.
+
+    public void linkCreditCard (Long id , CreditCard card);
+
+    public Optional<List<Account>> getAccountsByTag(Long id);
+
+    public void loadBalance(Long tagId, Double balance) throws Exception;
+
+    public void prePay(Long tagId, Double balance) throws Exception;
+
+    public void postPay(Long tagId, Double cost) throws Exception;
 }

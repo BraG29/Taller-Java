@@ -10,7 +10,7 @@ import java.time.LocalDate;
 @Setter
 @NoArgsConstructor
 
-@Entity(name = "Sucive_TollPass")
+@Entity(name = "Sucive_Toll_Pass")
 public class TollPass {
 
     //    private Long id;

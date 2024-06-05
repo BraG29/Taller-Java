@@ -11,7 +11,7 @@ import java.time.LocalDate;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-@Entity
+@Entity(name = "Payment_PostPay")
 public class POSTPay extends Account{
 
     @OneToOne

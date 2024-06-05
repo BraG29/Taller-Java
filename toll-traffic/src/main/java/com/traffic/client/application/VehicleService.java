@@ -11,9 +11,9 @@ import java.util.Optional;
 
 public interface VehicleService {
 
-    public void linkVehicle(Long id, Vehicle vehicle);
+    public void linkVehicle(Long userId, Vehicle vehicle);
 
-    public void unLinkVehicle (Long id, Vehicle vehicle);
+    public void unLinkVehicle (Long userId, Long vehicleId);
 
     public Optional<List<Vehicle>> getLinkedVehicles(Long id);
 

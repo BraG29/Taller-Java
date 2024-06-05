@@ -1,15 +1,19 @@
 package com.traffic.client.domain.Account;
 
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-
 import java.time.LocalDate;
-import java.util.Random;
+
 
 @EqualsAndHashCode(callSuper = true)
 @Data
+@Entity(name = "ClientModule_PostPay")
+@DiscriminatorValue("POSTPay")
 public class POSTPay extends Account{
 
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "creditCard_id")
     private CreditCard creditCard;
 
     public POSTPay(){
@@ -20,14 +24,8 @@ public class POSTPay extends Account{
         this.creditCard = creditCard;
     }
 
-
     public static Integer generateRandomAccountNumber(){
-        Random random = new Random();
-
-        int minNumber = 100000;
-        int maxNumber = 999999;
-
-        return random.nextInt(maxNumber - minNumber + 1) + minNumber;
+        return Account.generateRandomAccountNumber();
     }
 
     @Override

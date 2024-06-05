@@ -1,25 +1,26 @@
-package com.traffic.toll.Interface.impl;
+package com.traffic.toll.application.impl;
 
-import com.traffic.client.Interface.ClientController;
+import com.traffic.client.Interface.local.ClientController;
 import com.traffic.dtos.PaymentTypeData;
 import com.traffic.dtos.account.AccountDTO;
+import com.traffic.dtos.account.CreditCardDTO;
 import com.traffic.dtos.account.PostPayDTO;
 import com.traffic.dtos.account.PrePayDTO;
 import com.traffic.dtos.vehicle.IdentifierDTO;
 import com.traffic.dtos.vehicle.LicensePlateDTO;
 import com.traffic.dtos.vehicle.TagDTO;
-import com.traffic.dtos.vehicle.TollPassDTO;
-import com.traffic.events.CustomEvent;
-import com.traffic.events.VehiclePassEvent;
 import com.traffic.exceptions.*;
 import com.traffic.sucive.Interface.SuciveController;
-import com.traffic.toll.Interface.TollController;
+import com.traffic.sucive.Interface.impl.SuciveControllerImpl;
+import com.traffic.toll.Interface.local.TollService;
 import com.traffic.toll.domain.entities.*;
+import com.traffic.toll.domain.repositories.IdentifierRepository;
 import com.traffic.toll.domain.repositories.TariffRepository;
 import com.traffic.toll.domain.repositories.VehicleRepository;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
+import jakarta.persistence.PersistenceException;
+import jakarta.transaction.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -27,7 +28,7 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @ApplicationScoped
-public class TollControllerImpl implements TollController {
+public class TollServiceImpl implements TollService {
 
     @Inject
     private ClientController clientController;
@@ -36,62 +37,74 @@ public class TollControllerImpl implements TollController {
     @Inject
     private VehicleRepository vehicleRepository;
     @Inject
+    private IdentifierRepository identifierRepository;
+    @Inject
     private TariffRepository tariffRepository;
     /**
      * Cuando corran los tests, singleEvent no se inyectara y quedara en null
      * ya que no sera hasta la fase de integracion que se probaran los eventos.
      */
-    @Inject
-    private Event<CustomEvent> singleEvent;
+//    @Inject
+//    private Event<CustomEvent> singleEvent;
 
-    public TollControllerImpl() {
-    }
+    @Override
+    @Transactional
+    public void initVehicles(){
+        List<Vehicle> vehicles = List.of(
+                new NationalVehicle(null,
+                        identifierRepository.findTagById(1L).orElseThrow(),
+                        identifierRepository.findLicensePlateById(1L).orElseThrow()),
+                new ForeignVehicle(null,
+                        identifierRepository.findTagById(2L).orElseThrow())
+//                ,
+//                new NationalVehicle(null,
+//                        identifierRepository.findTagById(3L).orElseThrow(),
+//                        identifierRepository.findLicensePlateById(2L).orElseThrow()),
+//                new ForeignVehicle(null,
+//                        identifierRepository.findTagById(4L).orElseThrow()),
+//                new NationalVehicle(null,
+//                        identifierRepository.findTagById(5L).orElseThrow(),
+//                        identifierRepository.findLicensePlateById(3L).orElseThrow()),
+//                new ForeignVehicle(null,
+//                        identifierRepository.findTagById(6L).orElseThrow())
+        );
 
-    private void addTollPass(Vehicle vehicle, Double cost, PaymentTypeData paymentType) throws PersistenceErrorException {
-        TollPass tollPass = new TollPass(LocalDate.now(), cost, paymentType);
-        vehicle.getTollPasses().add(tollPass);
-
-        Optional<Vehicle> vehicleOPT = vehicleRepository.update(vehicle);
-
-        vehicleOPT.orElseThrow(() -> new PersistenceErrorException("No se ha podido actualizar el vehiculo"));
-
-        vehicleOPT.ifPresent( v -> {
-            /**
-             * Si singleEvent no fue inyectado (fase de testeo) no se lanzara
-             * ningun evento.
-             */
-            if(singleEvent != null){
-                CustomEvent event = new VehiclePassEvent(
-                        "Se le ha agregado una nueva pasada por peaje al vehiculo con tag: " +
-                                v.getTag().getUniqueId(),
-                        v.getId(),
-                        new TollPassDTO(tollPass.getDate(), tollPass.getCost(), tollPass.getPaymentType()));
-                singleEvent.fire(event);
-            }
-        });
+        for(Vehicle v : vehicles){
+            vehicleRepository.save(v);
+        }
     }
 
     @Override
-    public Optional<Boolean> isEnabled(IdentifierDTO identifier) throws IllegalArgumentException, InvalidVehicleException, PersistenceErrorException {
+    public Optional<Boolean> isEnabled(IdentifierDTO identifier) throws IllegalArgumentException, InvalidVehicleException{
 
         if (identifier == null) {
             throw new IllegalArgumentException("identifier is null");
         }
 
-        Optional<Vehicle> vehicleOPT = (identifier instanceof LicensePlateDTO) ?
-                vehicleRepository.findByLicensePlate((LicensePlateDTO) identifier) :
-                vehicleRepository.findByTag((TagDTO) identifier);
+        Optional<Vehicle> vehicleOPT = Optional.empty();
+
+        if(identifier instanceof LicensePlateDTO){
+            Optional<LicensePlate> licensePlateOPT = identifierRepository.findLicensePlateById(
+                    identifier.getId());
+
+            vehicleOPT = licensePlateOPT.flatMap(licensePlate ->
+                    vehicleRepository.findByLicensePlate(licensePlate));
+        } else{
+            Optional<Tag> tagOPT = identifierRepository.findTagById(
+                    identifier.getId());
+
+            vehicleOPT = tagOPT.flatMap(tag ->
+                vehicleRepository.findByTag(tag));
+        }
 
         if (vehicleOPT.isPresent()) {
-            TagDTO tagDTO = new TagDTO(vehicleOPT
-                    .get()
-                    .getTag()
-                    .getUniqueId());
+            TagDTO tagDTO = new TagDTO(vehicleOPT.get().getTag().getId(),
+                    vehicleOPT.get().getTag().getUniqueId().toString());
 
             try {
 
                 try {
-                    Optional<Tariff> tariffOPT = tariffRepository.findPreferentialTariff();
+                    Optional<Tariff> tariffOPT = tariffRepository.findTariff(PreferentialTariff.class);
                     PreferentialTariff preferentialTariff = (PreferentialTariff) tariffOPT.orElseThrow(() ->
                             new InternalErrorException("No hay tarifa preferencial")
                     );
@@ -109,34 +122,23 @@ public class TollControllerImpl implements TollController {
 
                         if (prePayAccount.getBalance() >= preferentialTariff.getAmount()) {
                             clientController.prePay(preferentialTariff.getAmount(), tagDTO);
-                            addTollPass(vehicleOPT.get(),
-                                    preferentialTariff.getAmount(),
-                                    PaymentTypeData.PRE_PAYMENT);
                             return Optional.of(true);
                         }
                     }
 
                     if (accountDTOS.stream().anyMatch(a -> a instanceof PostPayDTO)) {
                         clientController.postPay(preferentialTariff.getAmount(), tagDTO);
-                        addTollPass(vehicleOPT.get(),
-                                preferentialTariff.getAmount(),
-                                PaymentTypeData.POST_PAYMENT);
                         return Optional.of(true);
                     }
 
                 } catch (NoSuchElementException e) {
                     System.out.println("El cliente no tiene cuentas");
 
-                } catch (NoCustomerException e) {
-                    System.err.println(e.getMessage());
-
-                } catch (NoAccountException e) {
-                    throw new RuntimeException(e);
                 }
 
                 if (vehicleOPT.get() instanceof NationalVehicle) {
                     System.out.println("Procediendo a cobro por Sucive");
-                    Optional<Tariff> tariffOPT = tariffRepository.findCommonTariff();
+                    Optional<Tariff> tariffOPT = tariffRepository.findTariff(CommonTariff.class);
                     CommonTariff commonTariff = (CommonTariff) tariffOPT.orElseThrow(() ->
                             new InternalErrorException("No hay tarifa comun")
                     );
@@ -149,9 +151,6 @@ public class TollControllerImpl implements TollController {
                     suciveController.notifyPayment(licensePlateDTO,
                             commonTariff.getAmount());
 
-                    addTollPass(vehicleOPT.get(),
-                            commonTariff.getAmount(),
-                            PaymentTypeData.SUCIVE);
                     return Optional.of(true);
 
                 }
@@ -178,17 +177,23 @@ public class TollControllerImpl implements TollController {
             throw new IllegalArgumentException("El monto no es valido");
         }
 
-        tariffRepository.updateCommonTariff(amount);
-
+        Tariff tariff = tariffRepository.findTariff(CommonTariff.class).orElseThrow();
+        tariff.setAmount(amount);
+        tariffRepository.save(tariff)
+                .orElseThrow(() -> new PersistenceException(""));
     }
 
     @Override
-    public void updatePreferentialTariff(Double amount) {
+    public void updatePreferentialTariff(Double amount) throws NoSuchElementException {
 
-        if( amount < 0 ){
+        if (amount < 0) {
             throw new IllegalArgumentException("El monto no es valido");
         }
 
-        tariffRepository.updatePreferentialTariff(amount);
+        Tariff tariff = tariffRepository.findTariff(PreferentialTariff.class).orElseThrow();
+        tariff.setAmount(amount);
+        tariffRepository.save(tariff)
+                .orElseThrow(() -> new PersistenceException(""));
     }
+
 }

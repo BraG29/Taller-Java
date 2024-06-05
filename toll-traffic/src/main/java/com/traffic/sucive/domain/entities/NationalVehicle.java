@@ -11,7 +11,7 @@ import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-@Entity(name ="Sucive_NationalVehicle")
+@Entity(name = "Sucive_National_Vehicle")
 @DiscriminatorValue("national")
 public class NationalVehicle extends Vehicle {
 

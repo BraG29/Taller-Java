@@ -1,24 +1,28 @@
 package com.traffic.client.domain.User;
 
 import com.traffic.client.domain.Vehicle.Link;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
-@EqualsAndHashCode(callSuper = true)
-@Data
+//@EqualsAndHashCode(callSuper = true)
+@Getter
+@Setter
+@Entity
+@DiscriminatorValue("national")
 public class NationalUser extends User{
 
-    private SuciveCustomer suciveCustomer;
 
     public NationalUser(){}
 
     public NationalUser(List<Link> linkedCars, TollCustomer tollCustomer,
                         String ci, String name, String password,
-                        String email, Long id, SuciveCustomer suciveCustomer) {
+                        String email, Long id) {
         super(linkedCars, tollCustomer, ci, name, password, email, id);
-        this.suciveCustomer = suciveCustomer;
 
     }
 

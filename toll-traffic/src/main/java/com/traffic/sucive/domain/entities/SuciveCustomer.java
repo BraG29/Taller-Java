@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@Entity(name = "Sucive_SuciveCustomer")
+@Entity(name = "Sucive_Sucive_Customer")
 public class SuciveCustomer {
 
     @Id

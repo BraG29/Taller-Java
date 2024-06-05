@@ -24,6 +24,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
+import jakarta.transaction.Transactional;
 import okhttp3.*;
 
 import java.time.LocalDate;
@@ -146,6 +147,7 @@ public class PaymentControllerImpl implements PaymentController {
     }
 
     @Override
+    @Transactional
     public void notifyPayment(UserDTO user,
                               VehicleDTO vehicle,
                               Double amount,
@@ -172,13 +174,13 @@ public class PaymentControllerImpl implements PaymentController {
         RequestBody body = RequestBody.create(json.toString(), MediaType.get("application/json"));
 
         Request request = new Request.Builder()
-                .url("http://localhost:8080/payment-service/api/controller/paymentCheck/")
+                .url("http://localhost:8081/payment-service/api/controller/paymentCheck/")
                 .post(body)
                 .build();
 
         try {
             Response response = client.newCall(request).execute();
-            System.out.println(response.body().string());
+            System.out.println("Respuesta API externa: " + response.body().string());
 
             if (response.code() == 200){
                 repository.addTollPassToUserVehicle(user, vehicle, amount, creditCard);

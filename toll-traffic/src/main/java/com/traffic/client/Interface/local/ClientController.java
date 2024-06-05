@@ -1,4 +1,4 @@
-package com.traffic.client.Interface;
+package com.traffic.client.Interface.local;
 
 import com.traffic.client.domain.User.User;
 import com.traffic.dtos.account.AccountDTO;
@@ -47,13 +47,13 @@ public interface ClientController {
     /**
      * Desvincula un vehículo de un usuario
      * @param id -> Recibe un id del usuario a desvincular vehiculo
-     * @param vehicle -> Recibe un objeto vehiculo a desvincular del usuario
+     * @param vehicleId -> Recibe le id del vehiculo a desvincular.
      * @throws IllegalArgumentException -> Si un objeto usuario tiene información incorrecta.
      * @throws InvalidVehicleException -> Si el vehiculo no esta vinculado al usuario.
      * @throws NoCustomerException -> Si el usuario no es un cliente Telepeaje.
      */
     public void unLinkVehicle(Long id,
-                              VehicleDTO vehicle) throws  IllegalArgumentException, InvalidVehicleException, NoCustomerException;
+                              Long vehicleId) throws  IllegalArgumentException, InvalidVehicleException, NoCustomerException;
 
     /**
      * Devuelve los vehículos vinculados a un usuario
@@ -72,7 +72,7 @@ public interface ClientController {
      * @throws NoCustomerException -> Si el usuario no es un cliente Telepeaje.
      */
     public void loadBalance(Long id,
-                            Double balance) throws IllegalArgumentException, NoCustomerException;
+                            Double balance) throws Exception;
 
     /**
      * Devuelve el saldo de una cuenta PRE paga de un usuario
@@ -93,7 +93,7 @@ public interface ClientController {
     public void linkCreditCard(Long id, CreditCardDTO creditCard) throws IllegalArgumentException, NoCustomerException;
 
     /**
-     * Devuelve las pasadas realizadas por todos los vehículos registrados por un usuario,en un rango de fechas.
+     * Devuelve las pasadas realizadas por todos los vehículos registrados por un usuario, en un rango de fechas.
      * @param id -> Recibe un id del usuario a devolver pasadas.
      * @param from -> Recibe una fecha de comienzo, para el rango de fechas.
      * @param to -> Recibe una fecha de fin, para el rango de pruebas.
@@ -136,24 +136,18 @@ public interface ClientController {
      *
      * @param balance -> Importe de tipo Double a descontar.
      * @param tagDTO  -> Tag del usuario a cobrar.
-     * @return
      * @throws IllegalArgumentException -> Si el tipo de dato es invalido.
-     * @throws NoCustomerException      -> Si el usuario no es un cliente Telepeaje.
-     * @throws NoAccountException       -> Si el usuario no tiene cuenta prePaga.
      */
-    public Boolean prePay(Double balance, TagDTO tagDTO) throws NoAccountException, IllegalArgumentException, NoCustomerException;
+    public void prePay(Double balance, TagDTO tagDTO) throws IllegalArgumentException;
 
     /**
      * Realiza un pago utilizando tarjeta de crédito.
      *
-     * @param balance -> Importe a cobrar.
+     * @param balance -> Importe a cobrar de su tarjeta.
      * @param tagDTO  -> Tag del usuario a cobrar.
-     * @return
      * @throws IllegalArgumentException -> Si el tipo de dato es invalido.
-     * @throws NoCustomerException      -> Si el usuario no es un cliente Telepeaje.
-     * @throws NoAccountException       -> Si el usuario no tiene cuenta PostPaga.
      */
-    public Boolean postPay(Double balance, TagDTO tagDTO) throws NoAccountException, IllegalArgumentException,  NoCustomerException;
+    public void postPay(Double balance, TagDTO tagDTO) throws ExternalApiException;
 
     public Optional<List<User>> listUsers();
 }
