@@ -2,6 +2,8 @@ package com.traffic.sucive.domain.repository;
 
 import com.traffic.dtos.PaymentTypeData;
 import com.traffic.dtos.vehicle.LicensePlateDTO;
+import com.traffic.dtos.vehicle.TollPassDTO;
+import com.traffic.events.SucivePaymentEvent;
 import com.traffic.exceptions.InternalErrorException;
 import com.traffic.exceptions.InvalidVehicleException;
 import com.traffic.sucive.domain.entities.LicensePlate;
@@ -11,21 +13,27 @@ import com.traffic.sucive.domain.entities.TollPass;
 import com.traffic.sucive.domain.entities.User;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Event;
+import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
+import jakarta.transaction.Transactional;
 import org.jboss.weld.interceptor.proxy.InterceptorException;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+@Transactional
 @ApplicationScoped
 public class SuciveRepositoryImplementation  implements SuciveRepository {
 
-    //private ArrayList<User> users;
+    //I inject the event I will eventually publish
+    @Inject
+    private Event<SucivePaymentEvent> tollPaymentPublisher;
 
     @PersistenceContext
     EntityManager session;
@@ -114,9 +122,25 @@ public class SuciveRepositoryImplementation  implements SuciveRepository {
 
             //we flush
           em.flush();
+
+          //publish event of the Toll Pass I just added
+          publishPayment(tollPassToAdd);
       }
       catch (Exception e){
           throw new InternalErrorException(e.getMessage());
       }
+    }
+
+    @Override
+    public void publishPayment(TollPass tollPass ){
+
+        //I transform the domain object to DTO
+        TollPassDTO tollPassDTO = tollPass.toDTO();
+
+        //I create  the event which I will be firing, and I pass it the tollPass
+        SucivePaymentEvent paymentEvent = new SucivePaymentEvent(tollPassDTO);
+
+        //I fire the event
+        tollPaymentPublisher.fire(paymentEvent);
     }
 }

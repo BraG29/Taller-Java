@@ -1,6 +1,7 @@
 package com.traffic.sucive.domain.entities;
 
 import com.traffic.dtos.PaymentTypeData;
+import com.traffic.dtos.vehicle.TollPassDTO;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -34,5 +35,9 @@ public class TollPass {
     @Override
     public String toString(){
         return "[Id: " + id + " Fecha: " + passDate+ " Costo: " + cost + " Tipo de pago: " + paymentType + "]";
+    }
+
+    public TollPassDTO toDTO(){
+        return new TollPassDTO(id, passDate, cost, paymentType);
     }
 }
