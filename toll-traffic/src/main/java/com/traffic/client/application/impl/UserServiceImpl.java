@@ -17,7 +17,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void registerUser(User user) {
-        clientModuleRepository.createUser(user);
+
+        try{
+            clientModuleRepository.createUser(user);
+
+        }catch (Exception e){
+
+            System.err.println(e.getMessage());
+        }
+
     }
 
     @Override

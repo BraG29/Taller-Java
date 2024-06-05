@@ -38,20 +38,12 @@ public class AccountServiceImpl implements AccountService {
     @Inject
     private ClientModuleRepository repo;
 
-    @Inject
-    private PaymentController paymentController;
-
-    @Inject
-    private CommunicationController communicationController;
-
-
 
     @Override
     public void prePay(Tag tag, Double cost) throws Exception {
         try{
             repo.prePay(tag.getId(), cost);
 
-            //TODO evento prepago.
         }catch(Exception e){
             System.err.println(e.getMessage());
         }

@@ -21,7 +21,10 @@ import com.traffic.dtos.user.ForeignUserDTO;
 import com.traffic.dtos.user.NationalUserDTO;
 import com.traffic.dtos.user.UserDTO;
 import com.traffic.dtos.vehicle.*;
+import com.traffic.events.CustomEvent;
 import com.traffic.events.NewUserEvent;
+import com.traffic.events.VehicleAddedEvent;
+import com.traffic.events.VehicleRemovedEvent;
 import com.traffic.exceptions.*;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
@@ -43,10 +46,10 @@ public class ClientControllerImpl implements ClientController {
     private VehicleService vehicleService; //operaciones del vehiculo.
 
     @Inject
-    private Event<NewUserEvent> usrEvent;
+    private Event<CustomEvent> event;
 
     private void fireNewUserEvent(UserDTO user){
-        usrEvent.fire(new NewUserEvent("Se ha registrado un nuevo cliente " +
+       event.fire(new NewUserEvent("Se ha registrado un nuevo cliente " +
                 "en el modulo de gestion. Nombre: " + user.getName()
                 ,user));
     }
@@ -86,11 +89,17 @@ public class ClientControllerImpl implements ClientController {
         }
     }
 
+
+    private void fireVehicleAddedEvent(Long id, VehicleDTO vehicleDTO){
+        event.fire(new VehicleAddedEvent("El usuario con id: " + id +
+                "Agrego el vehiculo con id unico: " + vehicleDTO.getTagDTO().getUniqueId(),
+        id, vehicleDTO));
+    }
+
     @Override
     public void linkVehicle(Long id, VehicleDTO vehicleDTO) throws IllegalArgumentException {
 
         if(vehicleDTO != null){ //si no es vacio.
-
 
             Vehicle vehicle = null;
 
@@ -115,22 +124,37 @@ public class ClientControllerImpl implements ClientController {
                 vehicle = new ForeignVehicle(vehicleDTO.getId(), tag, null);
             }
 
-            vehicleService.linkVehicle(id, vehicle);
-            //TODO disparo evento vehiculo nuevo.
-        }
+            try{
+                vehicleService.linkVehicle(id, vehicle);
 
+                fireVehicleAddedEvent(id, vehicleDTO);
+
+            } catch (Exception e){
+                System.err.println(e.getMessage());
+            }
+
+        }
+        throw new IllegalArgumentException("El vehiculo esta vacio.");
+
+    }
+
+    private void fireVehicleRemovedEvent(Long userId, Long vehicleId){
+        event.fire(new VehicleRemovedEvent("El usuario con id: " + userId +
+                " eliminó el vehiculo con id: " + vehicleId, userId, vehicleId));
     }
 
     @Override
     public void unLinkVehicle(Long id, Long vehicleId) throws IllegalArgumentException, InvalidVehicleException {
         if (vehicleId != null){
+            try{
+                vehicleService.unLinkVehicle(id, vehicleId);
+                fireVehicleRemovedEvent(id, vehicleId);
 
-            vehicleService.unLinkVehicle(id, vehicleId);
-
-            //TODO disparo evento vehiculo eliminado.
+            }catch(Exception e){
+                System.err.println(e.getMessage());
+            }
         }
         throw new InvalidVehicleException("El vehiculo no existe.");
-
     }
 
 
@@ -192,15 +216,26 @@ public class ClientControllerImpl implements ClientController {
 
     @Override
     public void loadBalance(Long id, Double balance) throws Exception {
-
-        accountService.loadBalance(id, balance);
+        try{
+            accountService.loadBalance(id, balance);
+        }catch(Exception e){
+            System.err.println(e.getMessage());
+        }
 
     }
 
     @Override
     public Optional<Double> showBalance(Long id) throws IllegalArgumentException {
 
-        return accountService.showBalance(id);
+        try{
+            return accountService.showBalance(id);
+
+        }catch(Exception e){
+
+            System.err.println(e.getMessage());
+        }
+
+        return Optional.empty();
     }
 
     @Override
@@ -213,9 +248,11 @@ public class ClientControllerImpl implements ClientController {
         CreditCard card = new CreditCard(creditCard.getId(), creditCard.getCardNumber(),
                 creditCard.getName(), creditCard.getExpireDate());
 
-        accountService.linkCreditCard(id, card);
-        //TODO disparo evento tarjeta nueva.
-
+        try{
+            accountService.linkCreditCard(id, card);
+        }catch (Exception e){
+            System.err.println(e.getMessage());
+        }
     }
 
     @Override

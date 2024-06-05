@@ -10,6 +10,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class VehicleAddedEvent extends CustomEvent{
 
+    private Long userId;
     private VehicleDTO vehicle;
 
+    public VehicleAddedEvent (String description, Long userId ,VehicleDTO vehicle){
+        super(description);
+        this.userId = userId;
+        this.vehicle = vehicle;
+    }
 }

@@ -17,6 +17,7 @@ public class TollPassDTO {
     private LocalDate date;
     private Double cost;
     private PaymentTypeData paymentType;
+    private VehicleDTO vehicle;
 
     public TollPassDTO(){}
 
@@ -28,5 +29,18 @@ public class TollPassDTO {
         this.date = date;
         this.cost = cost;
         this.paymentType = paymentType;
+    }
+
+    public TollPassDTO(Long id,
+                       LocalDate date,
+                       Double cost,
+                       PaymentTypeData paymentType,
+                       VehicleDTO vehicle) {
+        this.id = id;
+        this.date = date;
+        this.cost = cost;
+        this.paymentType = paymentType;
+        this.vehicle = vehicle;
+
     }
 }

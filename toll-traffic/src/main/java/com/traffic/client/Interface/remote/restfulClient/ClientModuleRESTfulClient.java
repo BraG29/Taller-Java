@@ -146,27 +146,6 @@ public class ClientModuleRESTfulClient {
 
     }
 
-    //cuentas
-/*
-    @GET
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Path("/Accounts/{tag}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getAccountsByTag(@PathParam("tag") Long tag){
-
-        TagDTO tagDTO = new TagDTO(tag);
-
-        Optional<List<AccountDTO>> listAccount = controller.getAccountByTag(tagDTO);
-
-        if(listAccount.isPresent()){
-            return Response.ok(listAccount.get()).build();
-        }else{
-            return Response.status(Response.Status.NOT_FOUND).entity("No se encontraron cuentas del usuario" +
-                    " con tag:  " + tag).build();
-        }
-
-    }
-*/
 
     @PUT
     @Path("/addBalance")

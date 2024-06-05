@@ -18,9 +18,13 @@ import com.traffic.dtos.user.NationalUserDTO;
 import com.traffic.dtos.user.TollCustomerDTO;
 import com.traffic.dtos.user.UserDTO;
 import com.traffic.dtos.vehicle.*;
+import com.traffic.events.CustomEvent;
+import com.traffic.events.NotEnoughBalanceEvent;
+import com.traffic.events.PREPayTollPassEvent;
 import com.traffic.exceptions.ExternalApiException;
 import com.traffic.payment.Interface.PaymentController;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -38,6 +42,9 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
 
     @Inject
     private PaymentController paymentController;
+
+    @Inject
+    private Event<CustomEvent> event;
 
     @PersistenceContext
     private EntityManager em;
@@ -284,6 +291,15 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
         }
     }
 
+
+    private void fireNotEnoughBalanceEvent(User user){
+        event.fire(new NotEnoughBalanceEvent("El usuario "+ user.getName() + " no tiene saldo suficiente."));
+    }
+
+    private void firePREPayTollPassEvent(TollPassDTO pass){
+        event.fire(new PREPayTollPassEvent(pass));
+    }
+
     @Transactional
     public void prePay(Long tagId, Double balance) throws Exception {
         try{
@@ -332,17 +348,35 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
                 throw new IllegalArgumentException("Cuenta prepaga no encontrada para el tag dado.");
             }
 
+            if(prePay.getBalance() < balance){
+                fireNotEnoughBalanceEvent(user);
+            }
+
             //se procede al pago
             prePay.pay(balance);
             em.merge(prePay);
 
             //nueva pasada.
+
             TollPass newPass = new TollPass(null, LocalDate.now(), balance, PaymentTypeData.PRE_PAYMENT, vehicleDB);
             em.merge(newPass);
 
             em.merge(vehicleDB);
             em.merge(customer);
             em.flush();
+
+            //Aca se envia el evento de una pasada prepaga
+            VehicleDTO vehicleDTO = null;
+            TagDTO tagDTO = new TagDTO(vehicleDB.getTag().getId(), vehicleDB.getTag().getUniqueId().toString());
+            if(vehicleDB instanceof NationalVehicle){
+
+                vehicleDTO = new NationalVehicleDTO(vehicleDB.getId(), null, tagDTO, null);
+
+            }else if( vehicleDB instanceof  ForeignVehicle){
+                vehicleDTO = new ForeignVehicleDTO(vehicleDB.getId(), null, tagDTO);
+            }
+            TollPassDTO newPassDTO = new TollPassDTO(null, newPass.getPassDate(), newPass.getCost(), newPass.getPaymentType(), vehicleDTO);
+            firePREPayTollPassEvent(newPassDTO);
 
         }catch (Exception e) {
             System.err.println("Algo salio mal " +  e.getMessage());
