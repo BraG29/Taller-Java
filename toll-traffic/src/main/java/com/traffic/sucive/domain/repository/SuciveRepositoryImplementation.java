@@ -8,7 +8,6 @@ import com.traffic.exceptions.InternalErrorException;
 import com.traffic.exceptions.InvalidVehicleException;
 import com.traffic.sucive.domain.entities.LicensePlate;
 import com.traffic.sucive.domain.entities.NationalVehicle;
-//import com.traffic.sucive.domain.user.User;
 import com.traffic.sucive.domain.entities.TollPass;
 import com.traffic.sucive.domain.entities.User;
 import jakarta.annotation.PostConstruct;
@@ -21,7 +20,7 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
-import org.jboss.weld.interceptor.proxy.InterceptorException;
+
 
 import java.time.LocalDate;
 import java.util.ArrayList;

@@ -55,7 +55,7 @@ public class SuciveControllerImpl implements SuciveController {
     }
 
     @Override
-    public Optional<List<Double>> paymentInquiry(LocalDate from, LocalDate to) { //TODO change so I iterate only through TollPasses
+    public Optional<List<Double>> paymentInquiry(LocalDate from, LocalDate to) {
 
         //I get all the sucive client's toll passes
         ArrayList<TollPass> tollPasses = (ArrayList<TollPass>) repository.getAllTollPasses();
@@ -95,8 +95,8 @@ public class SuciveControllerImpl implements SuciveController {
             ArrayList<Double> allPayments = new ArrayList<>();
 
 
-            for (TollPass toll :tollPasses ){
-                allPayments.add(toll.getCost());
+            for (TollPass toll :tollPasses ){ //for each toll pass we found
+                allPayments.add(toll.getCost());// add it's payment to the array
             }
 
             if (allPayments.isEmpty()){
