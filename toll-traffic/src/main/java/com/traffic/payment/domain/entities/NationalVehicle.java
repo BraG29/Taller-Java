@@ -1,4 +1,4 @@
-package com.traffic.sucive.domain.entities;
+package com.traffic.payment.domain.entities;
 
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
@@ -11,7 +11,7 @@ import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-@Entity(name ="Sucive_NationalVehicle")
+@Entity(name ="Payment_NationalVehicle")
 @DiscriminatorValue("national")
 public class NationalVehicle extends Vehicle {
 

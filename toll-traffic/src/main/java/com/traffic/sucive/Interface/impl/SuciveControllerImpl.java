@@ -34,7 +34,7 @@ public class SuciveControllerImpl implements SuciveController {
         RequestBody body = RequestBody.create(json, MediaType.get("application/json"));
 
         Request request = new Request.Builder()
-                .url("http://localhost:8080/sucive-service/api/controller/suciveCheck/")
+                .url("http://localhost:8080/sucive-service/api/controller/checkSucive/")
                 .post(body)
                 .build();
 
