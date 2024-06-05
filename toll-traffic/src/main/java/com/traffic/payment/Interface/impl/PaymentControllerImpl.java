@@ -18,6 +18,7 @@ import com.traffic.payment.domain.repository.PaymentRepository;
 //import com.traffic.payment.domain.user.User;
 //import com.traffic.payment.domain.vehicle.*;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
@@ -39,7 +40,7 @@ public class PaymentControllerImpl implements PaymentController {
 
 
     @Override
-    public void customerRegistration(UserDTO user,
+    public void customerRegistration(@Observes NewUserEvent userEvent, UserDTO user,
                                      CreditCardDTO creditCard) throws ExternalApiException, NoCustomerException, InternalErrorException {
 
 //        //check for the customer to be properly initialized
@@ -157,8 +158,6 @@ public class PaymentControllerImpl implements PaymentController {
         if (creditCard.getExpireDate().isBefore(LocalDate.now())){
             throw new IllegalArgumentException("La tarjeta de crédito está vencida");
         }
-
-        //TODO call the mock API for Sucive 👁👄👁
 
         OkHttpClient client = new OkHttpClient();
 

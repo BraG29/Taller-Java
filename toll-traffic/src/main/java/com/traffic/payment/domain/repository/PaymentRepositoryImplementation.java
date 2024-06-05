@@ -39,6 +39,7 @@ public class PaymentRepositoryImplementation implements PaymentRepository {
         em.persist(userToAdd);
     }
 
+    @Override
     public List<User> getAllUsers() {
         //I call the criteria builder, which is the responsible for managing the queries
         CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -61,6 +62,7 @@ public class PaymentRepositoryImplementation implements PaymentRepository {
         return em.find(User.class, id);
     }
 
+    @Override
     public void addTollPassToUserVehicle(UserDTO userDTO,
                                          VehicleDTO vehicleDTO,
                                          Double amount,
@@ -70,17 +72,22 @@ public class PaymentRepositoryImplementation implements PaymentRepository {
         //User userToAdd = getUserById(userDTO.getId());
 
         try {
+            //we find the vehicle we will be updating the toll passes
             Vehicle vehicleToUpdate = findVehicleByTag(vehicleDTO.getTagDTO());
+
+            //we create the toll pass to add
             TollPass tollPassToAdd = new TollPass(null, LocalDate.now(),amount, PaymentTypeData.POST_PAYMENT);
+
+            //we set the toll pass to the previously gotten vehicle
             tollPassToAdd.setVehicle(vehicleToUpdate);
+
+            //persist
             em.persist(tollPassToAdd);
-//            em.persist(vehicleToUpdate //we persist the vehicle
-//                    .getTollPass() //we get the toll passes from the vehicle
-//                    .add(em.merge(tollPassToAdd)));//we add and persist the toll pass we created
+
             em.flush(); //we flush
 
         }catch (Exception e){
-            throw new IllegalArgumentException("No se pudo actualizar las pasadas del usuario " + userDTO.getName());
+            throw new IllegalArgumentException("No se pudo actualizar las pasadas del usuario " + userDTO.getName() + e.getMessage() ) ;
         }
     }
 
@@ -105,6 +112,7 @@ public class PaymentRepositoryImplementation implements PaymentRepository {
     }
 
 
+    @Override
     public Vehicle findVehicleByTag(TagDTO tagDTO) throws InternalErrorException {
         try {
             //I get the Tag domain object from the vehicle I want to find
