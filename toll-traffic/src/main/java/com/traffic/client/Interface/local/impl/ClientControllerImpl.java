@@ -67,8 +67,12 @@ public class ClientControllerImpl implements ClientController {
 
         }
 
-        userService.registerUser(user);
-        //TODO TIRAR evento de registro usr
+        try{
+            userService.registerUser(user);
+            //TODO TIRAR evento de registro usr
+        }catch(Exception e){
+            System.err.println(e.getMessage());
+        }
     }
 
     @Override
