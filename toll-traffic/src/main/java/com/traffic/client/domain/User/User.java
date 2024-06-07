@@ -49,23 +49,6 @@ public abstract class User {
     }
 
 
-    public void addVehicle(Vehicle vehicle){
-        Link link = new Link(null, true, vehicle, LocalDate.now());
-
-        if(linkedCars == null){
-            linkedCars = new ArrayList<>();
-            linkedCars.add(link);
-        } else {
-            linkedCars.add(link);
-        }
-    }
-
-    public void removeVehicle(Long vehicleId){
-        if(linkedCars != null){
-            linkedCars.removeIf(link -> link.getVehicle().getId().equals(vehicleId));
-        }
-    }
-
     @Override
     public String toString(){
         return "[ ID: " + id + " Nombre: " + name

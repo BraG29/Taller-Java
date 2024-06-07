@@ -12,7 +12,7 @@ import java.time.LocalDate;
 @DiscriminatorValue("POSTPay")
 public class POSTPay extends Account{
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "creditCard_id")
     private CreditCard creditCard;
 

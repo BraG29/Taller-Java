@@ -111,22 +111,29 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
             em.flush();
         }catch (Exception e){
             System.err.println(e.getMessage());
+            throw e;
         }
     }
 
     @Override
     public Optional<User> getUserById(Long id) {
 
+        if (id == null) {
+            throw new IllegalArgumentException("El ID del usuario no puede ser nulo.");
+        }
        User user = em.find(User.class, id);
 
-        return  user != null ? Optional.of(user) : Optional.empty();
+        if (user != null) {
+            return Optional.of(user);
+        } else {
+            return Optional.empty();
+        }
     }
 
     @Override
     public Optional<Vehicle> getVehicleByTag(Long tagId) {
 
         CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
-
         Tag tag = em.find(Tag.class, tagId);
 
         CriteriaQuery<Vehicle> vehicleCB = criteriaBuilder.createQuery(Vehicle.class);
@@ -134,14 +141,18 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
 
         vehicleCB.select(vehicleRoot)
                 .where(criteriaBuilder.equal(vehicleRoot.get("tag"), tag));
+        try{
+            Vehicle vehicleDB = em.createQuery(vehicleCB).getSingleResult();
 
-        Vehicle vehicleDB = em.createQuery(vehicleCB).getSingleResult();
+            return Optional.ofNullable(vehicleDB);
+        }catch (Exception e) {
+            return Optional.empty();
+        }
 
-        return vehicleDB != null ? Optional.of(vehicleDB): Optional.empty();
     }
 
     //Vehiculos.
-    //sin testear
+
     @Transactional
     public void linkVehicle (Long userId, Vehicle vehicle){
         try{
@@ -149,12 +160,22 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
             if(usrOPT.isPresent()){
                 User user = usrOPT.get();
 
-                if(vehicle.getId() == null){
-                    em.persist(vehicle);
+                Tag tag = vehicle.getTag();
+                if(tag.getId() == null){
+                    em.persist(tag);
                 }else{
-                    em.merge(vehicle);
+                    em.merge(tag);
                 }
-                user.addVehicle(vehicle);
+
+                if(vehicle.getId() == null){
+                    vehicle.setTag(tag);
+                    em.persist(vehicle);
+                }
+
+                Link link = new Link(null, true, vehicle, LocalDate.now());
+                link.setUser(user);
+                em.persist(link);
+
                 em.merge(user);
                 em.flush();
             }
@@ -164,7 +185,7 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
         }
     }
 
-    //sin testear
+    @Transactional
     public void unLinkVehicle (Long userId, Long vehicleId){
 
         try{
@@ -173,47 +194,75 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
 
                 User user = usrOPT.get();
 
+                Link linkToRemove = null;
                 for(Link link : user.getLinkedCars()){
                     if(link.getVehicle().getId().equals(vehicleId)){
-                        user.removeVehicle(vehicleId);
+                        linkToRemove = link;
                         break;
                     }
                 }
-                em.merge(user);
+
+                if(linkToRemove != null){
+                    user.getLinkedCars().remove(linkToRemove);
+                    em.remove(linkToRemove);
+
+                    Vehicle vehicle = linkToRemove.getVehicle();
+                    em.remove(vehicle);
+
+                    Tag tag = vehicle.getTag();
+                    em.remove(tag);
+
+                    em.merge(user);
+                    em.flush();
+                }else {
+                    throw new IllegalArgumentException("Vehículo no encontrado para el usuario dado");
+                }
+            }else {
+                throw new IllegalArgumentException("Usuario no encontrado para el id dado");
             }
         }catch (Exception e){
             System.err.println(e.getMessage());
+            throw e;
         }
     }
 
 
     //Cuentas.
-    //sin testear
     @Transactional
     public void linkCreditCard (Long id , CreditCard creditCard){
         Optional<User> usrOPT = getUserById(id);
 
-        try{
-            if(usrOPT.isPresent()){
+        if(usrOPT.isPresent()){
 
-                User usr = usrOPT.get();
+            User usr = usrOPT.get();
 
-                POSTPay postPay = usr.getTollCustomer().getPostPay();
-                LocalDate creationDate = LocalDate.now();
-
-                if (postPay == null){ //si no tiene cuenta postPaga le creo una y le agrego la tarjeta.
-                    Integer accountNumber = POSTPay.generateRandomAccountNumber();
-                    postPay = new POSTPay(id,accountNumber, creationDate, creditCard);
-                    em.persist(postPay);
-
-                }else{ //si ya tiene cuenta postpaga, cambio la tarjeta, por ahora maneja una tarjeta sola.
-                    postPay.setCreditCard(creditCard);
-                    em.merge(postPay);
-                }
-                em.flush();
+            TollCustomer tollCustomer = usr.getTollCustomer();
+            if (tollCustomer == null) {
+                throw new IllegalArgumentException("TollCustomer no encontrado para el usuario dado");
             }
-        } catch (Exception e){
-            System.err.println(e.getMessage());
+
+            POSTPay postPay = tollCustomer.getPostPay();
+            LocalDate creationDate = LocalDate.now();
+
+            if (postPay == null){ //si no tiene cuenta postPaga le creo una y le agrego la tarjeta.
+                em.persist(creditCard);
+                Integer accountNumber = POSTPay.generateRandomAccountNumber();
+                postPay = new POSTPay(null,accountNumber, creationDate, creditCard);
+                em.persist(postPay);
+                tollCustomer.setPostPay(postPay);
+                em.merge(tollCustomer);
+
+            }else{ //si ya tiene cuenta postpaga, cambio la tarjeta, por ahora maneja una tarjeta sola.
+                em.merge(creditCard);
+                postPay.setCreditCard(creditCard);
+                em.merge(postPay);
+                tollCustomer.setPostPay(postPay);
+                em.merge(tollCustomer);
+            }
+
+            em.flush();
+        }else {
+            throw new IllegalArgumentException("Usuario no encontrado para el id dado");
         }
 
     }
@@ -258,7 +307,7 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
     //sin testear
     @Transactional
     public void loadBalance(Long tagId, Double balance) throws Exception {
-        try{
+
             Optional<User> user = findByTag(tagId);
 
             if(user.isEmpty()){
@@ -286,9 +335,7 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
             em.merge(customer);
             em.flush();
 
-        } catch (Exception e){
-            System.err.println("Algo salio mal " +  e.getMessage());
-        }
+
     }
 
 
@@ -360,7 +407,7 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
 
             TollPass newPass = new TollPass(null, LocalDate.now(), balance, PaymentTypeData.PRE_PAYMENT, vehicleDB);
             em.merge(newPass);
-
+            vehicleDB.addPass(newPass);
             em.merge(vehicleDB);
             em.merge(customer);
             em.flush();
@@ -375,7 +422,7 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
             }else if( vehicleDB instanceof  ForeignVehicle){
                 vehicleDTO = new ForeignVehicleDTO(vehicleDB.getId(), null, tagDTO);
             }
-            TollPassDTO newPassDTO = new TollPassDTO(null, newPass.getPassDate(), newPass.getCost(), newPass.getPaymentType(), vehicleDTO);
+            TollPassDTO newPassDTO = new TollPassDTO(null, newPass.getPassDate().toString(), newPass.getCost(), newPass.getPaymentType(), vehicleDTO);
             firePREPayTollPassEvent(newPassDTO);
 
         }catch (Exception e) {
@@ -463,12 +510,12 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
 
                     //agrego nueva pasada al vehiculo, asi le mando datos actualizados al otro modulo.
                     TollPass newPass = new TollPass(null, LocalDate.now(), cost, PaymentTypeData.POST_PAYMENT, vehicleDB);
-
                     em.merge(newPass);
+                    vehicleDB.addPass(newPass);
 
                     //en este bloque  se arma la lista de pasadas de un vehiculo
                     for (TollPass tollPass : listTollPass) {
-                        tollPassObject = new TollPassDTO(tollPass.getId(), tollPass.getPassDate(), tollPass.getCost(), tollPass.getPaymentType());
+                        tollPassObject = new TollPassDTO(tollPass.getId(), tollPass.getPassDate().toString(), tollPass.getCost(), tollPass.getPaymentType());
                         listTollPassDTO.add(tollPassObject);
                     }
 
@@ -532,7 +579,8 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
         if(usr.getTollCustomer().getPostPay() != null){
 
             card = usr.getTollCustomer().getPostPay().getCreditCard();
-            cardDTO = new CreditCardDTO(card.getId(), card.getCardNumber(), card.getName(), card.getExpireDate());
+
+            cardDTO = new CreditCardDTO(card.getId(), card.getCardNumber(), card.getName(), card.getExpireDate().toString());
 
             postPay = usr.getTollCustomer().getPostPay();
             postPayDTO = new PostPayDTO(postPay.getId(), postPay.getAccountNumber(), postPay.getCreationDate(), cardDTO);

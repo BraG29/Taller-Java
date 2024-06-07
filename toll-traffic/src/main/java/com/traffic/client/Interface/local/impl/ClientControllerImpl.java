@@ -30,6 +30,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
@@ -133,8 +134,10 @@ public class ClientControllerImpl implements ClientController {
                 System.err.println(e.getMessage());
             }
 
+        }else{
+            throw new IllegalArgumentException("El vehiculo esta vacio.");
         }
-        throw new IllegalArgumentException("El vehiculo esta vacio.");
+
 
     }
 
@@ -152,9 +155,12 @@ public class ClientControllerImpl implements ClientController {
 
             }catch(Exception e){
                 System.err.println(e.getMessage());
+                throw e;
             }
+        }else{
+            throw new InvalidVehicleException("El vehiculo no existe.");
         }
-        throw new InvalidVehicleException("El vehiculo no existe.");
+
     }
 
 
@@ -183,7 +189,7 @@ public class ClientControllerImpl implements ClientController {
                 if(tollPassList != null){
                     for (TollPass tollPass : tollPassList){
 
-                    tollPassObjectDTO = new TollPassDTO(tollPass.getId(),tollPass.getPassDate(),
+                    tollPassObjectDTO = new TollPassDTO(tollPass.getId(),tollPass.getPassDate().toString(),
                             tollPass.getCost(), tollPass.getPaymentType());
 
                         tollPassDTOList.add(tollPassObjectDTO);
@@ -216,12 +222,8 @@ public class ClientControllerImpl implements ClientController {
 
     @Override
     public void loadBalance(Long id, Double balance) throws Exception {
-        try{
-            accountService.loadBalance(id, balance);
-        }catch(Exception e){
-            System.err.println(e.getMessage());
-        }
 
+            accountService.loadBalance(id, balance);
     }
 
     @Override
@@ -245,14 +247,12 @@ public class ClientControllerImpl implements ClientController {
             throw new IllegalArgumentException("La tarjeta ingresada no existe");
         }
 
-        CreditCard card = new CreditCard(creditCard.getId(), creditCard.getCardNumber(),
-                creditCard.getName(), creditCard.getExpireDate());
+        LocalDate expireDate = LocalDate.parse(creditCard.getExpireDate(), DateTimeFormatter.ISO_DATE);
 
-        try{
-            accountService.linkCreditCard(id, card);
-        }catch (Exception e){
-            System.err.println(e.getMessage());
-        }
+        CreditCard card = new CreditCard(creditCard.getId(), creditCard.getCardNumber(),
+                creditCard.getName(), expireDate);
+
+        accountService.linkCreditCard(id, card);
     }
 
     @Override
@@ -276,7 +276,7 @@ public class ClientControllerImpl implements ClientController {
     }
 
     @Override
-    public Optional<List<TollPassDTO>> showPastPassagesVehicle(TagDTO tag, LocalDate from, LocalDate to) throws IllegalArgumentException, IllegalRangeException{
+    public Optional<List<TollPassDTO>> showPastPassagesVehicle(Long tagId, LocalDate from, LocalDate to) throws IllegalArgumentException, IllegalRangeException{
 
         long difference = ChronoUnit.DAYS.between(from, to);
 
@@ -284,17 +284,12 @@ public class ClientControllerImpl implements ClientController {
             throw new IllegalRangeException("El rango de fechas es invalido.");
         }
 
-        if(tag == null){
+        if(tagId == null){
             throw new IllegalArgumentException("El tag esta vacío o es invalido");
         }
 
-        UUID uuid = UUID.fromString(tag.getUniqueId());
-
-        Tag tagObject = new Tag(tag.getId(), uuid);
-
-
         try{
-            Optional<List<TollPass>> tollPassList = vehicleService.getTollPassByVehicle(tagObject, from , to);
+            Optional<List<TollPass>> tollPassList = vehicleService.getTollPassByVehicle(tagId, from , to);
 
             return tollPassListToTollPassDTOList(tollPassList);
         }catch (NoSuchElementException e){
@@ -338,7 +333,7 @@ public class ClientControllerImpl implements ClientController {
                     String name = ((POSTPay) account).getCreditCard().getName();
                     Long cardId = ((POSTPay) account).getCreditCard().getId();
                     String number = ((POSTPay) account).getCreditCard().getCardNumber();
-                    LocalDate expireDate = ((POSTPay) account).getCreditCard().getExpireDate();
+                    String expireDate = ((POSTPay) account).getCreditCard().getExpireDate().toString();
 
                     CreditCardDTO card = new CreditCardDTO(cardId, number,name, expireDate);
 
@@ -414,7 +409,7 @@ public class ClientControllerImpl implements ClientController {
 
             for(TollPass tollPass : listTollPass){
 
-                tollPassDTO = new TollPassDTO(tollPass.getId(),tollPass.getPassDate(),
+                tollPassDTO = new TollPassDTO(tollPass.getId(),tollPass.getPassDate().toString(),
                         tollPass.getCost(), tollPass.getPaymentType());
 
                 tollPassDTOList.add(tollPassDTO);

@@ -2,7 +2,6 @@ package com.traffic.client.application.impl;
 import com.traffic.client.application.VehicleService;
 import com.traffic.client.domain.User.User;
 import com.traffic.client.domain.Vehicle.Link;
-import com.traffic.client.domain.Vehicle.Tag;
 import com.traffic.client.domain.Vehicle.TollPass;
 import com.traffic.client.domain.Vehicle.Vehicle;
 import com.traffic.client.domain.repository.ClientModuleRepository;
@@ -29,6 +28,7 @@ public class VehicleServiceImpl implements VehicleService {
 
         }catch (Exception e){
             System.err.println(e.getMessage());
+            throw e;
         }
 
 
@@ -36,7 +36,14 @@ public class VehicleServiceImpl implements VehicleService {
 
     @Override
     public void unLinkVehicle(Long userId, Long vehicleId) {
-        //TODO implementar
+
+        try{
+            repo.unLinkVehicle(userId, vehicleId);
+
+        }catch (Exception e){
+            System.err.println(e.getMessage());
+            throw e;
+        }
     }
 
     @Override
@@ -68,8 +75,7 @@ public class VehicleServiceImpl implements VehicleService {
     @Override
     public Optional<List<TollPass>> getTollPass(Long id, LocalDate from, LocalDate to) {
 
-        Optional<User> userOPT = Optional.ofNullable(repo.getUserById(id).orElseThrow(()
-        -> new NoSuchElementException("No se encontró el usuario a consultar pasadas con id: " + id)));
+        Optional<User> userOPT = repo.getUserById(id);
 
         List<TollPass> tollPassList;
         List<TollPass> tollPassListInRange = new ArrayList<>();
@@ -82,53 +88,55 @@ public class VehicleServiceImpl implements VehicleService {
             if(user.getLinkedCars() != null){
 
                 linkList = user.getLinkedCars();
-
                 for (Link link : linkList){
-
                     tollPassList = link.getVehicle().getTollPass();
-
                     if(tollPassList != null){
                         for (TollPass tollPass : tollPassList){
 
-                            if(!tollPass.getPassDate().isAfter(from) && !tollPass.getPassDate().isBefore(to)){ //si la fecha se encuentra dentro del rango (inclusive).
+                            if(tollPass.getPassDate().isAfter(from.minusDays(1)) &&
+                                    tollPass.getPassDate().isBefore(to.plusDays(1)))
+
+                            { //si la fecha se encuentra dentro del rango (inclusive).
                                 tollPassListInRange.add(tollPass);
                             }
                         }
                         return Optional.of(tollPassListInRange);
                     }
-
                 }
+                return Optional.of(tollPassListInRange);
+            }else{
+                return Optional.empty();
             }
         }
-
 
         return Optional.empty();
     }
 
     @Override
-    public Optional<List<TollPass>> getTollPassByVehicle(Tag tag, LocalDate from, LocalDate to) {
+    public Optional<List<TollPass>> getTollPassByVehicle(Long tagId, LocalDate from, LocalDate to) {
 
-            Optional<Vehicle> vehicle = Optional.ofNullable(repo.getVehicleByTag(tag.getId()).orElseThrow(() ->
-                    new NoSuchElementException("No se encontró el vehículo con tag: " + tag.getId())));
+            Optional<Vehicle> vehicle = repo.getVehicleByTag(tagId);
 
             if(vehicle.isPresent()){
+
                 List<TollPass> tollPassList = vehicle.get().getTollPass();
                 List<TollPass> tollPassListInRange = new ArrayList<>();
 
                 if(tollPassList != null){
                     for(TollPass tollPass: tollPassList){
-
-                        if(!tollPass.getPassDate().isAfter(from) && !tollPass.getPassDate().isBefore(to)){ //si la fecha se encuentra dentro del rango (inclusive).
+                        if(tollPass.getPassDate().isAfter(from.minusDays(1)) && tollPass.getPassDate().isBefore(to.plusDays(1))){ //si la fecha se encuentra dentro del rango (inclusive).
                             tollPassListInRange.add(tollPass);
                         }
                     }
                     return Optional.of(tollPassListInRange);
+
                 } else{
-                    return Optional.empty();
+                    return Optional.of(tollPassListInRange); //vehiculo sin pasadas.
                 }
 
+            }else{
+                return Optional.empty(); //vehiculo no encontrado
             }
 
-        return Optional.empty();
     }
 }

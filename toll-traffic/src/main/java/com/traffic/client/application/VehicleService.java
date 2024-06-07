@@ -1,6 +1,5 @@
 package com.traffic.client.application;
 
-import com.traffic.client.domain.Vehicle.Tag;
 import com.traffic.client.domain.Vehicle.TollPass;
 import com.traffic.client.domain.Vehicle.Vehicle;
 
@@ -19,6 +18,6 @@ public interface VehicleService {
 
     public Optional<List<TollPass>> getTollPass(Long id, LocalDate from, LocalDate to);
 
-    public Optional<List<TollPass>> getTollPassByVehicle(Tag tag, LocalDate from, LocalDate to);
+    public Optional<List<TollPass>> getTollPassByVehicle(Long tagId, LocalDate from, LocalDate to);
 
 }

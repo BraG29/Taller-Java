@@ -83,13 +83,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public void loadBalance(Long id, Double balance) throws Exception {
-
-        try{
-            repo.loadBalance(id, balance);
-        } catch(Exception e){
-            System.err.println(e.getMessage());
-        }
-
+        repo.loadBalance(id, balance);
     }
 
     @Override
@@ -114,12 +108,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public void linkCreditCard(Long id, CreditCard creditCard) {
-
-        try{
-            repo.linkCreditCard(id, creditCard);
-        }catch (Exception e){
-            System.err.println(e.getMessage());
-        }
+        repo.linkCreditCard(id, creditCard);
     }
 
     

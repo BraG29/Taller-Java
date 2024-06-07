@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 
 //@Data
 @Getter
@@ -24,6 +25,7 @@ public class Link {
     private Vehicle vehicle;
 
     @ManyToOne
+    @JoinColumn(name = "user_id")
     private User user;
 
     private LocalDate initialDate;
@@ -36,6 +38,8 @@ public class Link {
         this.vehicle = vehicle;
         this.initialDate = initialDate;
     }
+
+
 
 //    @Override
 //    public String toString(){

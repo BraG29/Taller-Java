@@ -14,7 +14,7 @@ import java.time.LocalDate;
 public class TollPassDTO {
 
     private Long id;
-    private LocalDate date;
+    private String date;
     private Double cost;
     private PaymentTypeData paymentType;
     private VehicleDTO vehicle;
@@ -22,7 +22,7 @@ public class TollPassDTO {
     public TollPassDTO(){}
 
     public TollPassDTO(Long id,
-                        LocalDate date,
+                       String date,
                        Double cost,
                        PaymentTypeData paymentType) {
         this.id = id;
@@ -32,7 +32,7 @@ public class TollPassDTO {
     }
 
     public TollPassDTO(Long id,
-                       LocalDate date,
+                       String date,
                        Double cost,
                        PaymentTypeData paymentType,
                        VehicleDTO vehicle) {
