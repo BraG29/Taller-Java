@@ -1,5 +1,6 @@
 package com.traffic.sucive.domain.entities;
 
+import com.traffic.dtos.vehicle.TagDTO;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -22,4 +23,7 @@ public class Tag {
             this.id = id;
         }
 
+    public TagDTO toDTO(){
+            return new TagDTO(id, uniqueId.toString());
     }
+}

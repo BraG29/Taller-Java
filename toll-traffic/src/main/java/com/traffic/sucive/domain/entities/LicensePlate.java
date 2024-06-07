@@ -1,5 +1,6 @@
 package com.traffic.sucive.domain.entities;
 
+import com.traffic.dtos.vehicle.LicensePlateDTO;
 import jakarta.persistence.*;
 import lombok.*;
 @Getter
@@ -16,4 +17,8 @@ public class LicensePlate {
     private Long id;
     @Column(name = "license_plate_number")
     private String licensePlateNumber;
+
+    public LicensePlateDTO toDTO(){
+        return new LicensePlateDTO(this.getId(), this.getLicensePlateNumber());
+    }
 }
