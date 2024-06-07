@@ -17,6 +17,7 @@ public class TollPassDTO {
     private LocalDate date;
     private Double cost;
     private PaymentTypeData paymentType;
+    private Long vehicleId;
 
     public TollPassDTO(){}
 

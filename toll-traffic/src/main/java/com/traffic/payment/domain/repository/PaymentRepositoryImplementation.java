@@ -37,6 +37,7 @@ public class PaymentRepositoryImplementation implements PaymentRepository {
     public void addUser(User userToAdd){
         System.out.println(userToAdd.getName());
         em.persist(userToAdd);
+        em.flush();
     }
 
     @Override

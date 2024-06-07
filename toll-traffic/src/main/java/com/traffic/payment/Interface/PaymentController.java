@@ -3,10 +3,12 @@ package com.traffic.payment.Interface;
 import com.traffic.dtos.account.CreditCardDTO;
 import com.traffic.dtos.user.UserDTO;
 import com.traffic.dtos.vehicle.VehicleDTO;
+import com.traffic.events.NewUserEvent;
 import com.traffic.exceptions.InternalErrorException;
 import com.traffic.exceptions.InvalidVehicleException;
 import com.traffic.exceptions.NoCustomerException;
 import com.traffic.exceptions.ExternalApiException;
+import jakarta.enterprise.event.Observes;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -21,13 +23,12 @@ public interface PaymentController {
 
     /**
      * Registra una cuenta para un usuario con una tarjeta
-     * @param user usuario que abre la cuenta
-     * @param creditCard tarjeta (credito o debito) con la que abre la cuenta
+     *
+     * @param userEvent evento con la información del usuario que se dió de alta en otro modulo
      * @throws ExternalApiException si hubo un error lanzado por la API de la tarjeta
-     * @throws NoCustomerException si el usuario no es cliente, es decir: <code>user.tollCustomer == null</code>
+     * @throws NoCustomerException  si el usuario no es cliente, es decir: <code>user.tollCustomer == null</code>
      */
-    public void customerRegistration(UserDTO user,
-                                     CreditCardDTO creditCard) throws ExternalApiException, NoCustomerException, InternalErrorException;
+    public void customerRegistration(@Observes NewUserEvent userEvent)  throws ExternalApiException, NoCustomerException, InternalErrorException;
 
 
     /**
