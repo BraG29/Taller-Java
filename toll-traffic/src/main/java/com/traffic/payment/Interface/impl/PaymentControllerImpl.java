@@ -31,6 +31,7 @@ import jakarta.transaction.Transactional;
 import okhttp3.*;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 import java.util.List;
@@ -180,7 +181,9 @@ public class PaymentControllerImpl implements PaymentController {
         if (user.getTollCustomer() == null){
             throw new NoCustomerException("El cliente no está registrado a Telepeaje");
         }
-        if (creditCard.getExpireDate().isBefore(LocalDate.now())){
+
+        LocalDate cardDate = LocalDate.parse(creditCard.getExpireDate(), DateTimeFormatter.ISO_DATE);
+        if (cardDate.isBefore(LocalDate.now())){
             throw new IllegalArgumentException("La tarjeta de crédito está vencida");
         }
 

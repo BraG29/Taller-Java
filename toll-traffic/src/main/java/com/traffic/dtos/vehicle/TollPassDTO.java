@@ -14,20 +14,35 @@ import java.time.LocalDate;
 public class TollPassDTO {
 
     private Long id;
-    private LocalDate date;
+    private String date;
     private Double cost;
     private PaymentTypeData paymentType;
     private Long vehicleId;
+    private VehicleDTO vehicle;
+
 
     public TollPassDTO(){}
 
     public TollPassDTO(Long id,
-                        LocalDate date,
+                       String date,
                        Double cost,
                        PaymentTypeData paymentType) {
         this.id = id;
         this.date = date;
         this.cost = cost;
         this.paymentType = paymentType;
+    }
+
+    public TollPassDTO(Long id,
+                       String date,
+                       Double cost,
+                       PaymentTypeData paymentType,
+                       VehicleDTO vehicle) {
+        this.id = id;
+        this.date = date;
+        this.cost = cost;
+        this.paymentType = paymentType;
+        this.vehicle = vehicle;
+
     }
 }

@@ -109,7 +109,7 @@ public interface ClientController {
 
     /**
      * Devuelve las pasadas realizadas por un vehículo en particular registrado por un usuario en un rango de fechas.
-     * @param tag-> Tag de vehiculo a devolver pasadas.
+     * @param tagId-> Identificador del tag del vehiculo a devolver pasadas.
      * @param from -> Recibe una fecha de comienzo, para el rango de fechas.
      * @param to -> Recibe una fecha de fin, para el rango de pruebas.
      * @return -> Devuelve una lista de Pasadas del vehículo del usuario.
@@ -117,7 +117,7 @@ public interface ClientController {
      * @throws IllegalRangeException -> Si el rango de las fechas es invalido, cuando la diferencia de dias entre fechas es menor a 0.
      * @throws NoCustomerException -> Si el usuario no es un cliente Telepeaje.
      */
-    public Optional<List<TollPassDTO>> showPastPassagesVehicle(TagDTO tag,
+    public Optional<List<TollPassDTO>> showPastPassagesVehicle(Long tagId,
                                                                LocalDate from,
                                                                LocalDate to) throws IllegalArgumentException, IllegalRangeException, NoCustomerException;
 
