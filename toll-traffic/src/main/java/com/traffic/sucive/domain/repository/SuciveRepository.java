@@ -19,6 +19,6 @@ public interface SuciveRepository {
 
     public void updateVehicleTollPass(LicensePlateDTO licensePlateDTO, Double amount) throws InvalidVehicleException, InternalErrorException;
 
-    public void publishPayment(TollPass tollPass );
+    public void publishPayment(TollPass tollPass, Long vehicleID );
 
 }

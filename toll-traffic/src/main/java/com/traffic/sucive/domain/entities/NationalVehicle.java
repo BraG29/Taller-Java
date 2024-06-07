@@ -1,5 +1,6 @@
 package com.traffic.sucive.domain.entities;
 
+import com.traffic.dtos.vehicle.NationalVehicleDTO;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
@@ -27,5 +28,9 @@ public class NationalVehicle extends Vehicle {
     @Override
     public String toString(){
         return super.toString() + plate.toString();
+    }
+
+    public NationalVehicleDTO toDTO(){
+        return new NationalVehicleDTO(this.getId(),null, this.getTag().toDTO(), this.plate.toDTO());
     }
 }

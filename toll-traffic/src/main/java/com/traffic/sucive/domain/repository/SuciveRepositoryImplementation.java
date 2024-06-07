@@ -19,14 +19,11 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
-import jakarta.transaction.Transactional;
 
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
-@Transactional
 @ApplicationScoped
 public class SuciveRepositoryImplementation  implements SuciveRepository {
 
@@ -123,7 +120,7 @@ public class SuciveRepositoryImplementation  implements SuciveRepository {
           em.flush();
 
           //publish event of the Toll Pass I just added
-          publishPayment(tollPassToAdd);
+          publishPayment(tollPassToAdd, vehicleToUpdate.getId());
       }
       catch (Exception e){
           throw new InternalErrorException(e.getMessage());
@@ -131,10 +128,11 @@ public class SuciveRepositoryImplementation  implements SuciveRepository {
     }
 
     @Override
-    public void publishPayment(TollPass tollPass ){
+    public void publishPayment(TollPass tollPass, Long vehicleID ){
 
         //I transform the domain object to DTO
         TollPassDTO tollPassDTO = tollPass.toDTO();
+        tollPassDTO.setVehicleId(vehicleID);
 
         //I create  the event which I will be firing, and I pass it the tollPass
         SucivePaymentEvent paymentEvent = new SucivePaymentEvent(tollPassDTO);
