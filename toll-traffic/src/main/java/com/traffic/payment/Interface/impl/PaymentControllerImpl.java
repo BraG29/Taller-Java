@@ -48,10 +48,13 @@ public class PaymentControllerImpl implements PaymentController {
     @Override
     public void customerRegistration(@Observes NewUserEvent userEvent) throws ExternalApiException, NoCustomerException, InternalErrorException {
 
+
+        //TODO would be to move my DTO to Domain object functions to my Domain classes
         //I get the userDTO from the event that called this function
         UserDTO user = userEvent.getUser();
 
-        //TODO would be to move my DTO to Domain object functions to my Domain classes
+        //Lucas left me this example so I can parse the now string value of the dates
+        //LocalDate cardDate = LocalDate.parse(creditCard.getExpireDate(), DateTimeFormatter.ISO_DATE);
 
         //I prepare the DTOs to be turned into domain objects
         // creditCard > pre & postPay > tollCustomer
@@ -63,7 +66,7 @@ public class PaymentControllerImpl implements PaymentController {
         CreditCard card = new CreditCard(null,
                                                                 postPayDTO.getCreditCardDTO().getCardNumber(),
                                                                 postPayDTO.getCreditCardDTO().getName(),
-                                                                postPayDTO.getCreditCardDTO().getExpireDate());
+                                                                LocalDate.parse(postPayDTO.getCreditCardDTO().getExpireDate(), DateTimeFormatter.ISO_DATE));
 
         //postPayDTO to postPay
         POSTPay postPay =  new POSTPay(null,postPayDTO.getAccountNumber(),postPayDTO.getCreationDate(), card );
@@ -96,7 +99,9 @@ public class PaymentControllerImpl implements PaymentController {
                 //Iterate through it to get the Domain object list of toll pases for the given vehicle
                 for (TollPassDTO toll : tollPassListToIterate){
 
-                    TollPass tollToAdd = new TollPass(null,toll.getDate(),toll.getCost(),toll.getPaymentType());
+                    LocalDate tollDate = LocalDate.parse(toll.getDate(), DateTimeFormatter.ISO_DATE);
+
+                    TollPass tollToAdd = new TollPass(null,tollDate,toll.getCost(),toll.getPaymentType());
                     passes.add(tollToAdd);
                 }
 
@@ -119,7 +124,9 @@ public class PaymentControllerImpl implements PaymentController {
                 //Iterate through it to get the Domain object list of toll pases for the given vehicle
                 for (TollPassDTO toll : tollPassListToIterate){
 
-                    TollPass tollToAdd = new TollPass(null, toll.getDate(),toll.getCost(),toll.getPaymentType());
+                    LocalDate tollDate = LocalDate.parse(toll.getDate(), DateTimeFormatter.ISO_DATE);
+
+                    TollPass tollToAdd = new TollPass(null, tollDate,toll.getCost(),toll.getPaymentType());
                     passes.add(tollToAdd);
                 }
 

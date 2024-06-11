@@ -8,7 +8,7 @@ import java.util.List;
 //@EqualsAndHashCode(callSuper = true)
 @Getter
 @Setter
-@Entity
+@Entity(name="Payment_NationalUser")
 @DiscriminatorValue("national")
 public class NationalUser extends User {
 

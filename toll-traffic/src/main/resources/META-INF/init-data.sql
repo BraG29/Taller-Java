@@ -59,6 +59,7 @@ INSERT INTO `toll_db`.`Payment_Tag` (`unique_id`) VALUES (UNHEX(REPLACE('cb523e8
 INSERT INTO `toll_db`.`Payment_Vehicle` (`Tag_id`, `DTYPE`) VALUES ('1', 'foreign');
 
 -- Modulo Sucive
+
 -- Inicializacion de Tag
 INSERT INTO `toll_db`.`Sucive_Tag` (`unique_id`) VALUES (UNHEX(REPLACE('550e8400-e29b-41d4-a716-446655440000', '-', '')));
 

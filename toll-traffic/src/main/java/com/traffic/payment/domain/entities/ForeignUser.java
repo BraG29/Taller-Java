@@ -10,7 +10,7 @@ import java.util.List;
 //@EqualsAndHashCode(callSuper = true)
 @Getter
 @Setter
-@Entity
+@Entity(name="Payment_ForeignUser")
 @DiscriminatorValue("foreign")
 public class ForeignUser extends User {
 

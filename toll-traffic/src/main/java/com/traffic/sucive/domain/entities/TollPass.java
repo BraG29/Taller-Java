@@ -38,6 +38,7 @@ public class TollPass {
     }
 
     public TollPassDTO toDTO(){
-        return new TollPassDTO(id, passDate, cost, paymentType);
+        // LocalDate tollDate = LocalDate.parse(toll.getDate(), DateTimeFormatter.ISO_DATE)
+        return new TollPassDTO(id, passDate.toString(), cost, paymentType);
     }
 }

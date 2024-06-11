@@ -1,124 +1,121 @@
-//package com.traffic.sucive.Interface.impl;
-//
-//import com.traffic.dtos.PaymentTypeData;
-//import com.traffic.dtos.account.CreditCardDTO;
-//import com.traffic.dtos.account.PostPayDTO;
-//import com.traffic.dtos.account.PrePayDTO;
-//import com.traffic.dtos.user.NationalUserDTO;
-//import com.traffic.dtos.user.TollCustomerDTO;
-//import com.traffic.dtos.vehicle.*;
-//import com.traffic.exceptions.InternalErrorException;
-//import com.traffic.sucive.Interface.SuciveController;
-//import com.traffic.sucive.domain.repository.SuciveRepository;
-//import com.traffic.sucive.domain.user.TollCustomer;
-//import com.traffic.sucive.domain.user.User;
-//import com.traffic.sucive.domain.vehicle.Link;
-//import com.traffic.sucive.domain.vehicle.Tag;
-//import com.traffic.sucive.domain.vehicle.TollPass;
-//import jakarta.inject.Inject;
-//import org.jboss.weld.junit5.auto.AddPackages;
-//import org.jboss.weld.junit5.auto.EnableAutoWeld;
-//import org.junit.jupiter.api.Test;
-//
-//import java.time.LocalDate;
-//import java.util.ArrayList;
-//import java.util.List;
-//
-//@EnableAutoWeld
-//@AddPackages(SuciveController.class)
-//@AddPackages(SuciveRepository.class)
-//public class SuciveControllerTest {
-//    /*
-//these tests are for the functionalities provided by the Sucive module, entirely local, and for now
-//mockito less
-// */
-//
+package com.traffic.sucive.Interface.impl;
+
+import com.traffic.sucive.Interface.SuciveController;
+import com.traffic.sucive.domain.repository.SuciveRepository;
+import com.traffic.sucive.domain.repository.SuciveRepositoryImplementation;
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import org.jboss.weld.junit5.auto.AddPackages;
+import org.jboss.weld.junit5.auto.EnableAutoWeld;
+import org.junit.jupiter.api.Test;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+@EnableAutoWeld
+@AddPackages(SuciveControllerImpl.class)
+@AddPackages(SuciveRepositoryImplementation.class)
+public class SuciveControllerTest {
+    /*
+these tests are for the functionalities provided by the Sucive module, entirely local, and for now
+mockito less
+ */
+
+    @Inject
+    private SuciveControllerImpl controller;
+
+    @Inject
+    private SuciveRepositoryImplementation repository;
+
 //    @Inject
 //    private SuciveRepository repository;
+
+    @Test
+    public void paymentInquiryDateOKTest(){
+        //NationalUserDTO userDTO = generateCorrectNationalUserDTO();
+
+
+//        ArrayList<Link> links = new ArrayList<>();
+//        TollCustomer tollCustomer = new TollCustomer();
+
+//        for (LinkDTO linkDTO : userDTO.getLinkedVehicles()){
+//            linkDTO.get
+//        }
+
+//    //I get the vehicleLinksDTOs from the user I generated
+//    List <LinkDTO> vehicleLinksDTOs = userDTO.getLinkedVehicles();
 //
-//@Test
-//    public void paymentInquiryDateOKTest(){
-//        NationalUserDTO userDTO = generateCorrectNationalUserDTO();
+//    //I create the array that will hold the vehicleLinks of the new Domain Object User
+//    ArrayList<Link> vehicleLinks = new ArrayList<>();
 //
+//    //I iterate through all the vehicleLinks from the DTO
+//    for (LinkDTO link  : vehicleLinksDTOs){
 //
-////        ArrayList<Link> links = new ArrayList<>();
-////        TollCustomer tollCustomer = new TollCustomer();
+//        //Domain Object list of all TollPases of a given vehicle
+//        ArrayList<TollPass> passes = new ArrayList<>();
 //
-////        for (LinkDTO linkDTO : userDTO.getLinkedVehicles()){
-////            linkDTO.get
-////        }
+//        if (link.getVehicle() instanceof ForeignVehicleDTO){
 //
-////    //I get the vehicleLinksDTOs from the user I generated
-////    List <LinkDTO> vehicleLinksDTOs = userDTO.getLinkedVehicles();
-////
-////    //I create the array that will hold the vehicleLinks of the new Domain Object User
-////    ArrayList<Link> vehicleLinks = new ArrayList<>();
-////
-////    //I iterate through all the vehicleLinks from the DTO
-////    for (LinkDTO link  : vehicleLinksDTOs){
-////
-////        //Domain Object list of all TollPases of a given vehicle
-////        ArrayList<TollPass> passes = new ArrayList<>();
-////
-////        if (link.getVehicle() instanceof ForeignVehicleDTO){
-////
-////            ForeignVehicleDTO vehicleDTO = (ForeignVehicleDTO) link.getVehicle();
-////
-////            //I get the list of toll passes DTOs for the vehicle of the given Link
-////            ArrayList<TollPassDTO> tollPassListToIterate = (ArrayList<TollPassDTO>) vehicleDTO.getTollPassDTO();
-////
-////            //Iterate through it to get the Domain object list of toll pases for the given vehicle
-////            for (TollPassDTO toll : tollPassListToIterate){
-////
-////                TollPass tollToAdd = new TollPass(toll.getDate(),toll.getCost(),toll.getPaymentType());
-////                passes.add(tollToAdd);
-////            }
-////            //transform TagDTO to Tag
-////            Tag tagToAdd = new Tag(vehicleDTO.getId());
-////            ForeignVehicle vehicleToAdd = new ForeignVehicle(vehicleDTO.getId(),passes,tagToAdd);
-////
-////            //I need a vehicle domain object in order to create my link
-////            com.traffic.payment.domain.vehicle.Link linkToAdd = new com.traffic.payment.domain.vehicle.Link(link.getId(), link.getInitialDate(), link.getActive(), vehicleToAdd);
-////
-////            vehicleLinks.add(linkToAdd);
-////
-////        }else if (link.getVehicle() instanceof NationalVehicleDTO){ //we do the same but for NationalVehicle
-////
-////            NationalVehicleDTO vehicleDTO = (NationalVehicleDTO) link.getVehicle();
-////
-////            //I get the list of toll passes DTOs for the vehicle of the given Link
-////            ArrayList<TollPassDTO> tollPassListToIterate = (ArrayList<TollPassDTO>) vehicleDTO.getTollPassDTO();
-////
-////            //Iterate through it to get the Domain object list of toll pases for the given vehicle
-////            for (TollPassDTO toll : tollPassListToIterate){
-////
-////                TollPass tollToAdd = new TollPass( toll.getDate(),toll.getCost(),toll.getPaymentType());
-////                passes.add(tollToAdd);
-////            }
-////
-////            //transform TagDTO to Tag
-////            Tag tagToAdd = new Tag(vehicleDTO.getId());
-////
-////            LicensePlate licenseToAdd = new LicensePlate(  vehicleDTO.getLicensePlateDTO().getId(), vehicleDTO.getLicensePlateDTO().getLicensePlateNumber() );
-////            NationalVehicle vehicleToAdd = new NationalVehicle(vehicleDTO.getId(), passes, tagToAdd, licenseToAdd);
-////
-////            //I need a vehicle domain object in order to create my link
-////            com.traffic.payment.domain.vehicle.Link linkToAdd = new com.traffic.payment.domain.vehicle.Link(link.getId(), link.getInitialDate(), link.getActive(), vehicleToAdd);
-////
-////            vehicleLinks.add(linkToAdd);
-////        }else{
-////            throw new InternalErrorException("No hay ningún vehiculo registrado para el usuario: " + user.getName());
-////        }
-////    }
-////
-////        User user = new User(userDTO.getId(), userDTO.getEmail(), userDTO.getPassword(), userDTO.getName(), userDTO.getCi(), userDTO.getTollCustomer(), userDTO.getLinkedVehicles());
+//            ForeignVehicleDTO vehicleDTO = (ForeignVehicleDTO) link.getVehicle();
 //
+//            //I get the list of toll passes DTOs for the vehicle of the given Link
+//            ArrayList<TollPassDTO> tollPassListToIterate = (ArrayList<TollPassDTO>) vehicleDTO.getTollPassDTO();
 //
+//            //Iterate through it to get the Domain object list of toll pases for the given vehicle
+//            for (TollPassDTO toll : tollPassListToIterate){
 //
+//                TollPass tollToAdd = new TollPass(toll.getDate(),toll.getCost(),toll.getPaymentType());
+//                passes.add(tollToAdd);
+//            }
+//            //transform TagDTO to Tag
+//            Tag tagToAdd = new Tag(vehicleDTO.getId());
+//            ForeignVehicle vehicleToAdd = new ForeignVehicle(vehicleDTO.getId(),passes,tagToAdd);
+//
+//            //I need a vehicle domain object in order to create my link
+//            com.traffic.payment.domain.vehicle.Link linkToAdd = new com.traffic.payment.domain.vehicle.Link(link.getId(), link.getInitialDate(), link.getActive(), vehicleToAdd);
+//
+//            vehicleLinks.add(linkToAdd);
+//
+//        }else if (link.getVehicle() instanceof NationalVehicleDTO){ //we do the same but for NationalVehicle
+//
+//            NationalVehicleDTO vehicleDTO = (NationalVehicleDTO) link.getVehicle();
+//
+//            //I get the list of toll passes DTOs for the vehicle of the given Link
+//            ArrayList<TollPassDTO> tollPassListToIterate = (ArrayList<TollPassDTO>) vehicleDTO.getTollPassDTO();
+//
+//            //Iterate through it to get the Domain object list of toll pases for the given vehicle
+//            for (TollPassDTO toll : tollPassListToIterate){
+//
+//                TollPass tollToAdd = new TollPass( toll.getDate(),toll.getCost(),toll.getPaymentType());
+//                passes.add(tollToAdd);
+//            }
+//
+//            //transform TagDTO to Tag
+//            Tag tagToAdd = new Tag(vehicleDTO.getId());
+//
+//            LicensePlate licenseToAdd = new LicensePlate(  vehicleDTO.getLicensePlateDTO().getId(), vehicleDTO.getLicensePlateDTO().getLicensePlateNumber() );
+//            NationalVehicle vehicleToAdd = new NationalVehicle(vehicleDTO.getId(), passes, tagToAdd, licenseToAdd);
+//
+//            //I need a vehicle domain object in order to create my link
+//            com.traffic.payment.domain.vehicle.Link linkToAdd = new com.traffic.payment.domain.vehicle.Link(link.getId(), link.getInitialDate(), link.getActive(), vehicleToAdd);
+//
+//            vehicleLinks.add(linkToAdd);
+//        }else{
+//            throw new InternalErrorException("No hay ningún vehiculo registrado para el usuario: " + user.getName());
+//        }
 //    }
 //
-//
-//
+//        User user = new User(userDTO.getId(), userDTO.getEmail(), userDTO.getPassword(), userDTO.getName(), userDTO.getCi(), userDTO.getTollCustomer(), userDTO.getLinkedVehicles());
+
+
+
+    }
+
+
+
 //
 //    public NationalUserDTO generateCorrectNationalUserDTO(){
 //        //I re used this function from the test of payment module, as I need to have an user to test my sucive functionalities
@@ -187,5 +184,14 @@
 //
 //        return user;
 //    }
-//
-//}
+
+
+    @Test
+    public void testPostConstructPaymentInquiry(){
+
+        Optional<List<Double>> payments = Optional.empty();
+        payments = controller.paymentInquiry(LocalDate.now(), LocalDate.of(2030,1,1));
+        System.out.println("Estoy probando Payment Inquiry de Sucive-----------------------------------------------------------------------------------------------------");
+        System.out.println(payments.toString());
+    }
+}
