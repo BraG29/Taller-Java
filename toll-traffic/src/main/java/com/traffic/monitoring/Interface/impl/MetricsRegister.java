@@ -15,9 +15,12 @@ import io.micrometer.influx.InfluxMeterRegistry;
 public class MetricsRegister {
     public static final String VEHICLE_PASS_COUNTER ="notifyVehiclePass";
     public static final String SUCIVE_PAYMENT_COUNTER ="notifySucivePayment";
-    public static final String CARD_PAYMENT_COUNTER ="notifyCardPayment";
-    public static final String CARD_PAYMENT_REJECTED_COUNTER ="notifyCreditCardPaymentRejected";
-    public static final String NOT_ENOUGH_BALANCE_COUNTER ="notifyNotEnoughBalance";
+    public static final String PRE_PAYMENT_COUNTER ="notifyPrePayment";
+    public static final String POST_PAYMENT_COUNTER ="notifyPostPayment";
+
+    //Maybe for future monitoring
+    //public static final String CARD_PAYMENT_REJECTED_COUNTER ="notifyCreditCardPaymentRejected";
+    //public static final String NOT_ENOUGH_BALANCE_COUNTER ="notifyNotEnoughBalance";
 
 
 
@@ -34,7 +37,7 @@ public class MetricsRegister {
 
             @Override
             public Duration step() {
-                return Duration.ofSeconds(10);
+                return Duration.ofSeconds(1);
             }
 
             @Override

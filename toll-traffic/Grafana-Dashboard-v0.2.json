@@ -19,10 +19,18 @@
   "links": [],
   "panels": [
     {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
       "datasource": null,
       "fieldConfig": {
         "defaults": {
-          "custom": {},
+          "custom": {
+            "align": null,
+            "filterable": false
+          },
+          "decimals": 0,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -36,84 +44,8 @@
                 "value": 80
               }
             ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 0
-      },
-      "id": 10,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "mean"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto"
-      },
-      "pluginVersion": "7.2.0",
-      "targets": [
-        {
-          "groupBy": [
-            {
-              "params": [
-                "$__interval"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "measurement": "notifyCardPayment",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "refId": "A",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": []
-        }
-      ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Card Payment",
-      "type": "stat"
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": null,
-      "fieldConfig": {
-        "defaults": {
-          "custom": {}
+          },
+          "unit": "none"
         },
         "overrides": []
       },
@@ -122,11 +54,11 @@
       "gridPos": {
         "h": 8,
         "w": 12,
-        "x": 12,
+        "x": 0,
         "y": 0
       },
       "hiddenSeries": false,
-      "id": 2,
+      "id": 10,
       "legend": {
         "avg": false,
         "current": false,
@@ -145,7 +77,7 @@
       "percentage": false,
       "pluginVersion": "7.2.0",
       "pointradius": 2,
-      "points": false,
+      "points": true,
       "renderer": "flot",
       "seriesOverrides": [],
       "spaceLength": 10,
@@ -156,7 +88,7 @@
           "groupBy": [
             {
               "params": [
-                "$__interval"
+                "10s"
               ],
               "type": "time"
             },
@@ -167,7 +99,7 @@
               "type": "fill"
             }
           ],
-          "measurement": "notifyVehiclePass",
+          "measurement": "notifyPostPayment",
           "orderByTime": "ASC",
           "policy": "default",
           "refId": "A",
@@ -182,7 +114,7 @@
               },
               {
                 "params": [],
-                "type": "mean"
+                "type": "sum"
               }
             ]
           ],
@@ -193,12 +125,13 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Vehicle Pass",
+      "title": "Post Payments",
       "tooltip": {
         "shared": true,
         "sort": 0,
         "value_type": "individual"
       },
+      "transformations": [],
       "type": "graph",
       "xaxis": {
         "buckets": null,
@@ -209,7 +142,8 @@
       },
       "yaxes": [
         {
-          "format": "short",
+          "$$hashKey": "object:1202",
+          "format": "none",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -217,6 +151,7 @@
           "show": true
         },
         {
+          "$$hashKey": "object:1203",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -238,7 +173,24 @@
       "datasource": null,
       "fieldConfig": {
         "defaults": {
-          "custom": {}
+          "custom": {
+            "align": null,
+            "filterable": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
         },
         "overrides": []
       },
@@ -247,8 +199,8 @@
       "gridPos": {
         "h": 8,
         "w": 12,
-        "x": 0,
-        "y": 8
+        "x": 12,
+        "y": 0
       },
       "hiddenSeries": false,
       "id": 8,
@@ -270,7 +222,7 @@
       "percentage": false,
       "pluginVersion": "7.2.0",
       "pointradius": 2,
-      "points": false,
+      "points": true,
       "renderer": "flot",
       "seriesOverrides": [],
       "spaceLength": 10,
@@ -281,18 +233,18 @@
           "groupBy": [
             {
               "params": [
-                "$__interval"
+                "10s"
               ],
               "type": "time"
             },
             {
               "params": [
-                "null"
+                "linear"
               ],
               "type": "fill"
             }
           ],
-          "measurement": "notifyCreditCardPaymentRejected",
+          "measurement": "notifyPrePayment",
           "orderByTime": "ASC",
           "policy": "default",
           "refId": "A",
@@ -307,18 +259,28 @@
               },
               {
                 "params": [],
-                "type": "mean"
+                "type": "sum"
               }
             ]
           ],
           "tags": []
         }
       ],
-      "thresholds": [],
+      "thresholds": [
+        {
+          "$$hashKey": "object:1395",
+          "colorMode": "critical",
+          "fill": true,
+          "line": true,
+          "op": "gt",
+          "value": null,
+          "yaxis": "left"
+        }
+      ],
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Credit Card Rejected",
+      "title": "Pre Payments",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -334,6 +296,8 @@
       },
       "yaxes": [
         {
+          "$$hashKey": "object:602",
+          "decimals": null,
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -342,6 +306,7 @@
           "show": true
         },
         {
+          "$$hashKey": "object:603",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -372,7 +337,7 @@
       "gridPos": {
         "h": 8,
         "w": 12,
-        "x": 12,
+        "x": 0,
         "y": 8
       },
       "hiddenSeries": false,
@@ -395,7 +360,7 @@
       "percentage": false,
       "pluginVersion": "7.2.0",
       "pointradius": 2,
-      "points": false,
+      "points": true,
       "renderer": "flot",
       "seriesOverrides": [],
       "spaceLength": 10,
@@ -406,7 +371,7 @@
           "groupBy": [
             {
               "params": [
-                "$__interval"
+                "10s"
               ],
               "type": "time"
             },
@@ -432,7 +397,7 @@
               },
               {
                 "params": [],
-                "type": "mean"
+                "type": "sum"
               }
             ]
           ],
@@ -497,11 +462,11 @@
       "gridPos": {
         "h": 8,
         "w": 12,
-        "x": 0,
-        "y": 16
+        "x": 12,
+        "y": 8
       },
       "hiddenSeries": false,
-      "id": 6,
+      "id": 2,
       "legend": {
         "avg": false,
         "current": false,
@@ -520,7 +485,7 @@
       "percentage": false,
       "pluginVersion": "7.2.0",
       "pointradius": 2,
-      "points": false,
+      "points": true,
       "renderer": "flot",
       "seriesOverrides": [],
       "spaceLength": 10,
@@ -531,7 +496,7 @@
           "groupBy": [
             {
               "params": [
-                "$__interval"
+                "10s"
               ],
               "type": "time"
             },
@@ -542,7 +507,7 @@
               "type": "fill"
             }
           ],
-          "measurement": "notifyNotEnoughBalance",
+          "measurement": "notifyVehiclePass",
           "orderByTime": "ASC",
           "policy": "default",
           "refId": "A",
@@ -557,7 +522,7 @@
               },
               {
                 "params": [],
-                "type": "mean"
+                "type": "sum"
               }
             ]
           ],
@@ -568,7 +533,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Not Enough Balance Events",
+      "title": "Vehicle Pass",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -606,7 +571,7 @@
       }
     }
   ],
-  "refresh": false,
+  "refresh": "5s",
   "schemaVersion": 26,
   "style": "dark",
   "tags": [],
@@ -621,5 +586,5 @@
   "timezone": "",
   "title": "Toll-Trafffic-Metrics",
   "uid": "sCHCNi8Sk",
-  "version": 4
+  "version": 9
 }
