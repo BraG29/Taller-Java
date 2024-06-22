@@ -228,7 +228,7 @@ public class PaymentControllerImpl implements PaymentController {
                                                                                                                             user.getId());
 
                 creditCardRejectedEventPublisher.fire(eventToFire);
-                
+
                 throw new ExternalApiException("No se pudo validar la compra Post Paga");
             }
         } catch (Exception e) {

@@ -9,8 +9,8 @@ import lombok.Setter;
 @AllArgsConstructor
 public class CreditCardRejectedEvent extends CustomEvent{
 
-    private long userId;
-    public CreditCardRejectedEvent(String description, long userId) {
+    private Long userId;
+    public CreditCardRejectedEvent(String description, Long userId) {
         super(description);
         this.userId = userId;
     }
