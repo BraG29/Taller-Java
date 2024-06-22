@@ -397,6 +397,7 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
 
             if(prePay.getBalance() < balance){
                 fireNotEnoughBalanceEvent(user);
+                throw new Exception ("No hay saldo suficiente");
             }
 
             //se procede al pago

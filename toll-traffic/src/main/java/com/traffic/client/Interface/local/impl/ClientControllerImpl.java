@@ -132,6 +132,7 @@ public class ClientControllerImpl implements ClientController {
 
             } catch (Exception e){
                 System.err.println(e.getMessage());
+                throw e;
             }
 
         }else{
@@ -223,7 +224,13 @@ public class ClientControllerImpl implements ClientController {
     @Override
     public void loadBalance(Long id, Double balance) throws Exception {
 
+        try{
             accountService.loadBalance(id, balance);
+        }catch (Exception e){
+            System.err.println(e.getMessage());
+            throw e;
+        }
+
     }
 
     @Override
@@ -235,9 +242,9 @@ public class ClientControllerImpl implements ClientController {
         }catch(Exception e){
 
             System.err.println(e.getMessage());
+            throw e;
         }
 
-        return Optional.empty();
     }
 
     @Override
@@ -270,9 +277,9 @@ public class ClientControllerImpl implements ClientController {
             return  tollPassListToTollPassDTOList(tollPassList);
         }catch (NoSuchElementException e){
             System.out.println("No se pudieron encontrar las pasadas. " + e.getMessage());
+            throw e;
         }
 
-        return Optional.empty();
     }
 
     @Override
@@ -294,9 +301,9 @@ public class ClientControllerImpl implements ClientController {
             return tollPassListToTollPassDTOList(tollPassList);
         }catch (NoSuchElementException e){
             System.out.println("No se pudieron encontrar las pasadas del vehiculo. " + e.getMessage());
+            throw e;
         }
 
-        return Optional.empty();
     }
 
     @Override //tic
@@ -351,7 +358,7 @@ public class ClientControllerImpl implements ClientController {
     }
 
     @Override
-    public void prePay(Double balance, TagDTO tagDTO) throws IllegalArgumentException {
+    public void prePay(Double balance, TagDTO tagDTO) throws Exception {
 
         if(tagDTO == null){
             throw new IllegalArgumentException("No se encontró el tag");
@@ -366,13 +373,14 @@ public class ClientControllerImpl implements ClientController {
 
         }catch (Exception e){
             System.err.println(e.getMessage());
+            throw e;
         }
 
     }
 
 
     @Override
-    public void postPay(Double balance, TagDTO tagDTO) throws ExternalApiException{
+    public void postPay(Double balance, TagDTO tagDTO) throws Exception {
 
         UUID uuid = UUID.fromString(tagDTO.getUniqueId());
         Tag tag = new Tag(tagDTO.getId(), uuid);
@@ -385,6 +393,7 @@ public class ClientControllerImpl implements ClientController {
 
         }catch(Exception e){
             System.err.println(e.getMessage());
+            throw e;
         }
 
     }
