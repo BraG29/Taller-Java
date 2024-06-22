@@ -127,5 +127,16 @@ public class AccountServiceImpl implements AccountService {
 
     }
 
-    
+    @Override
+    public Optional<User> throwEvent(Tag tag) {
+        try{
+            return repo.findByTag(tag.getId());
+
+        }catch (Exception e){
+            System.err.println(e.getMessage());
+            throw e;
+        }
+    }
+
+
 }

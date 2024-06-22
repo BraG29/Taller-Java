@@ -21,10 +21,7 @@ import com.traffic.dtos.user.ForeignUserDTO;
 import com.traffic.dtos.user.NationalUserDTO;
 import com.traffic.dtos.user.UserDTO;
 import com.traffic.dtos.vehicle.*;
-import com.traffic.events.CustomEvent;
-import com.traffic.events.NewUserEvent;
-import com.traffic.events.VehicleAddedEvent;
-import com.traffic.events.VehicleRemovedEvent;
+import com.traffic.events.*;
 import com.traffic.exceptions.*;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
@@ -88,6 +85,33 @@ public class ClientControllerImpl implements ClientController {
         }catch(Exception e){
             System.err.println(e.getMessage());
         }
+    }
+
+
+    private void fireNotEnoughBalanceEvent(User user){
+        event.fire(new NotEnoughBalanceEvent("El usuario " + user.getName() + " no tiene saldo suficiente.", user.getId()));
+    }
+
+    @Override
+    public void throwEvent(TagDTO tagDTO) throws Exception {
+
+        try{
+            UUID uuid = UUID.fromString(tagDTO.getUniqueId());
+
+            Tag tag = new Tag(tagDTO.getId(), uuid);
+
+            Optional<User> userOPT = accountService.throwEvent(tag);
+
+            if(userOPT.isPresent()){
+                User user = userOPT.get();
+                fireNotEnoughBalanceEvent(user);
+            }
+
+        }catch (Exception e){
+            System.err.println(e.getMessage());
+            throw e;
+        }
+
     }
 
 

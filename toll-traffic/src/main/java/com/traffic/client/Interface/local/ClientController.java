@@ -35,6 +35,12 @@ public interface ClientController {
     public void addTollCostumer(UserDTO user) throws IllegalArgumentException;
 
     /**
+     * Esa funcion dispara el evento not enough balance, cuando la llama el modulo de peaje.
+     * @param tag
+     */
+    public void throwEvent(TagDTO tag) throws Exception;
+
+    /**
      *  Vincula un vehículo a un usuario.
      * @param id -> Recibe un id del usuario a vincular vehiculo
      * @param vehicle -> Recibe el objeto vehiculo a vincular con el usuario.

@@ -19,7 +19,6 @@ import com.traffic.dtos.user.TollCustomerDTO;
 import com.traffic.dtos.user.UserDTO;
 import com.traffic.dtos.vehicle.*;
 import com.traffic.events.CustomEvent;
-import com.traffic.events.NotEnoughBalanceEvent;
 import com.traffic.events.PREPayTollPassEvent;
 import com.traffic.exceptions.ExternalApiException;
 import com.traffic.payment.Interface.PaymentController;
@@ -287,7 +286,6 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
         linkCB.select(linkRoot)
                 .where(criteriaBuilder.equal(linkRoot.get("vehicle"), vehicle));
 
-
         Link link = em.createQuery(linkCB).getSingleResult();
 
         List<Account> accounts = new ArrayList<Account>();
@@ -339,12 +337,6 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
     }
 
 
-    private void fireNotEnoughBalanceEvent(User user){
-        event.fire(new NotEnoughBalanceEvent(
-                "El usuario "+ user.getName() + " no tiene saldo suficiente.",
-                user.getId()));
-    }
-
     private void firePREPayTollPassEvent(TollPassDTO pass){
         event.fire(new PREPayTollPassEvent(pass));
     }
@@ -395,11 +387,6 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
 
             if(prePay == null){
                 throw new IllegalArgumentException("Cuenta prepaga no encontrada para el tag dado.");
-            }
-
-            if(prePay.getBalance() < balance){
-                fireNotEnoughBalanceEvent(user);
-                throw new Exception ("No hay saldo suficiente");
             }
 
             //se procede al pago

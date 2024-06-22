@@ -2,6 +2,7 @@ package com.traffic.client.application;
 
 import com.traffic.client.domain.Account.Account;
 import com.traffic.client.domain.Account.CreditCard;
+import com.traffic.client.domain.User.User;
 import com.traffic.client.domain.Vehicle.Tag;
 import com.traffic.exceptions.ExternalApiException;
 import com.traffic.exceptions.InvalidVehicleException;
@@ -24,4 +25,6 @@ public interface AccountService {
     Optional<Double> showBalance(Long id);
 
     void linkCreditCard(Long id, CreditCard creditCard) ;
+
+    Optional<User> throwEvent(Tag tag);
 }
