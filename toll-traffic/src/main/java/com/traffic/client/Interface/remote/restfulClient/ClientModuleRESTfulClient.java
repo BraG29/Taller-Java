@@ -33,8 +33,7 @@ public class ClientModuleRESTfulClient {
     @Inject
     private ClientController controller;
 
-    //Usuarios
-    //funciona
+
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -56,8 +55,6 @@ public class ClientModuleRESTfulClient {
 
     //curl --cacert certificadoPrueba.pem --user test:1234 -v https://localhost:8443/TollPass/api/TollCustomer/administrator/users
 
-    //@Path("/administrator/users")
-    //funciona
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/users")
@@ -175,11 +172,8 @@ public class ClientModuleRESTfulClient {
             Optional<List<TollPassDTO>> listPass = controller.showPastPassagesVehicle(tagId, fromDate, toDate);
 
             if(listPass.isPresent()){
-                System.out.println("antes de explotar");
                 return Response.ok(listPass.get()).build();
-
             }else{
-
                 return Response.status(Response.Status.NOT_FOUND).entity("No se encontraron pasadas" +
                         " con el vehiculo: " + tagId).build();
 
@@ -196,7 +190,7 @@ public class ClientModuleRESTfulClient {
 
     }
 
-//usr 1
+
     @PUT
     @Path("/addBalance")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -212,7 +206,7 @@ public class ClientModuleRESTfulClient {
 
     }
 
-    //funciona
+
     @GET
     @Path("/balance/{userId}")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -226,7 +220,7 @@ public class ClientModuleRESTfulClient {
         }
     }
 
-    //funciona sin fecha.
+
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/linkCard/{userId}")
