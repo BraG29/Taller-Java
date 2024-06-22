@@ -22,8 +22,8 @@ public class UserServiceImpl implements UserService {
             clientModuleRepository.createUser(user);
 
         }catch (Exception e){
-
             System.err.println(e.getMessage());
+            throw e;
         }
 
     }
