@@ -6,8 +6,11 @@ import lombok.Getter;
 @Getter
 public class NotEnoughBalanceEvent extends CustomEvent{
 
-    public NotEnoughBalanceEvent(String description) {
+    private Long userId;
+
+    public NotEnoughBalanceEvent(String description, Long userId) {
         super(description);
+        this.userId = userId;
     }
 
     public NotEnoughBalanceEvent() {

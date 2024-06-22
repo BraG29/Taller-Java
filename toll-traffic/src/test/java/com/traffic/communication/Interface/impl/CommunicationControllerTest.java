@@ -1,7 +1,7 @@
 //package com.traffic.communication.Interface.impl;
 //
 //import com.traffic.communication.Interface.CommunicationController;
-//import com.traffic.communication.Interface.NotificationRepository;
+//import com.traffic.communication.domain.repository.NotificationRepository;
 //import com.traffic.communication.domain.entities.Notification;
 //import com.traffic.dtos.user.NationalUserDTO;
 //import com.traffic.dtos.user.TollCustomerDTO;

@@ -340,7 +340,9 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
 
 
     private void fireNotEnoughBalanceEvent(User user){
-        event.fire(new NotEnoughBalanceEvent("El usuario "+ user.getName() + " no tiene saldo suficiente."));
+        event.fire(new NotEnoughBalanceEvent(
+                "El usuario "+ user.getName() + " no tiene saldo suficiente.",
+                user.getId()));
     }
 
     private void firePREPayTollPassEvent(TollPassDTO pass){
