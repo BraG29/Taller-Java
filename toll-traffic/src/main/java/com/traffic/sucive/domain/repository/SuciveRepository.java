@@ -1,6 +1,7 @@
 package com.traffic.sucive.domain.repository;
 
 import com.traffic.dtos.vehicle.LicensePlateDTO;
+import com.traffic.dtos.vehicle.VehicleDTO;
 import com.traffic.exceptions.InternalErrorException;
 import com.traffic.exceptions.InvalidVehicleException;
 import com.traffic.sucive.domain.entities.NationalVehicle;
@@ -19,6 +20,6 @@ public interface SuciveRepository {
 
     public void updateVehicleTollPass(LicensePlateDTO licensePlateDTO, Double amount) throws InvalidVehicleException, InternalErrorException;
 
-    public void publishPayment(TollPass tollPass, Long vehicleID );
+    public void publishPayment(TollPass tollPass, VehicleDTO vehicle );
 
 }
