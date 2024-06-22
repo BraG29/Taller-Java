@@ -397,9 +397,9 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
 
             TollPass newPass = new TollPass(null, LocalDate.now(), balance, PaymentTypeData.PRE_PAYMENT, vehicleDB);
             em.merge(newPass);
-            vehicleDB.addPass(newPass);
-            em.merge(vehicleDB);
-            em.merge(customer);
+            //vehicleDB.addPass(newPass);
+            //em.merge(vehicleDB);
+            //em.merge(customer);
             em.flush();
 
             //Aca se envia el evento de una pasada prepaga
@@ -498,11 +498,6 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
 
                     List<TollPass> listTollPass = vehicle.getTollPass();
 
-                    //agrego nueva pasada al vehiculo, asi le mando datos actualizados al otro modulo.
-                    TollPass newPass = new TollPass(null, LocalDate.now(), cost, PaymentTypeData.POST_PAYMENT, vehicleDB);
-                    em.merge(newPass);
-                    vehicleDB.addPass(newPass);
-
                     //en este bloque  se arma la lista de pasadas de un vehiculo
                     for (TollPass tollPass : listTollPass) {
                         tollPassObject = new TollPassDTO(tollPass.getId(), tollPass.getPassDate().toString(), tollPass.getCost(), tollPass.getPaymentType());
@@ -539,6 +534,10 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
 
             //TODO: si esto lanza excepcion, dicha excepcion le debe llegar al modulo de peaje NO HACER CATCH AQUI
             paymentController.notifyPayment(userDTO, vehicleDTO, cost, customerDTO.getPostPayDTO().getCreditCardDTO());
+
+            TollPass newPass = new TollPass(null, LocalDate.now(), cost, PaymentTypeData.POST_PAYMENT, vehicleDB);
+            //em.merge(newPass);
+            em.persist(newPass);
             em.flush();
 
         } catch (ExternalApiException e) {
