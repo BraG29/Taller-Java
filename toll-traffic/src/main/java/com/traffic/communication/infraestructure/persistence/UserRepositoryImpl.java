@@ -16,10 +16,10 @@ public class UserRepositoryImpl implements UserRepository {
 
     @PostConstruct
     private void initUsers(){
-        users = List.of(
-                new User(1L, "pepe@mail.com", new ArrayList<Notification>()),
-                new User(2L, "miguel@mail.com", new ArrayList<Notification>())
-        );
+//        users = List.of(
+//                new User(1L, "pepe@mail.com", new ArrayList<Notification>()),
+//                new User(2L, "miguel@mail.com", new ArrayList<Notification>())
+//        );
     }
 
     @Override
@@ -29,6 +29,11 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public Optional<User> findById(Long userId) {
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<List<User>> findAll() {
         return Optional.empty();
     }
 }

@@ -130,6 +130,9 @@ public class TollServiceImpl implements TollService {
                             clientController.prePay(preferentialTariff.getAmount(), tagDTO);
                             this.fireTollPass(TOLL_PASS_MESSAGE.formatted(vehicle.getTag().getUniqueId()));
                             return Optional.of(true);
+
+                        }else {
+                            clientController.throwEvent(tagDTO);
                         }
                     }
 
@@ -172,7 +175,10 @@ public class TollServiceImpl implements TollService {
             } catch (ExternalApiException e) {
                 System.err.println(e.getMessage());
 
+            }catch (Exception e){
+                System.err.println(e.getMessage());
             }
+
         } else{
           throw new InvalidVehicleException("No existe vehiculo con esa identificacion");
         }
