@@ -10,6 +10,8 @@ public class LicensePlate {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(unique = true, nullable = false)
     private String licensePlateNumber;
 
     public LicensePlate() {
