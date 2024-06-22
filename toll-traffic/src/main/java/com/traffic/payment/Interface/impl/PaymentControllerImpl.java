@@ -8,6 +8,7 @@ import com.traffic.dtos.user.NationalUserDTO;
 import com.traffic.dtos.user.TollCustomerDTO;
 import com.traffic.dtos.user.UserDTO;
 import com.traffic.dtos.vehicle.*;
+import com.traffic.events.CreditCardRejectedEvent;
 import com.traffic.events.NewUserEvent;
 import com.traffic.exceptions.ExternalApiException;
 import com.traffic.exceptions.InternalErrorException;
@@ -23,6 +24,7 @@ import com.traffic.payment.domain.repository.PaymentRepository;
 //import com.traffic.payment.domain.user.User;
 //import com.traffic.payment.domain.vehicle.*;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Event;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import jakarta.json.Json;
@@ -42,6 +44,9 @@ public class PaymentControllerImpl implements PaymentController {
 
     @Inject
     private PaymentRepository repository;
+
+    @Inject
+    private Event<CreditCardRejectedEvent> creditCardRejectedEventPublisher;
 
 
     @Transactional
@@ -216,6 +221,14 @@ public class PaymentControllerImpl implements PaymentController {
             if (response.code() == 200){
                 repository.addTollPassToUserVehicle(user, vehicle, amount, creditCard);
             }else {
+                //card rejected con ID usuario
+                CreditCardRejectedEvent eventToFire = new CreditCardRejectedEvent("La tarjeta "
+                                                                                                                            + creditCard.getCardNumber()
+                                                                                                                            + " ha sido rechazada",
+                                                                                                                            user.getId());
+
+                creditCardRejectedEventPublisher.fire(eventToFire);
+                
                 throw new ExternalApiException("No se pudo validar la compra Post Paga");
             }
         } catch (Exception e) {
