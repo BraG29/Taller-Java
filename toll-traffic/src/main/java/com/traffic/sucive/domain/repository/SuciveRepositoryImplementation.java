@@ -37,8 +37,6 @@ public class SuciveRepositoryImplementation  implements SuciveRepository {
     EntityManager session;
     EntityManager em;
 
-
-
     @PostConstruct
     public void initialize(){
         em = session.getEntityManagerFactory().createEntityManager();
@@ -52,7 +50,7 @@ public class SuciveRepositoryImplementation  implements SuciveRepository {
     }
 
     @Override
-    public List<TollPass> getAllTollPasses() { //TODO change to getAllTollPasses DONETE! 👍
+    public List<TollPass> getAllTollPasses() {
 
         //I call the criteria builder, which is the responsible for managing the queries
         CriteriaBuilder cb = em.getCriteriaBuilder();
