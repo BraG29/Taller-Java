@@ -134,7 +134,7 @@ public class PaymentRepositoryImplementation implements PaymentRepository {
             return em.createQuery(cQuery).getSingleResult();
         }
         catch (Exception e){
-            throw new InternalErrorException("no se pudo encontrar el vehiculo nacional para cobrar Sucive");
+            throw new InternalErrorException(" no se pudo encontrar el vehiculo para cobrar");
         }
     }
 }
