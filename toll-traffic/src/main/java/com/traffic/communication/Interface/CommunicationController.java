@@ -36,22 +36,19 @@ public interface CommunicationController {
 
     /**
      * Notifica vía email al Cliente alguna información relevante.
-     * @param text -> Recibe un texto tipo String con informacíon.
      */
     public void notifyInformation(@Observes NorifyAllEvent e);
 
     /**
      * Da de alta un cliente
-     * @param user -> recibe un objeto tipo cliente telepeaje para dar de alta.
-     * @throws NoCustomerException -> Si el usuario recibido no es cliente.
      */
-    public void notifyNewCustomer(@Observes NewUserEvent e) throws NoCustomerException;
+    public void notifyNewCustomer(@Observes NewUserEvent e);
 
     /**
      * Devuelve las notificaciones de un cliente en particular
      * @param userId -> Id del usuario
-     * @return -> Devuelve un <code>Optional</code> con una lista de notifiaciones del cliente recibido.
+     * @return -> Una lista con los DTO de las Notificaciones. Lista vacia si no hay notifiaciones
      */
-    public Optional<List<NotificationDTO>> getNotificationByCostumer(Long userId);
+    public List<NotificationDTO> getNotificationByCostumer(Long userId);
 
 }

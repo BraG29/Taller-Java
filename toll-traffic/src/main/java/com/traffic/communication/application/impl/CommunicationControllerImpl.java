@@ -14,8 +14,10 @@ import com.traffic.events.NorifyAllEvent;
 import com.traffic.events.NotEnoughBalanceEvent;
 import com.traffic.exceptions.NoCustomerException;
 import jakarta.annotation.PostConstruct;
+import jakarta.ejb.Local;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -43,15 +45,14 @@ public class CommunicationControllerImpl implements CommunicationController {
     }
 
     private void printOnConsole(UserDTO user, String content) {
-        System.out.println(String
-                .format(emailFormat,
-                        user.getCi(),
-                        user.getName(),
-                        user.getEmail(),
-                        content));
-
+        System.out.printf((emailFormat) + "%n",
+                user.getCi(),
+                user.getName(),
+                user.getEmail(),
+                content);
     }
 
+    @Transactional
     private void notifyUser(Long userId, Notification notification) {
 
         userRepository.findById(userId).ifPresent(u -> {
@@ -95,25 +96,24 @@ public class CommunicationControllerImpl implements CommunicationController {
     }
 
     @Override
+    @Transactional
     public void notifyInformation(NorifyAllEvent e) {
-        userRepository.findAll().ifPresent(usrList -> {
-            String content = e.getDescription();
+        List<User> users = userRepository.findAll();
+
+        if(!users.isEmpty()) {
             notificationRepository
-                    .save(new Notification(
-                            null,
-                            LocalDate.now(),
-                            content))
-                    .ifPresent(n -> {
-                        for (User u : usrList) {
-                            u.getNotifications().add(n);
-                            userRepository.save(u);
-                        }
+                    .save(new Notification(null, LocalDate.now(), e.getDescription()))
+                    .ifPresent( notification -> {
+                        users.forEach(user -> {
+                            user.getNotifications().add(notification);
+                            userRepository.save(user);
+                        });
                     });
-        });
+        }
     }
 
     @Override
-    public void notifyNewCustomer(NewUserEvent e) throws NoCustomerException {
+    public void notifyNewCustomer(NewUserEvent e) {
         String content = "Usted se ha dado de alta en el sistema";
 
         notifyUser(
@@ -122,7 +122,18 @@ public class CommunicationControllerImpl implements CommunicationController {
     }
 
     @Override
-    public Optional<List<NotificationDTO>> getNotificationByCostumer(Long userId) {
-        return Optional.empty();
+    public List<NotificationDTO> getNotificationByCostumer(Long userId) {
+        List<NotificationDTO> notifications = new ArrayList<NotificationDTO>();
+
+        userRepository.findById(userId).ifPresent( user -> {
+            for(Notification n : user.getNotifications()) {
+                notifications.add(new NotificationDTO(
+                        n.getId(),
+                        n.getDate(),
+                        n.getMessage()));
+            }
+        });
+
+        return notifications;
     }
 }

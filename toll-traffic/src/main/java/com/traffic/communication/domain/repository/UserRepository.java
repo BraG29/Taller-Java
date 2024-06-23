@@ -9,5 +9,5 @@ public interface UserRepository {
 
     public Optional<User> save(User user);
     public Optional<User> findById(Long userId);
-    public Optional<List<User>> findAll();
+    public List<User> findAll();
 }

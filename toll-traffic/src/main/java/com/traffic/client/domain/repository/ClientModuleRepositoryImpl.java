@@ -397,9 +397,9 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
 
             TollPass newPass = new TollPass(null, LocalDate.now(), balance, PaymentTypeData.PRE_PAYMENT, vehicleDB);
             em.merge(newPass);
-            vehicleDB.addPass(newPass);
-            em.merge(vehicleDB);
-            em.merge(customer);
+//            vehicleDB.addPass(newPass);
+//            em.merge(vehicleDB);
+//            em.merge(customer);
             em.flush();
 
             //Aca se envia el evento de una pasada prepaga
@@ -501,7 +501,7 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
                     //agrego nueva pasada al vehiculo, asi le mando datos actualizados al otro modulo.
                     TollPass newPass = new TollPass(null, LocalDate.now(), cost, PaymentTypeData.POST_PAYMENT, vehicleDB);
                     em.merge(newPass);
-                    vehicleDB.addPass(newPass);
+//                    vehicleDB.addPass(newPass);
 
                     //en este bloque  se arma la lista de pasadas de un vehiculo
                     for (TollPass tollPass : listTollPass) {
