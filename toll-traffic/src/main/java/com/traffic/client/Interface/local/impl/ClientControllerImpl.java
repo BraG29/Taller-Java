@@ -84,6 +84,7 @@ public class ClientControllerImpl implements ClientController {
             fireNewUserEvent(userDTO);
         }catch(Exception e){
             System.err.println(e.getMessage());
+            throw e;
         }
     }
 

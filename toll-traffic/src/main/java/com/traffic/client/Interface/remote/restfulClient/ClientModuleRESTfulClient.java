@@ -27,7 +27,6 @@ import java.util.Optional;
 
 @ApplicationScoped
 @Path("/TollCustomer")
-@Transactional
 public class ClientModuleRESTfulClient {
 
     @Inject
@@ -46,6 +45,7 @@ public class ClientModuleRESTfulClient {
         }catch(Exception e){
 
             System.err.println(e.getMessage());
+            throw e;
         }
 
         return user;

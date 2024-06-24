@@ -29,6 +29,7 @@ public abstract class User {
     private String email;
     private String password;
     private String name;
+    @Column(unique = true, nullable = false)
     private String ci;
 
     @OneToOne(cascade = CascadeType.ALL)
