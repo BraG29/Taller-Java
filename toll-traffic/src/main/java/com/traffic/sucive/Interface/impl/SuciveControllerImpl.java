@@ -47,6 +47,7 @@ public class SuciveControllerImpl implements SuciveController {
             if (response.code() == 200){
                 repository.updateVehicleTollPass(licensePlate, amount);
             }else {
+                //ask los pibes if I should be throwing some event here
                 throw new ExternalApiException("No se pudo validar la compra sucive");
             }
         } catch (Exception e) {

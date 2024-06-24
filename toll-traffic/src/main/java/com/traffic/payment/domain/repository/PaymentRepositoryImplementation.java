@@ -20,6 +20,7 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
+import jakarta.transaction.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -41,10 +42,14 @@ public class PaymentRepositoryImplementation implements PaymentRepository {
         em = session.getEntityManagerFactory().createEntityManager();
     }
 
+
+    @Transactional
+    @Override
     public void addUser(User userToAdd){
         System.out.println(userToAdd.getName());
-        em.persist(userToAdd);
-        em.flush();
+        session.persist(userToAdd);
+
+        session.flush();
     }
 
     @Override
