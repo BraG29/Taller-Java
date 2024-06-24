@@ -1,15 +1,12 @@
 package com.traffic.communication.Interface;
 
 import com.traffic.dtos.user.NotificationDTO;
-import com.traffic.dtos.user.UserDTO;
 import com.traffic.events.CreditCardRejectedEvent;
 import com.traffic.events.NewUserEvent;
-import com.traffic.events.NorifyAllEvent;
+import com.traffic.events.NotifyAllEvent;
 import com.traffic.events.NotEnoughBalanceEvent;
-import com.traffic.exceptions.NoCustomerException;
 import jakarta.enterprise.event.Observes;
 
-import java.util.Optional;
 import java.util.List;
 
 /**
@@ -37,7 +34,7 @@ public interface CommunicationController {
     /**
      * Notifica vía email al Cliente alguna información relevante.
      */
-    public void notifyInformation(@Observes NorifyAllEvent e);
+    public void notifyInformation(@Observes NotifyAllEvent e);
 
     /**
      * Da de alta un cliente

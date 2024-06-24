@@ -11,6 +11,7 @@ import jakarta.persistence.TransactionRequiredException;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
+import jakarta.transaction.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +34,7 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
+    @Transactional
     public Optional<User> save(User user) {
         try{
             user = entityManager.merge(user);

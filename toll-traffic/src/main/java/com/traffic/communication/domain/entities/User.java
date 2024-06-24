@@ -24,7 +24,7 @@ public class User {
     private String ci;
     private String name;
     private String email;
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "Communication_User_W_Notification",
             joinColumns = @JoinColumn(name = "user"),

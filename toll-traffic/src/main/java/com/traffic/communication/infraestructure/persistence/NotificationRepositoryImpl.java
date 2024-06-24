@@ -8,6 +8,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TransactionRequiredException;
+import jakarta.transaction.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +21,7 @@ public class NotificationRepositoryImpl implements NotificationRepository {
     private EntityManager entityManager;
 
     @Override
+    @Transactional
     public Optional<Notification> save(Notification notification) {
         try{
             notification = entityManager.merge(notification);

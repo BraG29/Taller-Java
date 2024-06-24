@@ -10,19 +10,17 @@ import com.traffic.dtos.user.NotificationDTO;
 import com.traffic.dtos.user.UserDTO;
 import com.traffic.events.CreditCardRejectedEvent;
 import com.traffic.events.NewUserEvent;
-import com.traffic.events.NorifyAllEvent;
+import com.traffic.events.NotifyAllEvent;
 import com.traffic.events.NotEnoughBalanceEvent;
-import com.traffic.exceptions.NoCustomerException;
 import jakarta.annotation.PostConstruct;
-import jakarta.ejb.Local;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @ApplicationScoped
 public class CommunicationControllerImpl implements CommunicationController {
@@ -52,7 +50,7 @@ public class CommunicationControllerImpl implements CommunicationController {
                 content);
     }
 
-    @Transactional
+//    @Transactional
     private void notifyUser(Long userId, Notification notification) {
 
         userRepository.findById(userId).ifPresent(u -> {
@@ -78,7 +76,7 @@ public class CommunicationControllerImpl implements CommunicationController {
     }
 
     @Override
-    public void notifyNotEnoughBalance(NotEnoughBalanceEvent e) {
+    public void notifyNotEnoughBalance(@Observes NotEnoughBalanceEvent e) {
         String content = "Se le ha denegado la pasada por peaje por falta de fondos en su cuenta Pre Paga";
 
         notifyUser(
@@ -87,7 +85,7 @@ public class CommunicationControllerImpl implements CommunicationController {
     }
 
     @Override
-    public void notifyBlockedCreditCard(CreditCardRejectedEvent e) {
+    public void notifyBlockedCreditCard(@Observes CreditCardRejectedEvent e) {
         String content = "No se la ha podido cobrar a su tarjeta de credito ya que fue rechazada";
 
         notifyUser(
@@ -96,24 +94,24 @@ public class CommunicationControllerImpl implements CommunicationController {
     }
 
     @Override
-    @Transactional
-    public void notifyInformation(NorifyAllEvent e) {
+//    @Transactional
+    public void notifyInformation(@Observes NotifyAllEvent e) {
         List<User> users = userRepository.findAll();
 
         if(!users.isEmpty()) {
             notificationRepository
-                    .save(new Notification(null, LocalDate.now(), e.getDescription()))
-                    .ifPresent( notification -> {
-                        users.forEach(user -> {
-                            user.getNotifications().add(notification);
-                            userRepository.save(user);
-                        });
+                .save(new Notification(null, LocalDate.now(), e.getDescription()))
+                .ifPresent( notification -> {
+                    users.forEach(user -> {
+                        user.getNotifications().add(notification);
+                        userRepository.save(user);
                     });
+                });
         }
     }
 
     @Override
-    public void notifyNewCustomer(NewUserEvent e) {
+    public void notifyNewCustomer(@Observes NewUserEvent e) {
         String content = "Usted se ha dado de alta en el sistema";
 
         notifyUser(
