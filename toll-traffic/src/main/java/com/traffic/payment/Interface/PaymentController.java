@@ -41,13 +41,14 @@ public interface PaymentController {
      * @throws ExternalApiException si hubo un error lanzado por la API de la tarjeta
      * @throws NoCustomerException si el usuario no es cliente, es decir: <code>user.tollCustomer == null</code>
      * @throws IllegalArgumentException si tanto el usuario y/o el vehiculo son invalidos
+     * @throws Exception si la tarjeta de credito es null
      *
      */
     public void notifyPayment(UserDTO user,
                               VehicleDTO vehicle,
                               Double amount,
                               CreditCardDTO creditCard)
-            throws ExternalApiException, NoCustomerException, IllegalArgumentException, InvalidVehicleException;
+            throws ExternalApiException, NoCustomerException, IllegalArgumentException, InvalidVehicleException, Exception;
 
     /**
      * Recupera todos los pagos hechos por cuenta (PostPaga y Prepaga) en un rango de dias

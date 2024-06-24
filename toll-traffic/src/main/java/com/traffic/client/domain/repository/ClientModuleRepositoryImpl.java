@@ -85,7 +85,6 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
            user = linkDB.getUser();
         }
 
-
         return user != null ? Optional.of(user) : Optional.empty();
     }
 
@@ -557,14 +556,16 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
         PostPayDTO postPayDTO = null;
 
         CreditCard card;
-        CreditCardDTO cardDTO;
+        CreditCardDTO cardDTO = null;
 
         //armo cuenta postpay si tiene
         if(usr.getTollCustomer().getPostPay() != null){
 
             card = usr.getTollCustomer().getPostPay().getCreditCard();
 
-            cardDTO = new CreditCardDTO(card.getId(), card.getCardNumber(), card.getName(), card.getExpireDate().toString());
+            if(card != null){
+                cardDTO = new CreditCardDTO(card.getId(), card.getCardNumber(), card.getName(), card.getExpireDate().toString());
+            }
 
             postPay = usr.getTollCustomer().getPostPay();
             postPayDTO = new PostPayDTO(postPay.getId(), postPay.getAccountNumber(), postPay.getCreationDate(), cardDTO);

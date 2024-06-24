@@ -360,13 +360,17 @@ public class ClientControllerImpl implements ClientController {
 
                 } else if (account instanceof POSTPay) {
 
-                    //en este caso armo la tarjeta para hacerla DTO.
-                    String name = ((POSTPay) account).getCreditCard().getName();
-                    Long cardId = ((POSTPay) account).getCreditCard().getId();
-                    String number = ((POSTPay) account).getCreditCard().getCardNumber();
-                    String expireDate = ((POSTPay) account).getCreditCard().getExpireDate().toString();
+                    CreditCardDTO card = null;
 
-                    CreditCardDTO card = new CreditCardDTO(cardId, number,name, expireDate);
+                    if(((POSTPay) account).getCreditCard() != null){
+                        //en este caso armo la tarjeta para hacerla DTO.
+                        String name = ((POSTPay) account).getCreditCard().getName();
+                        Long cardId = ((POSTPay) account).getCreditCard().getId();
+                        String number = ((POSTPay) account).getCreditCard().getCardNumber();
+                        String expireDate = ((POSTPay) account).getCreditCard().getExpireDate().toString();
+
+                        card = new CreditCardDTO(cardId, number,name, expireDate);
+                    }
 
                     accDTO = new PostPayDTO(account.getId(), account.getAccountNumber(),
                             account.getCreationDate(), card); //convierto de Account a PostPay

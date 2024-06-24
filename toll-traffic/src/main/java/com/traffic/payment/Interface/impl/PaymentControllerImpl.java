@@ -51,7 +51,7 @@ public class PaymentControllerImpl implements PaymentController {
 
     @Transactional
     @Override
-    public void customerRegistration(@Observes NewUserEvent userEvent) throws ExternalApiException, NoCustomerException, InternalErrorException {
+    public void customerRegistration(@Observes NewUserEvent userEvent) throws ExternalApiException, NoCustomerException, InternalErrorException{
 
 
         //TODO would be to move my DTO to Domain object functions to my Domain classes
@@ -187,11 +187,15 @@ public class PaymentControllerImpl implements PaymentController {
     public void notifyPayment(UserDTO user,
                               VehicleDTO vehicle,
                               Double amount,
-                              CreditCardDTO creditCard) throws ExternalApiException, NoCustomerException, IllegalArgumentException {
+                              CreditCardDTO creditCard) throws ExternalApiException, NoCustomerException, IllegalArgumentException, Exception{
 
         //check for the customer to be properly initialized
         if (user.getTollCustomer() == null){
             throw new NoCustomerException("El cliente no está registrado a Telepeaje");
+        }
+
+        if(creditCard == null){
+            throw new Exception("No hay Tarjeta de Credito");
         }
 
         LocalDate cardDate = LocalDate.parse(creditCard.getExpireDate(), DateTimeFormatter.ISO_DATE);

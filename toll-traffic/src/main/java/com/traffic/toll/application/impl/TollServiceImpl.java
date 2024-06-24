@@ -146,7 +146,13 @@ public class TollServiceImpl implements TollService {
                     System.out.println("El cliente no tiene cuentas");
 
                 } catch (Exception e) {
-                    throw new RuntimeException(e);
+                    System.err.printf(("""
+                        Error en %s, de tipo %s: %s
+                        """),
+                        this.getClass(),
+                        e.getClass(),
+                        e.getMessage()
+                    );
                 }
 
                 if (vehicleOPT.get() instanceof NationalVehicle) {
