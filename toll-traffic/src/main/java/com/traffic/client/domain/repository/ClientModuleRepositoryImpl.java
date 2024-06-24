@@ -205,13 +205,18 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
                     em.remove(linkToRemove);
 
                     Vehicle vehicle = linkToRemove.getVehicle();
+                    List<TollPass> passes = vehicle.getTollPass();
+
+                    for (TollPass pass : passes){
+                        em.remove(pass);
+                    }
                     em.remove(vehicle);
 
                     Tag tag = vehicle.getTag();
                     em.remove(tag);
-
                     em.merge(user);
                     em.flush();
+
                 }else {
                     throw new IllegalArgumentException("Vehículo no encontrado para el usuario dado");
                 }
