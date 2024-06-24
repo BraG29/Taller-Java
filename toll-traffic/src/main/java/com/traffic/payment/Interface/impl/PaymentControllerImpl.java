@@ -55,8 +55,6 @@ public class PaymentControllerImpl implements PaymentController {
         //getPostPayDTO tira null c:
 
         //TODO would be to move my DTO to Domain object functions to my Domain classes
-        //TODO MARTIN LA CONCHA DE TU VIEJA; PA QUE MIERDA CARGAS TODOS LOS DATOS
-        //SI VOS USAS SOLO EL VEHICLO GIL DE GOMA????????
 
 
         //            //armo usuario nacional
