@@ -324,6 +324,7 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
                 Integer accountNumber = PREPay.generateRandomAccountNumber();
                 prepay = (new PREPay(null, accountNumber, LocalDate.now(), balance));
                 em.persist(prepay);
+                customer.setPrePay(prepay);
             }else{
                 prepay.loadBalance(balance);
                 em.merge(prepay);

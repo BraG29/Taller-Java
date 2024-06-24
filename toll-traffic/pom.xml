@@ -162,6 +162,14 @@
                                 <password>rootpass1234</password>
                                 <application-user>false</application-user>
                             </user>
+                            <user>
+                                <username>adminUser</username>
+                                <password>adminPass1234</password>
+                                <application-user>true</application-user>
+                                <groups>
+                                    <group>user</group>
+                                </groups>
+                            </user>
                         </users>
                     </add-user>
 
