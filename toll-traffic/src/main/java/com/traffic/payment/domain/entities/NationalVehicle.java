@@ -15,17 +15,23 @@ import java.util.List;
 @DiscriminatorValue("national")
 public class NationalVehicle extends Vehicle {
 
-    @OneToOne
-    @JoinColumn(name = "LicencePlate_id")
-    private LicensePlate plate;
+//    @OneToOne
+//    @JoinColumn(name = "LicencePlate_id")
+//    private LicensePlate plate;
 
     public NationalVehicle() {}
-    public NationalVehicle(Long id, Tag tag, List<TollPass> tollPass, LicensePlate plate) {
+    public NationalVehicle(
+            Long id,
+            Tag tag,
+            List<TollPass> tollPass
+            //LicensePlate plate
+        ) {
         super(id, tag, tollPass);
-        this.plate = plate;
+        //this.plate = plate;
     }
     @Override
     public String toString(){
-        return super.toString() + plate.toString();
+        return super.toString();
+                //+ plate.toString();
     }
 }

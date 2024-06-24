@@ -49,12 +49,38 @@ public class PaymentControllerImpl implements PaymentController {
     private Event<CreditCardRejectedEvent> creditCardRejectedEventPublisher;
 
 
-    @Transactional
     @Override
     public void customerRegistration(@Observes NewUserEvent userEvent) throws ExternalApiException, NoCustomerException, InternalErrorException{
 
+        //getPostPayDTO tira null c:
 
         //TODO would be to move my DTO to Domain object functions to my Domain classes
+        //TODO MARTIN LA CONCHA DE TU VIEJA; PA QUE MIERDA CARGAS TODOS LOS DATOS
+        //SI VOS USAS SOLO EL VEHICLO GIL DE GOMA????????
+
+
+        //            //armo usuario nacional
+        //            tollCustomer = new TollCustomer(userDTO.getId(), null, null);
+        //            user = new NationalUser(null,  tollCustomer, userDTO.getCi(), userDTO.getName(),
+        //                    userDTO.getPassword(), userDTO.getEmail(), userDTO.getId());
+        //
+        //        } else if (userDTO instanceof ForeignUserDTO) {
+        //            tollCustomer = new TollCustomer(userDTO.getId(), null, null);
+        //            //armo usuario extranjero.
+        //            user = new ForeignUser(null, tollCustomer, userDTO.getCi(), userDTO.getName(),
+        //                    userDTO.getPassword(), userDTO.getEmail(), userDTO.getId());
+
+
+        //let's start small shall we? what domain Objects I NEED?
+        //- Vehicle
+        //- Tag
+        //        //- TollPass
+        //- PaymentType
+        //-CreditCard
+        //-User
+        //-Link
+        //
+
         //I get the userDTO from the event that called this function
         UserDTO user = userEvent.getUser();
 
@@ -63,122 +89,25 @@ public class PaymentControllerImpl implements PaymentController {
 
         //I prepare the DTOs to be turned into domain objects
         // creditCard > pre & postPay > tollCustomer
-        TollCustomerDTO tollCustomerDTO = user.getTollCustomer();
-        PostPayDTO postPayDTO = tollCustomerDTO.getPostPayDTO();
-        PrePayDTO prePayDTO = tollCustomerDTO.getPrePayDTO();
-
-        //I get the credit card from the postPayDTO
-        CreditCard card = new CreditCard(null,
-                                                                postPayDTO.getCreditCardDTO().getCardNumber(),
-                                                                postPayDTO.getCreditCardDTO().getName(),
-                                                                LocalDate.parse(postPayDTO.getCreditCardDTO().getExpireDate(), DateTimeFormatter.ISO_DATE));
-
-        //postPayDTO to postPay
-        POSTPay postPay =  new POSTPay(null,postPayDTO.getAccountNumber(),postPayDTO.getCreationDate(), card );
-
-        //prePayDTO to prePay
-        PREPay prePay = new PREPay(null,prePayDTO.getAccountNumber(),
-                                                    prePayDTO.getCreationDate(),
-                                                    prePayDTO.getBalance());
-
-        //to prepare tollCustomer, I need postPay & prePay
-        TollCustomer tollCustomer = new TollCustomer(null,postPay, prePay);
-
-        //list of LinkDTOs from the user
-        List <LinkDTO> vehicleLinksDTOs = user.getLinkedVehicles();
-
-        //list of the vehicle links we will be getting from the vehicleLinksDTOs
-        ArrayList<Link> vehicleLinks = new ArrayList<>();
-
-        for (LinkDTO link  : vehicleLinksDTOs){
-
-            ArrayList<TollPass> passes = new ArrayList<>(); //Domain Object list of all TollPases of a given vehicle
-
-            if (link.getVehicle() instanceof ForeignVehicleDTO){
-
-                ForeignVehicleDTO vehicleDTO = (ForeignVehicleDTO) link.getVehicle();
-
-                //I get the list of toll passes DTOs for the vehicle of the given Link
-                ArrayList<TollPassDTO> tollPassListToIterate = (ArrayList<TollPassDTO>) vehicleDTO.getTollPassDTO();
-
-                //Iterate through it to get the Domain object list of toll pases for the given vehicle
-                for (TollPassDTO toll : tollPassListToIterate){
-
-                    LocalDate tollDate = LocalDate.parse(toll.getDate(), DateTimeFormatter.ISO_DATE);
-
-                    TollPass tollToAdd = new TollPass(null,tollDate,toll.getCost(),toll.getPaymentType());
-                    passes.add(tollToAdd);
-                }
-
-                //transform TagDTO to Tag
-                Tag tagToAdd = new Tag(vehicleDTO.getId());
-                ForeignVehicle vehicleToAdd = new ForeignVehicle(vehicleDTO.getId(),tagToAdd); //used to have passes. . .
-
-                //I need a vehicle domain object in order to create my link
-                Link linkToAdd = new Link(link.getId(), link.getActive() ,vehicleToAdd, link.getInitialDate());
-
-                vehicleLinks.add(linkToAdd);
-
-            }else if (link.getVehicle() instanceof NationalVehicleDTO){ //we do the same but for NationalVehicle
-
-                NationalVehicleDTO vehicleDTO = (NationalVehicleDTO) link.getVehicle();
-
-                //I get the list of toll passes DTOs for the vehicle of the given Link
-                ArrayList<TollPassDTO> tollPassListToIterate = (ArrayList<TollPassDTO>) vehicleDTO.getTollPassDTO();
-
-                //Iterate through it to get the Domain object list of toll pases for the given vehicle
-                for (TollPassDTO toll : tollPassListToIterate){
-
-                    LocalDate tollDate = LocalDate.parse(toll.getDate(), DateTimeFormatter.ISO_DATE);
-
-                    TollPass tollToAdd = new TollPass(null, tollDate,toll.getCost(),toll.getPaymentType());
-                    passes.add(tollToAdd);
-                }
-
-                //transform TagDTO to Tag
-                Tag tagToAdd = new Tag(vehicleDTO.getId());
-
-                LicensePlate licenseToAdd = new LicensePlate(  vehicleDTO.getLicensePlateDTO().getId(), vehicleDTO.getLicensePlateDTO().getLicensePlateNumber() );
-
-                NationalVehicle vehicleToAdd = new NationalVehicle(vehicleDTO.getId(),tagToAdd , passes , licenseToAdd);
-
-                //I need a vehicle domain object in order to create my link
-                Link linkToAdd = new Link(link.getId(), link.getActive(), vehicleToAdd, link.getInitialDate());
-
-                vehicleLinks.add(linkToAdd);
-            }else{
-                throw new InternalErrorException("No hay ningún vehiculo registrado para el usuario: " + user.getName());
-            }
-        }
+//        TollCustomerDTO tollCustomerDTO = user.getTollCustomer();
 
 
-        if(user instanceof NationalUserDTO){
+        System.out.println(user.getId());
 
-            User userToAdd = new NationalUser(vehicleLinks,
-                    tollCustomer,
-                    user.getCi(),
-                    user.getName(),
-                    user.getPassword(),
-                    user.getEmail(),
-                    user.getId());
+        User userToAdd = new User(
+                null,
+                user.getCi(),
+                user.getName(),
+                user.getPassword(),
+                user.getEmail(),
+                null);
 
+        try {
             //we persist the data
             repository.addUser(userToAdd);
-
-        }else{
-
-            User userToAdd = new ForeignUser(vehicleLinks,
-                    tollCustomer,
-                    user.getCi(),
-                    user.getName(),
-                    user.getPassword(),
-                    user.getEmail(),
-                    user.getId());
-
-            //we persist the data
-            repository.addUser(userToAdd);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-
 
     }
 

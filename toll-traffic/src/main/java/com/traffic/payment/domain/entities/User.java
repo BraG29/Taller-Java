@@ -9,9 +9,9 @@ import java.util.List;
 
 @Data
 @Entity(name = "Payment_User")
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "DTYPE", discriminatorType = DiscriminatorType.STRING)
-public abstract class User {
+//@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+//@DiscriminatorColumn(name = "DTYPE", discriminatorType = DiscriminatorType.STRING)
+public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,17 +21,22 @@ public abstract class User {
     private String name;
     private String ci;
 
-    @OneToOne
-    @JoinColumn(name = "tollCustomer_id")
-    private TollCustomer tollCustomer;
+//    @OneToOne
+//    @JoinColumn(name = "tollCustomer_id")
+//    private TollCustomer tollCustomer;
 
     @OneToMany(mappedBy = "user")
     private List<Link> linkedCars;
 
     public User(){}
-    public User(List<Link> linkedCars, TollCustomer tollCustomer, String ci, String name, String password, String email, Long id) {
+    public User(List<Link> linkedCars,
+                        String ci,
+                        String name,
+                        String password,
+                        String email,
+                        Long id) {
+
         this.linkedCars = linkedCars;
-        this.tollCustomer = tollCustomer;
         this.ci = ci;
         this.name = name;
         this.password = password;
@@ -39,9 +44,9 @@ public abstract class User {
         this.id = id;
     }
 
-    public void addCreditCard(CreditCard card){
-        tollCustomer.getPostPay().setCreditCard(card);
-    }
+//    public void addCreditCard(CreditCard card){
+//        tollCustomer.getPostPay().setCreditCard(card);
+//    }
 
     public void addVehicle(Vehicle vehicle){
         if(linkedCars == null){
@@ -71,7 +76,7 @@ public abstract class User {
     public String toString(){
         return "[ ID: " + id + " Nombre: " + name
                 + " Ci: " +  ci + " Email: " + email
-                + " Vehiculo/s: " + linkedCars.toString()
-                + " Cuenta/s: " + tollCustomer.toString() + " ]";
+                + " Vehiculo/s: " + linkedCars.toString();
+                //+ " Cuenta/s: " + tollCustomer.toString() + " ]";
     }
 }
