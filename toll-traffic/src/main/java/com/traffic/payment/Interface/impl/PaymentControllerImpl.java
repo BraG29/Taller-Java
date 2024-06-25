@@ -2,10 +2,6 @@ package com.traffic.payment.Interface.impl;
 
 import com.traffic.dtos.PaymentTypeData;
 import com.traffic.dtos.account.CreditCardDTO;
-import com.traffic.dtos.account.PostPayDTO;
-import com.traffic.dtos.account.PrePayDTO;
-import com.traffic.dtos.user.NationalUserDTO;
-import com.traffic.dtos.user.TollCustomerDTO;
 import com.traffic.dtos.user.UserDTO;
 import com.traffic.dtos.vehicle.*;
 import com.traffic.events.NewUserEvent;
@@ -14,14 +10,8 @@ import com.traffic.exceptions.InternalErrorException;
 import com.traffic.exceptions.InvalidVehicleException;
 import com.traffic.exceptions.NoCustomerException;
 import com.traffic.payment.Interface.PaymentController;
-//import com.traffic.payment.domain.account.CreditCard;
-//import com.traffic.payment.domain.account.PostPay;
-//import com.traffic.payment.domain.account.PrePay;
 import com.traffic.payment.domain.entities.*;
 import com.traffic.payment.domain.repository.PaymentRepository;
-//import com.traffic.payment.domain.user.TollCustomer;
-//import com.traffic.payment.domain.user.User;
-//import com.traffic.payment.domain.vehicle.*;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
@@ -48,132 +38,14 @@ public class PaymentControllerImpl implements PaymentController {
     @Override
     public void customerRegistration(@Observes NewUserEvent userEvent) throws ExternalApiException, NoCustomerException, InternalErrorException {
 
-
         //TODO would be to move my DTO to Domain object functions to my Domain classes
+
         //I get the userDTO from the event that called this function
         UserDTO user = userEvent.getUser();
 
-        //Lucas left me this example so I can parse the now string value of the dates
-        //LocalDate cardDate = LocalDate.parse(creditCard.getExpireDate(), DateTimeFormatter.ISO_DATE);
-
-        //I prepare the DTOs to be turned into domain objects
-        // creditCard > pre & postPay > tollCustomer
-        TollCustomerDTO tollCustomerDTO = user.getTollCustomer();
-        PostPayDTO postPayDTO = tollCustomerDTO.getPostPayDTO();
-        PrePayDTO prePayDTO = tollCustomerDTO.getPrePayDTO();
-
-        //I get the credit card from the postPayDTO
-        CreditCard card = new CreditCard(null,
-                                                                postPayDTO.getCreditCardDTO().getCardNumber(),
-                                                                postPayDTO.getCreditCardDTO().getName(),
-                                                                LocalDate.parse(postPayDTO.getCreditCardDTO().getExpireDate(), DateTimeFormatter.ISO_DATE));
-
-        //postPayDTO to postPay
-        POSTPay postPay =  new POSTPay(null,postPayDTO.getAccountNumber(),postPayDTO.getCreationDate(), card );
-
-        //prePayDTO to prePay
-        PREPay prePay = new PREPay(null,prePayDTO.getAccountNumber(),
-                                                    prePayDTO.getCreationDate(),
-                                                    prePayDTO.getBalance());
-
-        //to prepare tollCustomer, I need postPay & prePay
-        TollCustomer tollCustomer = new TollCustomer(null,postPay, prePay);
-
-        //list of LinkDTOs from the user
-        List <LinkDTO> vehicleLinksDTOs = user.getLinkedVehicles();
-
-        //list of the vehicle links we will be getting from the vehicleLinksDTOs
-        ArrayList<Link> vehicleLinks = new ArrayList<>();
-
-        for (LinkDTO link  : vehicleLinksDTOs){
-
-            ArrayList<TollPass> passes = new ArrayList<>(); //Domain Object list of all TollPases of a given vehicle
-
-            if (link.getVehicle() instanceof ForeignVehicleDTO){
-
-                ForeignVehicleDTO vehicleDTO = (ForeignVehicleDTO) link.getVehicle();
-
-                //I get the list of toll passes DTOs for the vehicle of the given Link
-                ArrayList<TollPassDTO> tollPassListToIterate = (ArrayList<TollPassDTO>) vehicleDTO.getTollPassDTO();
-
-                //Iterate through it to get the Domain object list of toll pases for the given vehicle
-                for (TollPassDTO toll : tollPassListToIterate){
-
-                    LocalDate tollDate = LocalDate.parse(toll.getDate(), DateTimeFormatter.ISO_DATE);
-
-                    TollPass tollToAdd = new TollPass(null,tollDate,toll.getCost(),toll.getPaymentType());
-                    passes.add(tollToAdd);
-                }
-
-                //transform TagDTO to Tag
-                Tag tagToAdd = new Tag(vehicleDTO.getId());
-                ForeignVehicle vehicleToAdd = new ForeignVehicle(vehicleDTO.getId(),tagToAdd); //used to have passes. . .
-
-                //I need a vehicle domain object in order to create my link
-                Link linkToAdd = new Link(link.getId(), link.getActive() ,vehicleToAdd, link.getInitialDate());
-
-                vehicleLinks.add(linkToAdd);
-
-            }else if (link.getVehicle() instanceof NationalVehicleDTO){ //we do the same but for NationalVehicle
-
-                NationalVehicleDTO vehicleDTO = (NationalVehicleDTO) link.getVehicle();
-
-                //I get the list of toll passes DTOs for the vehicle of the given Link
-                ArrayList<TollPassDTO> tollPassListToIterate = (ArrayList<TollPassDTO>) vehicleDTO.getTollPassDTO();
-
-                //Iterate through it to get the Domain object list of toll pases for the given vehicle
-                for (TollPassDTO toll : tollPassListToIterate){
-
-                    LocalDate tollDate = LocalDate.parse(toll.getDate(), DateTimeFormatter.ISO_DATE);
-
-                    TollPass tollToAdd = new TollPass(null, tollDate,toll.getCost(),toll.getPaymentType());
-                    passes.add(tollToAdd);
-                }
-
-                //transform TagDTO to Tag
-                Tag tagToAdd = new Tag(vehicleDTO.getId());
-
-                LicensePlate licenseToAdd = new LicensePlate(  vehicleDTO.getLicensePlateDTO().getId(), vehicleDTO.getLicensePlateDTO().getLicensePlateNumber() );
-
-                NationalVehicle vehicleToAdd = new NationalVehicle(vehicleDTO.getId(),tagToAdd , passes , licenseToAdd);
-
-                //I need a vehicle domain object in order to create my link
-                Link linkToAdd = new Link(link.getId(), link.getActive(), vehicleToAdd, link.getInitialDate());
-
-                vehicleLinks.add(linkToAdd);
-            }else{
-                throw new InternalErrorException("No hay ningún vehiculo registrado para el usuario: " + user.getName());
-            }
-        }
 
 
-        if(user instanceof NationalUserDTO){
-
-            User userToAdd = new NationalUser(vehicleLinks,
-                    tollCustomer,
-                    user.getCi(),
-                    user.getName(),
-                    user.getPassword(),
-                    user.getEmail(),
-                    user.getId());
-
-            //we persist the data
-            repository.addUser(userToAdd);
-
-        }else{
-
-            User userToAdd = new ForeignUser(vehicleLinks,
-                    tollCustomer,
-                    user.getCi(),
-                    user.getName(),
-                    user.getPassword(),
-                    user.getEmail(),
-                    user.getId());
-
-            //we persist the data
-            repository.addUser(userToAdd);
-        }
-
+        System.out.println("Usuario con ID:  "+user.getId() + " pasando por Metodo de Pago");
 
     }
 
@@ -184,10 +56,24 @@ public class PaymentControllerImpl implements PaymentController {
                               Double amount,
                               CreditCardDTO creditCard) throws ExternalApiException, NoCustomerException, IllegalArgumentException {
 
+
         //check for the customer to be properly initialized
         if (user.getTollCustomer() == null){
             throw new NoCustomerException("El cliente no está registrado a Telepeaje");
         }
+
+
+        if(creditCard == null){
+
+            //card rejected con ID usuario
+            CreditCardRejectedEvent eventToFire = new CreditCardRejectedEvent("No hay Tarjeta de Crédito para usuario con ID: ",
+                    user.getId());
+
+            creditCardRejectedEventPublisher.fire(eventToFire);
+
+            throw new Exception("No hay Tarjeta de Credito");
+        }
+
 
         LocalDate cardDate = LocalDate.parse(creditCard.getExpireDate(), DateTimeFormatter.ISO_DATE);
         if (cardDate.isBefore(LocalDate.now())){
@@ -216,6 +102,16 @@ public class PaymentControllerImpl implements PaymentController {
             if (response.code() == 200){
                 repository.addTollPassToUserVehicle(user, vehicle, amount, creditCard);
             }else {
+
+                //card rejected con ID usuario
+                CreditCardRejectedEvent eventToFire = new CreditCardRejectedEvent("La tarjeta "
+                                                                                                                            + creditCard.getCardNumber()
+                                                                                                                            + " ha sido rechazada para usuario con ID: ",
+                                                                                                                            user.getId());
+
+                creditCardRejectedEventPublisher.fire(eventToFire);
+
+
                 throw new ExternalApiException("No se pudo validar la compra Post Paga");
             }
         } catch (Exception e) {
