@@ -5,6 +5,7 @@ import com.traffic.dtos.account.CreditCardDTO;
 import com.traffic.dtos.user.UserDTO;
 import com.traffic.dtos.vehicle.TagDTO;
 import com.traffic.dtos.vehicle.VehicleDTO;
+import com.traffic.events.CreditCardPaymentEvent;
 import com.traffic.exceptions.InternalErrorException;
 import com.traffic.payment.domain.entities.Tag;
 import com.traffic.payment.domain.entities.TollPass;
@@ -12,11 +13,14 @@ import com.traffic.payment.domain.entities.User;
 import com.traffic.payment.domain.entities.Vehicle;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Event;
+import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
+import jakarta.transaction.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -24,6 +28,10 @@ import java.util.UUID;
 
 @ApplicationScoped
 public class PaymentRepositoryImplementation implements PaymentRepository {
+
+    //I inject the event I will eventually publish
+    @Inject
+    private Event<CreditCardPaymentEvent> CreditCardPaymentPublisher;
 
     @PersistenceContext
     EntityManager session;
@@ -34,10 +42,14 @@ public class PaymentRepositoryImplementation implements PaymentRepository {
         em = session.getEntityManagerFactory().createEntityManager();
     }
 
+
+    @Transactional
+    @Override
     public void addUser(User userToAdd){
         System.out.println(userToAdd.getName());
-        em.persist(userToAdd);
-        em.flush();
+        session.persist(userToAdd);
+
+        session.flush();
     }
 
     @Override
@@ -87,6 +99,10 @@ public class PaymentRepositoryImplementation implements PaymentRepository {
 
             em.flush(); //we flush
 
+            //we fire the event that informs the rest of the modules that a payment has ocurred
+            CreditCardPaymentEvent creditCardPayment = new CreditCardPaymentEvent("Se realizó el pago con tarjeta de crédito para el vehiculo con TAG: " + vehicleToUpdate.getTag());
+            CreditCardPaymentPublisher.fire(creditCardPayment);
+
         }catch (Exception e){
             throw new IllegalArgumentException("No se pudo actualizar las pasadas del usuario " + userDTO.getName() + e.getMessage() ) ;
         }
@@ -127,6 +143,7 @@ public class PaymentRepositoryImplementation implements PaymentRepository {
 
             //I get a root for Vehicle
             Root<Vehicle> root = cQuery.from(Vehicle.class);
+            //credit card payment
 
             //SELECT * FROM Payment_Vehicle WHERE TagID = tagDTO
             cQuery.select(root).where(cBuilder.equal(root.get("tag").get("uniqueId"), UUID.fromString(tagDTO.getUniqueId())));
@@ -134,7 +151,7 @@ public class PaymentRepositoryImplementation implements PaymentRepository {
             return em.createQuery(cQuery).getSingleResult();
         }
         catch (Exception e){
-            throw new InternalErrorException("no se pudo encontrar el vehiculo nacional para cobrar Sucive");
+            throw new InternalErrorException(" no se pudo encontrar el vehiculo para cobrar");
         }
     }
 }

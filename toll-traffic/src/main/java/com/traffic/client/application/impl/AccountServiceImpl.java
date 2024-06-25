@@ -46,6 +46,7 @@ public class AccountServiceImpl implements AccountService {
 
         }catch(Exception e){
             System.err.println(e.getMessage());
+            throw e;
         }
 
     }
@@ -65,6 +66,7 @@ public class AccountServiceImpl implements AccountService {
 
         }catch (Exception e){
             System.err.println(e.getMessage());
+            throw e;
         }
 
     }
@@ -76,14 +78,21 @@ public class AccountServiceImpl implements AccountService {
             return repo.getAccountsByTag(tag.getId());
         }catch (Exception e){
             System.err.println(e.getMessage());
+            throw e;
         }
 
-        return Optional.empty();
     }
 
     @Override
     public void loadBalance(Long id, Double balance) throws Exception {
-        repo.loadBalance(id, balance);
+
+        try{
+            repo.loadBalance(id, balance);
+        }catch (Exception e){
+            System.err.println(e.getMessage());
+            throw e;
+        }
+
     }
 
     @Override
@@ -99,6 +108,7 @@ public class AccountServiceImpl implements AccountService {
                 }
             }catch (Exception e){
                 System.err.println(e.getMessage());
+                throw e;
             }
 
         }
@@ -108,8 +118,25 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public void linkCreditCard(Long id, CreditCard creditCard) {
-        repo.linkCreditCard(id, creditCard);
+        try{
+            repo.linkCreditCard(id, creditCard);
+        }catch (Exception e){
+            System.err.println(e.getMessage());
+            throw e;
+        }
+
     }
 
-    
+    @Override
+    public Optional<User> throwEvent(Tag tag) {
+        try{
+            return repo.findByTag(tag.getId());
+
+        }catch (Exception e){
+            System.err.println(e.getMessage());
+            throw e;
+        }
+    }
+
+
 }

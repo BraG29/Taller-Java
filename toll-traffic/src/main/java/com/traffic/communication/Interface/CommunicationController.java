@@ -1,10 +1,12 @@
 package com.traffic.communication.Interface;
 
 import com.traffic.dtos.user.NotificationDTO;
-import com.traffic.dtos.user.UserDTO;
-import com.traffic.exceptions.NoCustomerException;
+import com.traffic.events.CreditCardRejectedEvent;
+import com.traffic.events.NewUserEvent;
+import com.traffic.events.NotifyAllEvent;
+import com.traffic.events.NotEnoughBalanceEvent;
+import jakarta.enterprise.event.Observes;
 
-import java.util.Optional;
 import java.util.List;
 
 /**
@@ -21,37 +23,29 @@ public interface CommunicationController {
 
     /**
      *  Notifica vía email al Cliente que  su saldo de cuenta PRE paga es insuficiente
-     * @param user -> Recibe un objeto cliente telepeaje.
-     * @throws NoCustomerException -> Si el usuario recibido no es cliente.
      */
-    public void notifyNotEnoughBalance(UserDTO user) throws NoCustomerException;
+    public void notifyNotEnoughBalance(@Observes NotEnoughBalanceEvent e);
 
     /**
      * Noitifica vía emial al Cliente que su tarjete fue bloqueada
-     * @param user -> Recibe un objeto cliente telepeaje.
-     * @throws NoCustomerException -> Si el usuario recibido no es cliente.
      */
-    public void notifyBlockedCreditCard(UserDTO user) throws NoCustomerException;
+    public void notifyBlockedCreditCard(@Observes CreditCardRejectedEvent e);
 
     /**
      * Notifica vía email al Cliente alguna información relevante.
-     * @param text -> Recibe un texto tipo String con informacíon.
      */
-    public void notifyInformation(String text);
+    public void notifyInformation(@Observes NotifyAllEvent e);
 
     /**
      * Da de alta un cliente
-     * @param user -> recibe un objeto tipo cliente telepeaje para dar de alta.
-     * @throws NoCustomerException -> Si el usuario recibido no es cliente.
      */
-    public void addCostumer(UserDTO user) throws NoCustomerException;
+    public void notifyNewCustomer(@Observes NewUserEvent e);
 
     /**
      * Devuelve las notificaciones de un cliente en particular
-     * @param user -> Recibe un objeto tipo cliente telepeaje para devolver notificaciones.
-     * @return -> Devuelve una lista de notifiaciones del cliente recibido.
-     * @throws NoCustomerException -> Si el usuario recibido no es cliente.
+     * @param userId -> Id del usuario
+     * @return -> Una lista con los DTO de las Notificaciones. Lista vacia si no hay notifiaciones
      */
-    public Optional<List<NotificationDTO>> getNotificationByCostumer(UserDTO user) throws NoCustomerException;
+    public List<NotificationDTO> getNotificationByCostumer(Long userId);
 
 }

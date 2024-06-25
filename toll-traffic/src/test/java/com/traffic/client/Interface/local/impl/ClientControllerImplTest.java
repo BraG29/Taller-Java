@@ -15,7 +15,7 @@ import com.traffic.client.application.impl.VehicleServiceImpl;
 import com.traffic.client.domain.User.User;
 import com.traffic.client.domain.repository.ClientModuleRepositoryImpl;
 import com.traffic.communication.Interface.impl.CommunicationControllerImpl;
-import com.traffic.communication.Interface.impl.NotificationRepositoryImpl;
+import com.traffic.communication.infraestructure.persistence.NotificationRepositoryImpl;
 import com.traffic.dtos.account.AccountDTO;
 import com.traffic.dtos.account.CreditCardDTO;
 import com.traffic.dtos.account.PostPayDTO;

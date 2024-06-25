@@ -21,10 +21,7 @@ import com.traffic.dtos.user.ForeignUserDTO;
 import com.traffic.dtos.user.NationalUserDTO;
 import com.traffic.dtos.user.UserDTO;
 import com.traffic.dtos.vehicle.*;
-import com.traffic.events.CustomEvent;
-import com.traffic.events.NewUserEvent;
-import com.traffic.events.VehicleAddedEvent;
-import com.traffic.events.VehicleRemovedEvent;
+import com.traffic.events.*;
 import com.traffic.exceptions.*;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
@@ -87,7 +84,35 @@ public class ClientControllerImpl implements ClientController {
             fireNewUserEvent(userDTO);
         }catch(Exception e){
             System.err.println(e.getMessage());
+            throw e;
         }
+    }
+
+
+    private void fireNotEnoughBalanceEvent(User user){
+        event.fire(new NotEnoughBalanceEvent("El usuario " + user.getName() + " no tiene saldo suficiente.", user.getId()));
+    }
+
+    @Override
+    public void throwEvent(TagDTO tagDTO) throws Exception {
+
+        try{
+            UUID uuid = UUID.fromString(tagDTO.getUniqueId());
+
+            Tag tag = new Tag(tagDTO.getId(), uuid);
+
+            Optional<User> userOPT = accountService.throwEvent(tag);
+
+            if(userOPT.isPresent()){
+                User user = userOPT.get();
+                fireNotEnoughBalanceEvent(user);
+            }
+
+        }catch (Exception e){
+            System.err.println(e.getMessage());
+            throw e;
+        }
+
     }
 
 
@@ -132,6 +157,7 @@ public class ClientControllerImpl implements ClientController {
 
             } catch (Exception e){
                 System.err.println(e.getMessage());
+                throw e;
             }
 
         }else{
@@ -223,7 +249,13 @@ public class ClientControllerImpl implements ClientController {
     @Override
     public void loadBalance(Long id, Double balance) throws Exception {
 
+        try{
             accountService.loadBalance(id, balance);
+        }catch (Exception e){
+            System.err.println(e.getMessage());
+            throw e;
+        }
+
     }
 
     @Override
@@ -235,9 +267,9 @@ public class ClientControllerImpl implements ClientController {
         }catch(Exception e){
 
             System.err.println(e.getMessage());
+            throw e;
         }
 
-        return Optional.empty();
     }
 
     @Override
@@ -270,9 +302,9 @@ public class ClientControllerImpl implements ClientController {
             return  tollPassListToTollPassDTOList(tollPassList);
         }catch (NoSuchElementException e){
             System.out.println("No se pudieron encontrar las pasadas. " + e.getMessage());
+            throw e;
         }
 
-        return Optional.empty();
     }
 
     @Override
@@ -294,9 +326,9 @@ public class ClientControllerImpl implements ClientController {
             return tollPassListToTollPassDTOList(tollPassList);
         }catch (NoSuchElementException e){
             System.out.println("No se pudieron encontrar las pasadas del vehiculo. " + e.getMessage());
+            throw e;
         }
 
-        return Optional.empty();
     }
 
     @Override //tic
@@ -329,13 +361,17 @@ public class ClientControllerImpl implements ClientController {
 
                 } else if (account instanceof POSTPay) {
 
-                    //en este caso armo la tarjeta para hacerla DTO.
-                    String name = ((POSTPay) account).getCreditCard().getName();
-                    Long cardId = ((POSTPay) account).getCreditCard().getId();
-                    String number = ((POSTPay) account).getCreditCard().getCardNumber();
-                    String expireDate = ((POSTPay) account).getCreditCard().getExpireDate().toString();
+                    CreditCardDTO card = null;
 
-                    CreditCardDTO card = new CreditCardDTO(cardId, number,name, expireDate);
+                    if(((POSTPay) account).getCreditCard() != null){
+                        //en este caso armo la tarjeta para hacerla DTO.
+                        String name = ((POSTPay) account).getCreditCard().getName();
+                        Long cardId = ((POSTPay) account).getCreditCard().getId();
+                        String number = ((POSTPay) account).getCreditCard().getCardNumber();
+                        String expireDate = ((POSTPay) account).getCreditCard().getExpireDate().toString();
+
+                        card = new CreditCardDTO(cardId, number,name, expireDate);
+                    }
 
                     accDTO = new PostPayDTO(account.getId(), account.getAccountNumber(),
                             account.getCreationDate(), card); //convierto de Account a PostPay
@@ -351,7 +387,7 @@ public class ClientControllerImpl implements ClientController {
     }
 
     @Override
-    public void prePay(Double balance, TagDTO tagDTO) throws IllegalArgumentException {
+    public void prePay(Double balance, TagDTO tagDTO) throws Exception {
 
         if(tagDTO == null){
             throw new IllegalArgumentException("No se encontró el tag");
@@ -366,13 +402,14 @@ public class ClientControllerImpl implements ClientController {
 
         }catch (Exception e){
             System.err.println(e.getMessage());
+            throw e;
         }
 
     }
 
 
     @Override
-    public void postPay(Double balance, TagDTO tagDTO) throws ExternalApiException{
+    public void postPay(Double balance, TagDTO tagDTO) throws Exception {
 
         UUID uuid = UUID.fromString(tagDTO.getUniqueId());
         Tag tag = new Tag(tagDTO.getId(), uuid);
@@ -385,6 +422,7 @@ public class ClientControllerImpl implements ClientController {
 
         }catch(Exception e){
             System.err.println(e.getMessage());
+            throw e;
         }
 
     }

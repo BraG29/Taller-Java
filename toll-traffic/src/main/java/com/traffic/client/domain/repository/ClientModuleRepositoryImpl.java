@@ -19,7 +19,6 @@ import com.traffic.dtos.user.TollCustomerDTO;
 import com.traffic.dtos.user.UserDTO;
 import com.traffic.dtos.vehicle.*;
 import com.traffic.events.CustomEvent;
-import com.traffic.events.NotEnoughBalanceEvent;
 import com.traffic.events.PREPayTollPassEvent;
 import com.traffic.exceptions.ExternalApiException;
 import com.traffic.payment.Interface.PaymentController;
@@ -85,7 +84,6 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
         if(linkDB != null){
            user = linkDB.getUser();
         }
-
 
         return user != null ? Optional.of(user) : Optional.empty();
     }
@@ -207,13 +205,18 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
                     em.remove(linkToRemove);
 
                     Vehicle vehicle = linkToRemove.getVehicle();
+                    List<TollPass> passes = vehicle.getTollPass();
+
+                    for (TollPass pass : passes){
+                        em.remove(pass);
+                    }
                     em.remove(vehicle);
 
                     Tag tag = vehicle.getTag();
                     em.remove(tag);
-
                     em.merge(user);
                     em.flush();
+
                 }else {
                     throw new IllegalArgumentException("Vehículo no encontrado para el usuario dado");
                 }
@@ -287,7 +290,6 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
         linkCB.select(linkRoot)
                 .where(criteriaBuilder.equal(linkRoot.get("vehicle"), vehicle));
 
-
         Link link = em.createQuery(linkCB).getSingleResult();
 
         List<Account> accounts = new ArrayList<Account>();
@@ -327,6 +329,7 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
                 Integer accountNumber = PREPay.generateRandomAccountNumber();
                 prepay = (new PREPay(null, accountNumber, LocalDate.now(), balance));
                 em.persist(prepay);
+                customer.setPrePay(prepay);
             }else{
                 prepay.loadBalance(balance);
                 em.merge(prepay);
@@ -338,10 +341,6 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
 
     }
 
-
-    private void fireNotEnoughBalanceEvent(User user){
-        event.fire(new NotEnoughBalanceEvent("El usuario "+ user.getName() + " no tiene saldo suficiente."));
-    }
 
     private void firePREPayTollPassEvent(TollPassDTO pass){
         event.fire(new PREPayTollPassEvent(pass));
@@ -395,10 +394,6 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
                 throw new IllegalArgumentException("Cuenta prepaga no encontrada para el tag dado.");
             }
 
-            if(prePay.getBalance() < balance){
-                fireNotEnoughBalanceEvent(user);
-            }
-
             //se procede al pago
             prePay.pay(balance);
             em.merge(prePay);
@@ -407,9 +402,6 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
 
             TollPass newPass = new TollPass(null, LocalDate.now(), balance, PaymentTypeData.PRE_PAYMENT, vehicleDB);
             em.merge(newPass);
-            vehicleDB.addPass(newPass);
-            em.merge(vehicleDB);
-            em.merge(customer);
             em.flush();
 
             //Aca se envia el evento de una pasada prepaga
@@ -508,11 +500,6 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
 
                     List<TollPass> listTollPass = vehicle.getTollPass();
 
-                    //agrego nueva pasada al vehiculo, asi le mando datos actualizados al otro modulo.
-                    TollPass newPass = new TollPass(null, LocalDate.now(), cost, PaymentTypeData.POST_PAYMENT, vehicleDB);
-                    em.merge(newPass);
-                    vehicleDB.addPass(newPass);
-
                     //en este bloque  se arma la lista de pasadas de un vehiculo
                     for (TollPass tollPass : listTollPass) {
                         tollPassObject = new TollPassDTO(tollPass.getId(), tollPass.getPassDate().toString(), tollPass.getCost(), tollPass.getPaymentType());
@@ -547,8 +534,10 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
                         user.getCi(), customerDTO, linkListDTO, null);
             }
 
-            //TODO: si esto lanza excepcion, dicha excepcion le debe llegar al modulo de peaje NO HACER CATCH AQUI
             paymentController.notifyPayment(userDTO, vehicleDTO, cost, customerDTO.getPostPayDTO().getCreditCardDTO());
+
+            TollPass newPass = new TollPass(null, LocalDate.now(), cost, PaymentTypeData.POST_PAYMENT, vehicleDB);
+            em.merge(newPass);
             em.flush();
 
         } catch (ExternalApiException e) {
@@ -573,14 +562,16 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
         PostPayDTO postPayDTO = null;
 
         CreditCard card;
-        CreditCardDTO cardDTO;
+        CreditCardDTO cardDTO = null;
 
         //armo cuenta postpay si tiene
         if(usr.getTollCustomer().getPostPay() != null){
 
             card = usr.getTollCustomer().getPostPay().getCreditCard();
 
-            cardDTO = new CreditCardDTO(card.getId(), card.getCardNumber(), card.getName(), card.getExpireDate().toString());
+            if(card != null){
+                cardDTO = new CreditCardDTO(card.getId(), card.getCardNumber(), card.getName(), card.getExpireDate().toString());
+            }
 
             postPay = usr.getTollCustomer().getPostPay();
             postPayDTO = new PostPayDTO(postPay.getId(), postPay.getAccountNumber(), postPay.getCreationDate(), cardDTO);

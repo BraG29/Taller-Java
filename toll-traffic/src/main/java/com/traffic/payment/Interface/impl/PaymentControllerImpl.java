@@ -4,6 +4,7 @@ import com.traffic.dtos.PaymentTypeData;
 import com.traffic.dtos.account.CreditCardDTO;
 import com.traffic.dtos.user.UserDTO;
 import com.traffic.dtos.vehicle.*;
+import com.traffic.events.CreditCardRejectedEvent;
 import com.traffic.events.NewUserEvent;
 import com.traffic.exceptions.ExternalApiException;
 import com.traffic.exceptions.InternalErrorException;
@@ -13,6 +14,7 @@ import com.traffic.payment.Interface.PaymentController;
 import com.traffic.payment.domain.entities.*;
 import com.traffic.payment.domain.repository.PaymentRepository;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Event;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import jakarta.json.Json;
@@ -33,20 +35,34 @@ public class PaymentControllerImpl implements PaymentController {
     @Inject
     private PaymentRepository repository;
 
+    @Inject
+    private Event<CreditCardRejectedEvent> creditCardRejectedEventPublisher;
 
-    @Transactional
+
     @Override
-    public void customerRegistration(@Observes NewUserEvent userEvent) throws ExternalApiException, NoCustomerException, InternalErrorException {
+    public void customerRegistration(@Observes NewUserEvent userEvent) throws ExternalApiException, NoCustomerException, InternalErrorException{
 
         //TODO would be to move my DTO to Domain object functions to my Domain classes
 
         //I get the userDTO from the event that called this function
         UserDTO user = userEvent.getUser();
 
-
-
         System.out.println("Usuario con ID:  "+user.getId() + " pasando por Metodo de Pago");
 
+        User userToAdd = new User(
+                null,
+                user.getCi(),
+                user.getName(),
+                user.getPassword(),
+                user.getEmail(),
+                null);
+
+        try {
+            //we persist the data
+            repository.addUser(userToAdd);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -54,7 +70,7 @@ public class PaymentControllerImpl implements PaymentController {
     public void notifyPayment(UserDTO user,
                               VehicleDTO vehicle,
                               Double amount,
-                              CreditCardDTO creditCard) throws ExternalApiException, NoCustomerException, IllegalArgumentException {
+                              CreditCardDTO creditCard) throws ExternalApiException, NoCustomerException, IllegalArgumentException, Exception{
 
 
         //check for the customer to be properly initialized
@@ -111,7 +127,6 @@ public class PaymentControllerImpl implements PaymentController {
 
                 creditCardRejectedEventPublisher.fire(eventToFire);
 
-
                 throw new ExternalApiException("No se pudo validar la compra Post Paga");
             }
         } catch (Exception e) {
@@ -146,13 +161,7 @@ public class PaymentControllerImpl implements PaymentController {
             return Optional.of(allPayments);
         }
     }
-
-    //This functions means that I CARE about what users are registering to other modules
-    //This functions means that I CARE about what users are registering to other modules
-    //This functions means that I CARE about what users are registering to other modules
-    //This functions means that I CARE about what users are registering to other modules
-    //This functions means that I CARE about what users are registering to other modules
-    //This functions means that I CARE about what users are registering to other modules
+    
     @Override
     public Optional<List<Double>> paymentInquiry(UserDTO userDTO) throws NoCustomerException {
 

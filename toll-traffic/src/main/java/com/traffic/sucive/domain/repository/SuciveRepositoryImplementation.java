@@ -2,7 +2,9 @@ package com.traffic.sucive.domain.repository;
 
 import com.traffic.dtos.PaymentTypeData;
 import com.traffic.dtos.vehicle.LicensePlateDTO;
+import com.traffic.dtos.vehicle.NationalVehicleDTO;
 import com.traffic.dtos.vehicle.TollPassDTO;
+import com.traffic.dtos.vehicle.VehicleDTO;
 import com.traffic.events.SucivePaymentEvent;
 import com.traffic.exceptions.InternalErrorException;
 import com.traffic.exceptions.InvalidVehicleException;
@@ -35,8 +37,6 @@ public class SuciveRepositoryImplementation  implements SuciveRepository {
     EntityManager session;
     EntityManager em;
 
-
-
     @PostConstruct
     public void initialize(){
         em = session.getEntityManagerFactory().createEntityManager();
@@ -50,7 +50,7 @@ public class SuciveRepositoryImplementation  implements SuciveRepository {
     }
 
     @Override
-    public List<TollPass> getAllTollPasses() { //TODO change to getAllTollPasses DONETE! 👍
+    public List<TollPass> getAllTollPasses() {
 
         //I call the criteria builder, which is the responsible for managing the queries
         CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -120,7 +120,8 @@ public class SuciveRepositoryImplementation  implements SuciveRepository {
           em.flush();
 
           //publish event of the Toll Pass I just added
-          publishPayment(tollPassToAdd, vehicleToUpdate.getId());
+            NationalVehicleDTO vehicleDTO = new NationalVehicleDTO(vehicleToUpdate.getId(),null,null,null);
+          publishPayment(tollPassToAdd, vehicleDTO);
       }
       catch (Exception e){
           throw new InternalErrorException(e.getMessage());
@@ -128,11 +129,11 @@ public class SuciveRepositoryImplementation  implements SuciveRepository {
     }
 
     @Override
-    public void publishPayment(TollPass tollPass, Long vehicleID ){
+    public void publishPayment(TollPass tollPass, VehicleDTO vehicle ){
 
         //I transform the domain object to DTO
         TollPassDTO tollPassDTO = tollPass.toDTO();
-        tollPassDTO.setVehicleId(vehicleID);
+        tollPassDTO.setVehicle(vehicle);
 
         //I create  the event which I will be firing, and I pass it the tollPass
         SucivePaymentEvent paymentEvent = new SucivePaymentEvent(tollPassDTO);

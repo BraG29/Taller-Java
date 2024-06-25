@@ -11,6 +11,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class NotificationDTO {
 
+    private Long id;
     private LocalDate date;
     private String message;
 

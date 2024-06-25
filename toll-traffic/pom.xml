@@ -122,6 +122,26 @@
             <scope>provided</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.jboss.logging</groupId>
+            <artifactId>jboss-logging</artifactId>
+            <version>3.5.3.Final</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-commons</artifactId>
+            <version>1.12.0</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/io.micrometer/micrometer-registry-influx -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-influx</artifactId>
+            <version>1.13.0</version>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -141,6 +161,14 @@
                                 <username>root</username>
                                 <password>rootpass1234</password>
                                 <application-user>false</application-user>
+                            </user>
+                            <user>
+                                <username>adminUser</username>
+                                <password>adminPass1234</password>
+                                <application-user>true</application-user>
+                                <groups>
+                                    <group>user</group>
+                                </groups>
                             </user>
                         </users>
                     </add-user>
