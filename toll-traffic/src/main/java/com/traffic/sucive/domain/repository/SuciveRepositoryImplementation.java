@@ -46,6 +46,9 @@ public class SuciveRepositoryImplementation  implements SuciveRepository {
     @Override
     public void addVehicle(NationalVehicle vehicleToAdd) throws Exception {
 
+        vehicleToAdd.setTag(em.merge(vehicleToAdd.getTag()));
+        vehicleToAdd.setPlate(em.merge(vehicleToAdd.getPlate()));
+
         try {
             em.persist(vehicleToAdd);
             em.flush();
