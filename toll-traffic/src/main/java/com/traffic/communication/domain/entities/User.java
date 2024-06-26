@@ -21,8 +21,10 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(unique = true)
     private String ci;
     private String name;
+    @Column(unique = true)
     private String email;
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
