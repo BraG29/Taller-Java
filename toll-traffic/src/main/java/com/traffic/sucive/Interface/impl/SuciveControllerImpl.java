@@ -1,10 +1,7 @@
 package com.traffic.sucive.Interface.impl;
 
 import com.traffic.dtos.PaymentTypeData;
-import com.traffic.dtos.vehicle.LicensePlateDTO;
-import com.traffic.dtos.vehicle.NationalVehicleDTO;
-import com.traffic.dtos.vehicle.TagDTO;
-import com.traffic.dtos.vehicle.VehicleDTO;
+import com.traffic.dtos.vehicle.*;
 import com.traffic.events.VehicleAddedEvent;
 import com.traffic.exceptions.ExternalApiException;
 import com.traffic.exceptions.InternalErrorException;
@@ -33,6 +30,11 @@ public class SuciveControllerImpl implements SuciveController {
 
     @Override
     public void vehicleRegistration(@Observes VehicleAddedEvent vehicleEvent) throws Exception {
+
+        if (vehicleEvent.getVehicle() instanceof ForeignVehicleDTO) {
+            System.out.println("Vehiculos foráneos no le interesan al modulo sucive");
+            return;
+        }
 
         //we get the National Vehicle and cast it from the event
         NationalVehicleDTO vehicleDTO = (NationalVehicleDTO) vehicleEvent.getVehicle();
