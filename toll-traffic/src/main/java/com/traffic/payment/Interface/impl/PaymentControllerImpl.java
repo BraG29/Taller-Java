@@ -2,27 +2,19 @@ package com.traffic.payment.Interface.impl;
 
 import com.traffic.dtos.PaymentTypeData;
 import com.traffic.dtos.account.CreditCardDTO;
-import com.traffic.dtos.account.PostPayDTO;
-import com.traffic.dtos.account.PrePayDTO;
-import com.traffic.dtos.user.NationalUserDTO;
-import com.traffic.dtos.user.TollCustomerDTO;
 import com.traffic.dtos.user.UserDTO;
 import com.traffic.dtos.vehicle.*;
 import com.traffic.events.CreditCardRejectedEvent;
 import com.traffic.events.NewUserEvent;
+import com.traffic.events.VehicleAddedEvent;
 import com.traffic.exceptions.ExternalApiException;
 import com.traffic.exceptions.InternalErrorException;
 import com.traffic.exceptions.InvalidVehicleException;
 import com.traffic.exceptions.NoCustomerException;
 import com.traffic.payment.Interface.PaymentController;
-//import com.traffic.payment.domain.account.CreditCard;
-//import com.traffic.payment.domain.account.PostPay;
-//import com.traffic.payment.domain.account.PrePay;
 import com.traffic.payment.domain.entities.*;
 import com.traffic.payment.domain.repository.PaymentRepository;
-//import com.traffic.payment.domain.user.TollCustomer;
-//import com.traffic.payment.domain.user.User;
-//import com.traffic.payment.domain.vehicle.*;
+import com.traffic.sucive.domain.entities.LicensePlate;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.enterprise.event.Observes;
@@ -50,45 +42,61 @@ public class PaymentControllerImpl implements PaymentController {
 
 
     @Override
-    public void customerRegistration(@Observes NewUserEvent userEvent) throws ExternalApiException, NoCustomerException, InternalErrorException{
+    public void vehicleRegistration(@Observes VehicleAddedEvent vehicleEvent) throws Exception {
 
-        //getPostPayDTO tira null c:
+        if (vehicleEvent.getVehicle() instanceof ForeignVehicleDTO) {
+
+            //we get the National Vehicle and cast it from the event
+            ForeignVehicleDTO vehicleDTO = (ForeignVehicleDTO) vehicleEvent.getVehicle();
+
+            //we get the TagDTO from the vehicleDTO
+            TagDTO tagDTO = vehicleDTO.getTagDTO();
+
+            //we form the Tag from the TagDTO
+            Tag tagToAdd = new Tag(tagDTO.getId());
+
+
+            ForeignVehicle vehicleToAdd = new ForeignVehicle(vehicleDTO.getId(), tagToAdd) ;
+
+            try{
+                repository.addVehicle(vehicleToAdd);
+
+            }catch (Exception e){
+                System.err.println(e.getMessage());
+                throw e;
+            }
+        }else{
+
+            //we get the National Vehicle and cast it from the event
+            NationalVehicleDTO vehicleDTO = (NationalVehicleDTO) vehicleEvent.getVehicle();
+
+            //we get the TagDTO from the vehicleDTO
+            TagDTO tagDTO = vehicleDTO.getTagDTO();
+
+            //we form the Tag from the TagDTO
+            Tag tagToAdd = new Tag(tagDTO.getId());
+
+
+            NationalVehicle vehicleToAdd = new NationalVehicle(vehicleDTO.getId(), tagToAdd, null) ;
+
+            try{
+                repository.addVehicle(vehicleToAdd);
+
+            }catch (Exception e){
+                System.err.println(e.getMessage());
+                throw e;
+            }
+        }
+    }
+
+
+    @Override
+    public void customerRegistration(@Observes NewUserEvent userEvent) throws ExternalApiException, NoCustomerException, InternalErrorException{
 
         //TODO would be to move my DTO to Domain object functions to my Domain classes
 
-
-        //            //armo usuario nacional
-        //            tollCustomer = new TollCustomer(userDTO.getId(), null, null);
-        //            user = new NationalUser(null,  tollCustomer, userDTO.getCi(), userDTO.getName(),
-        //                    userDTO.getPassword(), userDTO.getEmail(), userDTO.getId());
-        //
-        //        } else if (userDTO instanceof ForeignUserDTO) {
-        //            tollCustomer = new TollCustomer(userDTO.getId(), null, null);
-        //            //armo usuario extranjero.
-        //            user = new ForeignUser(null, tollCustomer, userDTO.getCi(), userDTO.getName(),
-        //                    userDTO.getPassword(), userDTO.getEmail(), userDTO.getId());
-
-
-        //let's start small shall we? what domain Objects I NEED?
-        //- Vehicle
-        //- Tag
-        //        //- TollPass
-        //- PaymentType
-        //-CreditCard
-        //-User
-        //-Link
-        //
-
         //I get the userDTO from the event that called this function
         UserDTO user = userEvent.getUser();
-
-        //Lucas left me this example so I can parse the now string value of the dates
-        //LocalDate cardDate = LocalDate.parse(creditCard.getExpireDate(), DateTimeFormatter.ISO_DATE);
-
-        //I prepare the DTOs to be turned into domain objects
-        // creditCard > pre & postPay > tollCustomer
-//        TollCustomerDTO tollCustomerDTO = user.getTollCustomer();
-
 
         System.out.println(user.getId());
 
@@ -106,7 +114,6 @@ public class PaymentControllerImpl implements PaymentController {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     @Override

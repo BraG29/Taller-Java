@@ -15,6 +15,8 @@ import java.util.List;
 
 public interface PaymentRepository{
 
+    public void addVehicle(Vehicle vehicleToAdd) throws Exception;
+
     public void initialize();
 
     public void addUser(User userToAdd);
