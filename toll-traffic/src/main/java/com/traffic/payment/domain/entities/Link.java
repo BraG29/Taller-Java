@@ -18,6 +18,7 @@ public class Link {
     private Vehicle vehicle;
 
     @ManyToOne
+    @JoinColumn(name = "user_id")
     private User user;
 
     private LocalDate initialDate;

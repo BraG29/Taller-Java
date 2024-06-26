@@ -43,58 +43,49 @@ public class PaymentControllerImpl implements PaymentController {
 
     @Override
     public void vehicleRegistration(@Observes VehicleAddedEvent vehicleEvent) throws Exception {
+        VehicleDTO vehicleDTO;
+        Vehicle vehicleToAdd;
 
-
-        //TODO would be to move my DTO to Domain object functions to my Domain classes
-
-        //I get the userDTO from the event that called this function
-        UserDTO user = userEvent.getUser();
-
-        System.out.println("Usuario con ID:  "+user.getId() + " pasando por Metodo de Pago");
+        //we get the TagDTO from the vehicleDTO
+        TagDTO tagDTO = vehicleEvent.getVehicle().getTagDTO();
+        Tag tagToAdd = new Tag(tagDTO.getId());
 
         if (vehicleEvent.getVehicle() instanceof ForeignVehicleDTO) {
 
             //we get the National Vehicle and cast it from the event
-            ForeignVehicleDTO vehicleDTO = (ForeignVehicleDTO) vehicleEvent.getVehicle();
+            vehicleDTO = (ForeignVehicleDTO) vehicleEvent.getVehicle();
 
-            //we get the TagDTO from the vehicleDTO
-            TagDTO tagDTO = vehicleDTO.getTagDTO();
-
-            //we form the Tag from the TagDTO
-            Tag tagToAdd = new Tag(tagDTO.getId());
-
-
-            ForeignVehicle vehicleToAdd = new ForeignVehicle(vehicleDTO.getId(), tagToAdd) ;
+            vehicleToAdd = new ForeignVehicle(vehicleDTO.getId(), tagToAdd) ;
 
             try{
-                repository.addVehicle(vehicleToAdd);
+                vehicleToAdd = repository.addVehicle(vehicleToAdd).orElseThrow();
 
             }catch (Exception e){
-                System.err.println(e.getMessage());
+                System.err.println("Error al guardar vehicle en PaymentModule: " + e.getMessage());
                 throw e;
             }
         }else{
 
             //we get the National Vehicle and cast it from the event
-            NationalVehicleDTO vehicleDTO = (NationalVehicleDTO) vehicleEvent.getVehicle();
+            vehicleDTO = (NationalVehicleDTO) vehicleEvent.getVehicle();
 
-            //we get the TagDTO from the vehicleDTO
-            TagDTO tagDTO = vehicleDTO.getTagDTO();
-
-            //we form the Tag from the TagDTO
-            Tag tagToAdd = new Tag(tagDTO.getId());
-
-
-            NationalVehicle vehicleToAdd = new NationalVehicle(vehicleDTO.getId(), tagToAdd, null) ;
+            vehicleToAdd = new NationalVehicle(vehicleDTO.getId(), tagToAdd, null) ;
 
             try{
-                repository.addVehicle(vehicleToAdd);
+                vehicleToAdd = repository.addVehicle(vehicleToAdd).orElseThrow();
 
             }catch (Exception e){
-                System.err.println(e.getMessage());
+                System.err.println("Error al guardar vehicle en PaymentModule: " + e.getMessage());
                 throw e;
             }
         }
+
+        User user = repository.getUserById(vehicleEvent.getUserId());
+
+        Link link = new Link(null, true, vehicleToAdd, LocalDate.now());
+        link.setUser(user);
+
+        repository.saveLink(link);
     }
 
 

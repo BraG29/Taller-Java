@@ -5,6 +5,7 @@ import com.traffic.dtos.account.CreditCardDTO;
 import com.traffic.dtos.user.UserDTO;
 import com.traffic.dtos.vehicle.TagDTO;
 import com.traffic.dtos.vehicle.VehicleDTO;
+import com.traffic.payment.domain.entities.Link;
 import com.traffic.payment.domain.entities.TollPass;
 import com.traffic.exceptions.InternalErrorException;
 import com.traffic.payment.domain.entities.User;
@@ -12,10 +13,13 @@ import com.traffic.payment.domain.entities.Vehicle;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public interface PaymentRepository{
 
-    public void addVehicle(Vehicle vehicleToAdd) throws Exception;
+    public Optional<Vehicle> addVehicle(Vehicle vehicleToAdd) throws Exception;
+
+    public void saveLink(Link link);
 
     public void initialize();
 

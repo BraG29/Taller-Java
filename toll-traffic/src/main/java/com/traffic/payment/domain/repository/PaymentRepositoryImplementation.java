@@ -7,10 +7,7 @@ import com.traffic.dtos.vehicle.TagDTO;
 import com.traffic.dtos.vehicle.VehicleDTO;
 import com.traffic.events.CreditCardPaymentEvent;
 import com.traffic.exceptions.InternalErrorException;
-import com.traffic.payment.domain.entities.Tag;
-import com.traffic.payment.domain.entities.TollPass;
-import com.traffic.payment.domain.entities.User;
-import com.traffic.payment.domain.entities.Vehicle;
+import com.traffic.payment.domain.entities.*;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
@@ -24,6 +21,7 @@ import jakarta.transaction.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @ApplicationScoped
@@ -38,17 +36,28 @@ public class PaymentRepositoryImplementation implements PaymentRepository {
     EntityManager em;
 
     @Override
-    public void addVehicle(Vehicle vehicleToAdd) throws Exception {
+    @Transactional
+    public Optional<Vehicle> addVehicle(Vehicle vehicleToAdd) throws Exception {
 
         vehicleToAdd.setTag(em.merge(vehicleToAdd.getTag()));
        // vehicleToAdd.setPlate(em.merge(vehicleToAdd.getPlate()));
 
         try {
-            em.persist(vehicleToAdd);
+            Vehicle vehicle = em.merge(vehicleToAdd);
             em.flush();
+            return Optional.of(vehicle);
+
         } catch (Exception e) {
-            throw new Exception("No se pudo dar de alta vehiculo para POSTPago" );
+            System.err.println("No se pudo dar de alta vehiculo para POSTPago: " + e.getMessage());
+            return Optional.empty();
         }
+    }
+
+    @Override
+    @Transactional
+    public void saveLink(Link link) {
+        em.persist(link);
+        em.flush();
     }
 
     @PostConstruct
@@ -147,7 +156,7 @@ public class PaymentRepositoryImplementation implements PaymentRepository {
     public Vehicle findVehicleByTag(TagDTO tagDTO) throws InternalErrorException {
         try {
             //I get the Tag domain object from the vehicle I want to find
-//            Tag tag = em.find(Tag.class, tagDTO.getId());
+            Tag tag = em.find(Tag.class, tagDTO.getId());
 
             //I get Criteria Builder
             CriteriaBuilder cBuilder = em.getCriteriaBuilder();
@@ -160,7 +169,8 @@ public class PaymentRepositoryImplementation implements PaymentRepository {
             //credit card payment
 
             //SELECT * FROM Payment_Vehicle WHERE TagID = tagDTO
-            cQuery.select(root).where(cBuilder.equal(root.get("tag").get("uniqueId"), UUID.fromString(tagDTO.getUniqueId())));
+//            cQuery.select(root).where(cBuilder.equal(root.get("tag").get("uniqueId"), UUID.fromString(tagDTO.getUniqueId())));
+            cQuery.select(root).where(cBuilder.equal(root.get("tag"), tag));
 
             return em.createQuery(cQuery).getSingleResult();
         }
