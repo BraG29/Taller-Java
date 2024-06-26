@@ -37,6 +37,20 @@ public class PaymentRepositoryImplementation implements PaymentRepository {
     EntityManager session;
     EntityManager em;
 
+    @Override
+    public void addVehicle(Vehicle vehicleToAdd) throws Exception {
+
+        vehicleToAdd.setTag(em.merge(vehicleToAdd.getTag()));
+       // vehicleToAdd.setPlate(em.merge(vehicleToAdd.getPlate()));
+
+        try {
+            em.persist(vehicleToAdd);
+            em.flush();
+        } catch (Exception e) {
+            throw new Exception("No se pudo dar de alta vehiculo para POSTPago" );
+        }
+    }
+
     @PostConstruct
     public void initialize(){
         em = session.getEntityManagerFactory().createEntityManager();
