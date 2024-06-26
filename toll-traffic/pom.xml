@@ -153,8 +153,13 @@
                 <artifactId>wildfly-maven-plugin</artifactId>
                 <version>5.0.0.Final</version>
                 <configuration>
-                    <version>${wildfly.version}</version>
+<!--                    <version>${wildfly.version}</version>-->
                     <server-config>standalone-full.xml</server-config>
+                    <provisioning-dir>
+                        <!--suppress UnresolvedMavenProperty -->
+                        ${env.JBOSS_HOME}
+                    </provisioning-dir>
+
                     <add-user>
                         <users>
                             <user>
@@ -175,6 +180,7 @@
 
                     <scripts>
                         <script>config.cli</script>
+                        <script>queue.config</script>
                     </scripts>
 
                 </configuration>
@@ -188,8 +194,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>15</source>
-                    <target>15</target>
+                    <source>16</source>
+                    <target>16</target>
                 </configuration>
             </plugin>
 
