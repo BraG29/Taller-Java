@@ -44,6 +44,17 @@ public class SuciveRepositoryImplementation  implements SuciveRepository {
     }
 
     @Override
+    public void addVehicle(NationalVehicle vehicleToAdd) throws Exception {
+
+        try {
+            em.persist(vehicleToAdd);
+            em.flush();
+        } catch (Exception e) {
+            throw new Exception("No se pudo dar de alta vehiculo nacional con placa: " +  vehicleToAdd.getPlate() + " para sucive" );
+        }
+    }
+
+    @Override
     public void addUser(User user){
             em.persist(user);
             em.flush();
@@ -100,7 +111,6 @@ public class SuciveRepositoryImplementation  implements SuciveRepository {
     }
 
 
-    //TODO add event to inform about the added TollPass, use TollPassDTO
     @Override
     public void updateVehicleTollPass(LicensePlateDTO licensePlateDTO, Double amount) throws InvalidVehicleException, InternalErrorException {
         //I find the national vehicle I will be updating
