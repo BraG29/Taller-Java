@@ -47,6 +47,7 @@ public class TariffRepositoryImpl implements TariffRepository {
     }
 
     @Override
+    @Transactional
     public Optional<Tariff> save(Tariff tariff) {
         return Optional.ofNullable(em.merge(tariff));
     }

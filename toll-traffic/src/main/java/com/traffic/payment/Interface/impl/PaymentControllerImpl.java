@@ -6,6 +6,7 @@ import com.traffic.dtos.user.UserDTO;
 import com.traffic.dtos.vehicle.*;
 import com.traffic.events.CreditCardRejectedEvent;
 import com.traffic.events.NewUserEvent;
+import com.traffic.events.VehicleAddedEvent;
 import com.traffic.exceptions.ExternalApiException;
 import com.traffic.exceptions.InternalErrorException;
 import com.traffic.exceptions.InvalidVehicleException;
@@ -13,6 +14,7 @@ import com.traffic.exceptions.NoCustomerException;
 import com.traffic.payment.Interface.PaymentController;
 import com.traffic.payment.domain.entities.*;
 import com.traffic.payment.domain.repository.PaymentRepository;
+import com.traffic.sucive.domain.entities.LicensePlate;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.enterprise.event.Observes;
@@ -40,7 +42,8 @@ public class PaymentControllerImpl implements PaymentController {
 
 
     @Override
-    public void customerRegistration(@Observes NewUserEvent userEvent) throws ExternalApiException, NoCustomerException, InternalErrorException{
+    public void vehicleRegistration(@Observes VehicleAddedEvent vehicleEvent) throws Exception {
+
 
         //TODO would be to move my DTO to Domain object functions to my Domain classes
 
@@ -48,6 +51,63 @@ public class PaymentControllerImpl implements PaymentController {
         UserDTO user = userEvent.getUser();
 
         System.out.println("Usuario con ID:  "+user.getId() + " pasando por Metodo de Pago");
+
+        if (vehicleEvent.getVehicle() instanceof ForeignVehicleDTO) {
+
+            //we get the National Vehicle and cast it from the event
+            ForeignVehicleDTO vehicleDTO = (ForeignVehicleDTO) vehicleEvent.getVehicle();
+
+            //we get the TagDTO from the vehicleDTO
+            TagDTO tagDTO = vehicleDTO.getTagDTO();
+
+            //we form the Tag from the TagDTO
+            Tag tagToAdd = new Tag(tagDTO.getId());
+
+
+            ForeignVehicle vehicleToAdd = new ForeignVehicle(vehicleDTO.getId(), tagToAdd) ;
+
+            try{
+                repository.addVehicle(vehicleToAdd);
+
+            }catch (Exception e){
+                System.err.println(e.getMessage());
+                throw e;
+            }
+        }else{
+
+            //we get the National Vehicle and cast it from the event
+            NationalVehicleDTO vehicleDTO = (NationalVehicleDTO) vehicleEvent.getVehicle();
+
+            //we get the TagDTO from the vehicleDTO
+            TagDTO tagDTO = vehicleDTO.getTagDTO();
+
+            //we form the Tag from the TagDTO
+            Tag tagToAdd = new Tag(tagDTO.getId());
+
+
+            NationalVehicle vehicleToAdd = new NationalVehicle(vehicleDTO.getId(), tagToAdd, null) ;
+
+            try{
+                repository.addVehicle(vehicleToAdd);
+
+            }catch (Exception e){
+                System.err.println(e.getMessage());
+                throw e;
+            }
+        }
+    }
+
+
+    @Override
+    public void customerRegistration(@Observes NewUserEvent userEvent) throws ExternalApiException, NoCustomerException, InternalErrorException{
+
+        //TODO would be to move my DTO to Domain object functions to my Domain classes
+
+        //I get the userDTO from the event that called this function
+        UserDTO user = userEvent.getUser();
+
+        System.out.println(user.getId());
+
 
         User userToAdd = new User(
                 null,
@@ -206,30 +266,6 @@ public class PaymentControllerImpl implements PaymentController {
     public Optional<List<Double>> paymentInquiry(UserDTO userDTO,
                                                  VehicleDTO vehicleDTO) throws NoCustomerException, InvalidVehicleException {
 
-//        //I get all the links from the user
-//        ArrayList<LinkDTO> userLinks = (ArrayList<LinkDTO>) user.getLinkedVehicles();
-//
-//        //the final Array List with all of the costs for the given user
-//        ArrayList<Double> allPayments = new ArrayList<>();
-//
-//        for (LinkDTO link : userLinks){
-//            VehicleDTO userVehicleDTO  = link.getVehicle();
-//
-//            if (userVehicleDTO.equals(vehicle)){
-//                ArrayList<TollPassDTO> tollPassDTOArrayList = (ArrayList<TollPassDTO>) userVehicleDTO.getTollPassDTO();
-//
-//                for(TollPassDTO toll : tollPassDTOArrayList) {
-//
-//                    if (toll.getPaymentType() != PaymentTypeData.SUCIVE){//again, I only get toll payments from pre & post pagos
-//
-//                        allPayments.add(toll.getCost());
-//                    }
-//                }
-//                return Optional.of(allPayments);
-//            }
-//        }
-//        return Optional.empty();
-//    }//this code it's so nested, it makes me wish for WW3. . .
 
         //check for the customer to be properly initialized
         if (userDTO.getTollCustomer() == null) {

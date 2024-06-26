@@ -12,13 +12,19 @@ import com.traffic.events.VehiclePassEvent;
 import com.traffic.exceptions.*;
 import com.traffic.sucive.Interface.SuciveController;
 import com.traffic.toll.Interface.local.TollService;
+import com.traffic.toll.application.PaymentService;
+import com.traffic.toll.application.VehicleService;
 import com.traffic.toll.domain.entities.*;
 import com.traffic.toll.domain.repositories.IdentifierRepository;
 import com.traffic.toll.domain.repositories.TariffRepository;
 import com.traffic.toll.domain.repositories.VehicleRepository;
+import com.traffic.toll.infraestructure.messaging.SendMessageQueueUtil;
+import jakarta.annotation.Resource;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.inject.Inject;
+import jakarta.jms.JMSContext;
+import jakarta.jms.Queue;
 import jakarta.persistence.PersistenceException;
 import jakarta.transaction.Transactional;
 
@@ -30,48 +36,15 @@ import java.util.Optional;
 public class TollServiceImpl implements TollService {
 
     @Inject
-    private ClientController clientController;
-    @Inject
-    private SuciveController suciveController;
-    @Inject
-    private VehicleRepository vehicleRepository;
-    @Inject
-    private IdentifierRepository identifierRepository;
-    @Inject
     private TariffRepository tariffRepository;
     @Inject
+    private PaymentService paymentService;
+    @Inject
+    private VehicleService vehicleService;
+    @Inject
     private Event<CustomEvent> event;
-
-    /**
-     * Operacion para icializar vehiculos de pruebas
-     * TODO: Eliminar para produccion
-     */
-    @Override
-    @Transactional
-    public void initVehicles(){
-        List<Vehicle> vehicles = List.of(
-                new NationalVehicle(null,
-                        identifierRepository.findTagById(1L).orElseThrow(),
-                        identifierRepository.findLicensePlateById(1L).orElseThrow()),
-                new ForeignVehicle(null,
-                        identifierRepository.findTagById(2L).orElseThrow())
-//                ,
-//                new NationalVehicle(null,
-//                        identifierRepository.findTagById(3L).orElseThrow(),
-//                        identifierRepository.findLicensePlateById(2L).orElseThrow()),
-//                new ForeignVehicle(null,
-//                        identifierRepository.findTagById(4L).orElseThrow()),
-//                new NationalVehicle(null,
-//                        identifierRepository.findTagById(5L).orElseThrow(),
-//                        identifierRepository.findLicensePlateById(3L).orElseThrow()),
-//                new ForeignVehicle(null,
-//                        identifierRepository.findTagById(6L).orElseThrow())
-        );
-
-        for(Vehicle v : vehicles){
-            vehicleRepository.save(v);
-        }
-    }
+    @Inject
+    private SendMessageQueueUtil messageQueueUtil;
 
     private void fireTollPass(String message){
         event.fire(new VehiclePassEvent(message));
@@ -79,115 +52,42 @@ public class TollServiceImpl implements TollService {
 
     @Override
     public Optional<Boolean> isEnabled(IdentifierDTO identifier) throws IllegalArgumentException,
+            InternalErrorException,
             InvalidVehicleException{
 
         if (identifier == null) {
-            throw new IllegalArgumentException("identifier is null");
+            throw new IllegalArgumentException("Identifier es null");
         }
 
-        Optional<Vehicle> vehicleOPT = Optional.empty();
-
-        if(identifier instanceof LicensePlateDTO){
-            Optional<LicensePlate> licensePlateOPT = identifierRepository.findLicensePlateById(
-                    identifier.getId());
-
-            vehicleOPT = licensePlateOPT.flatMap(licensePlate ->
-                    vehicleRepository.findByLicensePlate(licensePlate));
-        } else{
-            Optional<Tag> tagOPT = identifierRepository.findTagById(
-                    identifier.getId());
-
-            vehicleOPT = tagOPT.flatMap(tag ->
-                vehicleRepository.findByTag(tag));
-        }
+        Optional<Vehicle> vehicleOPT = vehicleService.getByIdentifier(identifier);
 
         if (vehicleOPT.isPresent()) {
             Vehicle vehicle = vehicleOPT.get();
-            TagDTO tagDTO = new TagDTO(vehicle.getTag().getId(),
-                    vehicleOPT.get().getTag().getUniqueId().toString());
+            final String TOLL_PASS_MESSAGE = "Se habilito la pasada para el vehiculo de tag: %s";
 
-            try {
+            Optional<Tariff> preferentialTariffOPT = tariffRepository.findTariff(PreferentialTariff.class);
+            PreferentialTariff preferentialTariff = (PreferentialTariff) preferentialTariffOPT.orElseThrow(() ->
+                    new InternalErrorException("No hay tarifa preferencial")
+            );
 
-                final String TOLL_PASS_MESSAGE = "Se habilito la pasada para el vehiculo de tag: %s";
-                try {
-                    Optional<Tariff> tariffOPT = tariffRepository.findTariff(PreferentialTariff.class);
-                    PreferentialTariff preferentialTariff = (PreferentialTariff) tariffOPT.orElseThrow(() ->
-                            new InternalErrorException("No hay tarifa preferencial")
-                    );
+            Optional<Tariff> commonTariffOPT = tariffRepository.findTariff(CommonTariff.class);
+            CommonTariff commonTariff = (CommonTariff) commonTariffOPT.orElseThrow(() ->
+                    new InternalErrorException("No hay tarifa comun")
+            );
 
-                    Optional<List<AccountDTO>> accountsOPT = clientController.getAccountByTag(tagDTO);
-
-                    List<AccountDTO> accountDTOS = accountsOPT.orElseThrow();
-
-                    if (accountDTOS.stream().anyMatch(a -> a instanceof PrePayDTO)) {
-
-                        PrePayDTO prePayAccount = (PrePayDTO) accountDTOS.stream()
-                                .filter(a -> a instanceof PrePayDTO)
-                                .findFirst()
-                                .get();
-
-                        if (prePayAccount.getBalance() >= preferentialTariff.getAmount()) {
-                            clientController.prePay(preferentialTariff.getAmount(), tagDTO);
-                            this.fireTollPass(TOLL_PASS_MESSAGE.formatted(vehicle.getTag().getUniqueId()));
-                            return Optional.of(true);
-
-                        }else {
-                            clientController.throwEvent(tagDTO);
-                        }
-                    }
-
-                    if (accountDTOS.stream().anyMatch(a -> a instanceof PostPayDTO)) {
-                        clientController.postPay(preferentialTariff.getAmount(), tagDTO);
-                        this.fireTollPass(TOLL_PASS_MESSAGE.formatted(vehicle.getTag().getUniqueId()));
-                        return Optional.of(true);
-                    }
-
-                } catch (NoSuchElementException e) {
-                    System.out.println("El cliente no tiene cuentas");
-
-                } catch (Exception e) {
-                    System.err.printf(("""
-                        Error en %s, de tipo %s: %s
-                        """),
-                        this.getClass(),
-                        e.getClass(),
-                        e.getMessage()
-                    );
-                }
-
-                if (vehicleOPT.get() instanceof NationalVehicle) {
-                    System.out.println("Procediendo a cobro por Sucive");
-                    Optional<Tariff> tariffOPT = tariffRepository.findTariff(CommonTariff.class);
-                    CommonTariff commonTariff = (CommonTariff) tariffOPT.orElseThrow(() ->
-                            new InternalErrorException("No hay tarifa comun")
-                    );
-
-                    LicensePlate licensePlate = ((NationalVehicle) vehicleOPT.get())
-                            .getLicensePlate();
-
-                    LicensePlateDTO licensePlateDTO = new LicensePlateDTO(licensePlate.getId(),
-                            licensePlate.getLicensePlateNumber());
-
-                    suciveController.notifyPayment(licensePlateDTO,
-                            commonTariff.getAmount());
-
-                    this.fireTollPass(TOLL_PASS_MESSAGE.formatted(vehicle.getTag().getUniqueId()));
-                    return Optional.of(true);
-
-                }
-
-            } catch (InternalErrorException e) {
-                //Fatal Error
-                System.err.println(e.getMessage());
-
-            } catch (ExternalApiException e) {
-                System.err.println(e.getMessage());
-
-            }catch (Exception e){
-                System.err.println(e.getMessage());
+            if (vehicle instanceof NationalVehicle) {
+                messageQueueUtil.sendMessage(vehicle.getTag(), commonTariff, preferentialTariff);
+                this.fireTollPass(TOLL_PASS_MESSAGE.formatted(vehicle.getTag().getUniqueId()));
+                return Optional.of(true);
             }
 
-        } else{
+
+            if (paymentService.tryPayment(vehicle, preferentialTariff)) {
+                this.fireTollPass(TOLL_PASS_MESSAGE.formatted(vehicle.getTag().getUniqueId()));
+                return Optional.of(true);
+            }
+
+        }else{
           throw new InvalidVehicleException("No existe vehiculo con esa identificacion");
         }
 

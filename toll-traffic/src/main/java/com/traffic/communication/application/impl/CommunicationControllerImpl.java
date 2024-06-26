@@ -112,11 +112,23 @@ public class CommunicationControllerImpl implements CommunicationController {
 
     @Override
     public void notifyNewCustomer(@Observes NewUserEvent e) {
+
         String content = "Usted se ha dado de alta en el sistema";
 
-        notifyUser(
-                e.getUser().getId(),
-                new Notification(null, LocalDate.now(), content));
+        List<Notification> notifications = new ArrayList<Notification>();
+        notificationRepository
+                .save(new Notification(null, LocalDate.now(), content))
+                .ifPresent(notifications::add);
+
+        UserDTO userDTO = e.getUser();
+        User user = new User(userDTO.getId(),
+                userDTO.getCi(),
+                userDTO.getName(),
+                userDTO.getEmail(),
+                notifications);
+
+        userRepository.save(user);
+        printOnConsole(userDTO, content);
     }
 
     @Override

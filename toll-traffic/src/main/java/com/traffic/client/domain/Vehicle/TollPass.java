@@ -19,7 +19,7 @@ public class TollPass {
     private LocalDate passDate;
     private Double cost;
     private PaymentTypeData paymentType;
-    @ManyToOne
+    @ManyToOne()
     private Vehicle vehicle;
 
 
@@ -31,8 +31,8 @@ public class TollPass {
         this.vehicle = vehicle;
     }
 
-    @Override
-    public String toString(){
-        return "[Id: " + id + " Fecha: " + passDate+ " Costo: " + cost + " Tipo de pago: " + paymentType + "]";
-    }
+//    @Override
+//    public String toString(){
+//        return "[Id: " + id + " Fecha: " + passDate+ " Costo: " + cost + " Tipo de pago: " + paymentType + "]";
+//    }
 }

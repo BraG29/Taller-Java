@@ -1,7 +1,8 @@
 package com.traffic.sucive.Interface.impl;
 
 import com.traffic.dtos.PaymentTypeData;
-import com.traffic.dtos.vehicle.LicensePlateDTO;
+import com.traffic.dtos.vehicle.*;
+import com.traffic.events.VehicleAddedEvent;
 import com.traffic.exceptions.ExternalApiException;
 import com.traffic.exceptions.InternalErrorException;
 import com.traffic.exceptions.InvalidVehicleException;
@@ -10,11 +11,11 @@ import com.traffic.sucive.domain.entities.*;
 import com.traffic.sucive.domain.repository.SuciveRepository;
 //import com.traffic.sucive.domain.vehicle.*;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import okhttp3.*;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +27,41 @@ public class SuciveControllerImpl implements SuciveController {
 
     @Inject
     private SuciveRepository repository;
+
+    @Override
+    public void vehicleRegistration(@Observes VehicleAddedEvent vehicleEvent) throws Exception {
+
+        if (vehicleEvent.getVehicle() instanceof ForeignVehicleDTO) {
+            System.out.println("Vehiculos foráneos no le interesan al modulo sucive");
+            return;
+        }
+
+        //we get the National Vehicle and cast it from the event
+        NationalVehicleDTO vehicleDTO = (NationalVehicleDTO) vehicleEvent.getVehicle();
+
+        //we get the TagDTO from the vehicleDTO
+        TagDTO tagDTO = vehicleDTO.getTagDTO();
+
+        //we get the LicenseDTO from the vehicleDTO
+        LicensePlateDTO licensePlateDTO = vehicleDTO.getLicensePlateDTO();
+
+        //we form the Tag from the TagDTO
+        Tag tagToAdd = new Tag(tagDTO.getId());
+
+        //we form the plate from the LicensePlateDTO
+        LicensePlate plateToAdd = new LicensePlate(licensePlateDTO.getId(), licensePlateDTO.getLicensePlateNumber());
+
+
+        NationalVehicle vehicleToAdd = new NationalVehicle(vehicleDTO.getId(), tagToAdd, null,plateToAdd) ;
+
+        try{
+            repository.addVehicle(vehicleToAdd);
+
+        }catch (Exception e){
+            System.err.println(e.getMessage());
+            throw e;
+        }
+    }
 
     @Override
     public void notifyPayment(LicensePlateDTO licensePlate, Double amount)  throws ExternalApiException, IllegalArgumentException, InvalidVehicleException {

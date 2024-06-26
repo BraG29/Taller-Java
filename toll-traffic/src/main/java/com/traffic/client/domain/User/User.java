@@ -36,7 +36,7 @@ public abstract class User {
     @JoinColumn(name = "tollCustomer_id")
     private TollCustomer tollCustomer;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Link> linkedCars;
 
     public User(){}

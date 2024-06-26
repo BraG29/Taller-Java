@@ -18,8 +18,9 @@ public class Tag {
     @Column(name = "unique_id")
     private UUID uniqueId = UUID.randomUUID();
 
-    public Tag(Long id){
+    public Tag(Long id, UUID uniqueId){
         this.id = id;
+        this.uniqueId = uniqueId;
     }
 
 }
