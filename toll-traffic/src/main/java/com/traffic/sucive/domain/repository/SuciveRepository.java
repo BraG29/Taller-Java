@@ -12,6 +12,8 @@ import java.util.List;
 
 public interface SuciveRepository {
 
+    public void addVehicle(NationalVehicle vehicleToAdd) throws Exception;
+
     public void addUser(User user);
 
     public List<TollPass> getAllTollPasses();
