@@ -159,22 +159,20 @@ public class ClientModuleRepositoryImpl implements ClientModuleRepository{
                 User user = usrOPT.get();
 
                 Tag tag = vehicle.getTag();
-                if(tag.getId() == null){
-                    em.persist(tag);
-                }else{
-                    em.merge(tag);
+
+                vehicle.setTag(em.merge(tag));
+
+                if(vehicle instanceof NationalVehicle){
+                    NationalVehicle nationalVehicle = (NationalVehicle) vehicle;
+                    nationalVehicle.setPlate(em.merge(nationalVehicle.getPlate()));
                 }
 
-                if(vehicle.getId() == null){
-                    vehicle.setTag(tag);
-                    em.persist(vehicle);
-                }
+                em.persist(vehicle);
 
                 Link link = new Link(null, true, vehicle, LocalDate.now());
                 link.setUser(user);
                 em.persist(link);
 
-                em.merge(user);
                 em.flush();
             }
 

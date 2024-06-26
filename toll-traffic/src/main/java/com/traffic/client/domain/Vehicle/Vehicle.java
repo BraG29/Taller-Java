@@ -2,11 +2,15 @@ package com.traffic.client.domain.Vehicle;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Data
+//@Data
+@Getter
+@Setter
 @Entity(name = "ClientModule_Vehicle")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public abstract class Vehicle {
@@ -19,7 +23,7 @@ public abstract class Vehicle {
     @JoinColumn(name = "Tag_id")
     private Tag tag;
 
-    @OneToMany(mappedBy = "vehicle")
+    @OneToMany(mappedBy = "vehicle", fetch = FetchType.EAGER)
     private List<TollPass> tollPass;
 
     public Vehicle(){
