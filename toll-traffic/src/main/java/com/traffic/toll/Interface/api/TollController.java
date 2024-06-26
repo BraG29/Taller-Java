@@ -1,6 +1,7 @@
 package com.traffic.toll.Interface.api;
 
 import com.traffic.dtos.vehicle.IdentifierDTO;
+import com.traffic.exceptions.InternalErrorException;
 import com.traffic.exceptions.InvalidVehicleException;
 import com.traffic.toll.Interface.local.TollService;
 import com.traffic.toll.domain.repositories.VehicleRepository;
@@ -21,18 +22,16 @@ import java.util.NoSuchElementException;
 //@Transactional
 public class TollController {
 
-//    @Inject
-//    private VehicleRepository vehicleRepository;
     @Inject
     private TollService tollService;
 
-    @GET
-    @Path("/initdb")
-    public Response initializeDatabase() {
-        tollService.initVehicles();
-
-        return Response.ok().build();
-    }
+//    @GET
+//    @Path("/initdb")
+//    public Response initializeDatabase() {
+//        tollService.initVehicles();
+//
+//        return Response.ok().build();
+//    }
 
     @POST
     @Path("/isEnable")
@@ -45,16 +44,25 @@ public class TollController {
             responseValue = tollService.isEnabled(identifier).orElseThrow();
 
         } catch (IllegalArgumentException | InvalidVehicleException e) {
-            return Response.status(Response.Status.BAD_REQUEST)
-                    .entity(Json.createObjectBuilder()
-                            .add("error", e.getMessage()))
+            return Response
+                    .status(Response.Status.BAD_REQUEST)
+                    .entity(Json
+                            .createObjectBuilder()
+                            .add("error", e.getMessage())
+                            .build())
                     .build();
 
-        } catch (NoSuchElementException e) {
-            return Response.serverError().build();
+        } catch (InternalErrorException e) {
+            return Response
+                    .serverError()
+                    .entity(Json.createObjectBuilder().add("error", e.getMessage()).build())
+                    .build();
         }
-
-        return Response.ok(responseValue).build();
+        System.out.println("Saliendo por OK - 200");
+        return Response
+                .ok()
+                .entity(Json.createObjectBuilder().add("enable", Boolean.toString(responseValue)).build())
+                .build();
     }
 
     @GET
@@ -65,12 +73,16 @@ public class TollController {
             tollService.updateCommonTariff(amount);
 
         } catch (IllegalArgumentException e){
+            System.err.printf("""
+                    Error en %s: %s 
+                    """, this.getClass(), e.getMessage());
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity(Json.createObjectBuilder()
                             .add("error", e.getMessage()))
                     .build();
 
         } catch (NoSuchElementException | PersistenceException e){
+            e.printStackTrace();
             return Response.serverError().build();
         }
         return Response.ok("La Tarifa comun tiene un nuevo precio").build();

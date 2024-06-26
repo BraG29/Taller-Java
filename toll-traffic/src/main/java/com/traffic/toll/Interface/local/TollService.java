@@ -3,6 +3,7 @@ package com.traffic.toll.Interface.local;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import com.traffic.dtos.vehicle.IdentifierDTO;
+import com.traffic.exceptions.InternalErrorException;
 import com.traffic.exceptions.InvalidVehicleException;
 
 /**
@@ -16,8 +17,6 @@ import com.traffic.exceptions.InvalidVehicleException;
  */
 public interface TollService {
 
-    public void initVehicles();
-
     /** Verifica si un vehiculo esta habilitado para pasar por peaje
      * @param identifier identificador del vehiculo puede ser de tipo {@link com.traffic.dtos.vehicle.TagDTO}
      *                   o {@link com.traffic.dtos.vehicle.LicensePlateDTO}
@@ -25,8 +24,10 @@ public interface TollService {
      *                   si el vehiculo esta habilitado para pasar, caso contrario sera <strong>false</strong>
      * @throws IllegalArgumentException si idenitifier es <code>null</code>
      * @throws InvalidVehicleException si el vehiculo no existe
+     * @throws InternalErrorException si no hay tarifa asignada
      */
     public Optional<Boolean> isEnabled(IdentifierDTO identifier) throws IllegalArgumentException,
+            InternalErrorException,
             InvalidVehicleException;
 
     /**
