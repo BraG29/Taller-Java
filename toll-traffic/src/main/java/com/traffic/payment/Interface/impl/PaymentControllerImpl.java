@@ -44,6 +44,14 @@ public class PaymentControllerImpl implements PaymentController {
     @Override
     public void vehicleRegistration(@Observes VehicleAddedEvent vehicleEvent) throws Exception {
 
+
+        //TODO would be to move my DTO to Domain object functions to my Domain classes
+
+        //I get the userDTO from the event that called this function
+        UserDTO user = userEvent.getUser();
+
+        System.out.println("Usuario con ID:  "+user.getId() + " pasando por Metodo de Pago");
+
         if (vehicleEvent.getVehicle() instanceof ForeignVehicleDTO) {
 
             //we get the National Vehicle and cast it from the event
@@ -100,6 +108,7 @@ public class PaymentControllerImpl implements PaymentController {
 
         System.out.println(user.getId());
 
+
         User userToAdd = new User(
                 null,
                 user.getCi(),
@@ -123,14 +132,24 @@ public class PaymentControllerImpl implements PaymentController {
                               Double amount,
                               CreditCardDTO creditCard) throws ExternalApiException, NoCustomerException, IllegalArgumentException, Exception{
 
+
         //check for the customer to be properly initialized
         if (user.getTollCustomer() == null){
             throw new NoCustomerException("El cliente no está registrado a Telepeaje");
         }
 
+
         if(creditCard == null){
+
+            //card rejected con ID usuario
+            CreditCardRejectedEvent eventToFire = new CreditCardRejectedEvent("No hay Tarjeta de Crédito para usuario con ID: ",
+                    user.getId());
+
+            creditCardRejectedEventPublisher.fire(eventToFire);
+
             throw new Exception("No hay Tarjeta de Credito");
         }
+
 
         LocalDate cardDate = LocalDate.parse(creditCard.getExpireDate(), DateTimeFormatter.ISO_DATE);
         if (cardDate.isBefore(LocalDate.now())){
@@ -159,10 +178,11 @@ public class PaymentControllerImpl implements PaymentController {
             if (response.code() == 200){
                 repository.addTollPassToUserVehicle(user, vehicle, amount, creditCard);
             }else {
+
                 //card rejected con ID usuario
                 CreditCardRejectedEvent eventToFire = new CreditCardRejectedEvent("La tarjeta "
                                                                                                                             + creditCard.getCardNumber()
-                                                                                                                            + " ha sido rechazada",
+                                                                                                                            + " ha sido rechazada para usuario con ID: ",
                                                                                                                             user.getId());
 
                 creditCardRejectedEventPublisher.fire(eventToFire);
@@ -201,13 +221,7 @@ public class PaymentControllerImpl implements PaymentController {
             return Optional.of(allPayments);
         }
     }
-
-    //This functions means that I CARE about what users are registering to other modules
-    //This functions means that I CARE about what users are registering to other modules
-    //This functions means that I CARE about what users are registering to other modules
-    //This functions means that I CARE about what users are registering to other modules
-    //This functions means that I CARE about what users are registering to other modules
-    //This functions means that I CARE about what users are registering to other modules
+    
     @Override
     public Optional<List<Double>> paymentInquiry(UserDTO userDTO) throws NoCustomerException {
 
@@ -252,30 +266,6 @@ public class PaymentControllerImpl implements PaymentController {
     public Optional<List<Double>> paymentInquiry(UserDTO userDTO,
                                                  VehicleDTO vehicleDTO) throws NoCustomerException, InvalidVehicleException {
 
-//        //I get all the links from the user
-//        ArrayList<LinkDTO> userLinks = (ArrayList<LinkDTO>) user.getLinkedVehicles();
-//
-//        //the final Array List with all of the costs for the given user
-//        ArrayList<Double> allPayments = new ArrayList<>();
-//
-//        for (LinkDTO link : userLinks){
-//            VehicleDTO userVehicleDTO  = link.getVehicle();
-//
-//            if (userVehicleDTO.equals(vehicle)){
-//                ArrayList<TollPassDTO> tollPassDTOArrayList = (ArrayList<TollPassDTO>) userVehicleDTO.getTollPassDTO();
-//
-//                for(TollPassDTO toll : tollPassDTOArrayList) {
-//
-//                    if (toll.getPaymentType() != PaymentTypeData.SUCIVE){//again, I only get toll payments from pre & post pagos
-//
-//                        allPayments.add(toll.getCost());
-//                    }
-//                }
-//                return Optional.of(allPayments);
-//            }
-//        }
-//        return Optional.empty();
-//    }//this code it's so nested, it makes me wish for WW3. . .
 
         //check for the customer to be properly initialized
         if (userDTO.getTollCustomer() == null) {
