@@ -53,6 +53,8 @@ public class CommunicationControllerImpl implements CommunicationController {
 //    @Transactional
     private void notifyUser(Long userId, Notification notification) {
 
+        System.out.println("Entrando a notifyUser()--------------------------:::::::::::::::::::::::::::::>>>>>>>>>>>>>>>>>>>>");
+
         userRepository.findById(userId).ifPresent(u -> {
             notificationRepository.save(notification).ifPresent(n -> {
                 u.getNotifications().add(n);

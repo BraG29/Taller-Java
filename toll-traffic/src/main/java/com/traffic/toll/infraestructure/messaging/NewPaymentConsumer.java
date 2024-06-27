@@ -7,7 +7,6 @@ import com.traffic.toll.application.VehicleService;
 import com.traffic.toll.domain.entities.CommonTariff;
 import com.traffic.toll.domain.entities.NationalVehicle;
 import com.traffic.toll.domain.entities.PreferentialTariff;
-import com.traffic.toll.domain.entities.Vehicle;
 import jakarta.ejb.ActivationConfigProperty;
 import jakarta.ejb.MessageDriven;
 import jakarta.inject.Inject;
@@ -43,7 +42,6 @@ public class NewPaymentConsumer implements MessageListener {
     public void onMessage(Message message) {
         try {
             String body = message.getBody(String.class);
-            System.out.println("Contenido del Body:\n" + body);
             PaymentMessage paymentMessage = PaymentMessage.readFromJson(body);
             IdentifierDTO identifier = new TagDTO(paymentMessage.tagId(), "");
             //Si el vehiculo llega a la queue es porque es vehiculo nacional seguro.

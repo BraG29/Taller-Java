@@ -59,10 +59,10 @@ public class PaymentServiceImpl implements PaymentService {
             if (prePayAccount.getBalance() >= preferentialTariff.getAmount()) {
                 try{
                     clientController.prePay(preferentialTariff.getAmount(), tagDTO);
+                    return true;
 
                 }catch (Exception e){
                     System.err.println("No se pudo concretar el pago por PrePaga: " + e.getMessage());
-                    return false;
                 }
 
             }else {
@@ -70,7 +70,6 @@ public class PaymentServiceImpl implements PaymentService {
                     clientController.throwEvent(tagDTO);
                 }catch (Exception e) {
                     System.err.println("Error al lanzar el evento de saldo insuficiente: " + e.getMessage());
-                    return false;
                 }
             }
         }
@@ -78,14 +77,14 @@ public class PaymentServiceImpl implements PaymentService {
         if (accountDTOS.stream().anyMatch(a -> a instanceof PostPayDTO)) {
             try {
                 clientController.postPay(preferentialTariff.getAmount(), tagDTO);
+                return true;
 
             }catch (Exception e){
                 System.out.println("No se pudo concretar el pago por PostPaga: " + e.getMessage());
-                return false;
             }
         }
 
-        return true;
+        return false;
     }
 
     @Override
